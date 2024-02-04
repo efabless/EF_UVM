@@ -1,0 +1,49 @@
+
+RED=\033[0;31m
+GREEN=\033[0;32m
+YELLOW=\033[0;33m
+NC=\033[0m # No Color
+
+# Target to run a single test
+define RUN_TEST_TEMPLATE
+run_$(1):
+	@echo "Running test: $(1) with tag: $(SIM_TAG)"
+	@mkdir -p $(SIM_PATH)/compilation
+	@mkdir -p $(SIM_PATH)/$(1)
+	@if [ ! -f "$(SIM_PATH)/compilation/sim.vvp" ]; then \
+        echo "Compiling since sim.vvp does not exist..."; \
+        iverilog -g2012 -Ttyp $(RTL_MACROS) $(VERILOG_SOURCES) -o $(SIM_PATH)/compilation/sim.vvp -s top; \
+    fi
+	@$(MAKE) create_top_py UVM_TEST=$(1)
+	@cd $(SIM_PATH)/$(1) &&  MODULE=top_module vvp -M $$(shell cocotb-config --lib-dir) -m $$(shell cocotb-config --lib-name vpi icarus) $(SIM_PATH)/compilation/sim.vvp +UVM_TESTNAME=$(1) +TEST_PATH=$(SIM_PATH)/$(1) +YAML_FILE=$(YAML_FILE) COCOTB_RESULTS_FILE=$(SIM_PATH)/$(1)/results.xml > $(SIM_PATH)/$(1)/test.log 2>&1
+	@echo "Checking test results..."
+	@if grep -q "UVM TEST FAIL" $(SIM_PATH)/$(1)/test.log; then \
+		echo "Test Failed" > $(SIM_PATH)/$(1)/failed; \
+		echo "$$(RED)Test $(1) Failed$$(NC)" ; \
+	elif grep -q "UVM TEST PASSED" $(SIM_PATH)/$(1)/test.log; then \
+		echo "Test Passed" > $(SIM_PATH)/$(1)/passed; \
+		echo "$$(GREEN)Test $(1) Passed$$(NC)" ; \
+	else \
+		echo "Test Result Unknown" > $(SIM_PATH)/$(1)/unknown; \
+		echo "$$(YELLOW)Test $(1) Result Unknown$$(NC)" ; \
+	fi
+endef
+
+$(foreach test,$(TESTS),$(eval $(call RUN_TEST_TEMPLATE,$(test))))
+
+# Target to run all tests in parallel
+run_all_tests:
+	@$(MAKE) $(addprefix run_,$(TESTS)) -j$(shell nproc)
+
+create_top_py:
+	@echo "from os import path" > $(SIM_PATH)/$(UVM_TEST)/top_module.py
+	@echo "import sys" >> $(SIM_PATH)/$(UVM_TEST)/top_module.py
+	@echo "sys.path.append(path.abspath('$(PWD)'))" >> $(SIM_PATH)/$(UVM_TEST)/top_module.py
+	@echo "from test_lib import *" >> $(SIM_PATH)/$(UVM_TEST)/top_module.py
+
+run_merge_coverage:
+	@python3 $(PWD)/merge_cov.py $(SIM_PATH)
+
+clean_sim:
+	@echo "Cleaning up..."
+	@rm -rf $(PWD)/sim
