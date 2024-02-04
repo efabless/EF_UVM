@@ -1,0 +1,11 @@
+*.yalm
+*.html
+*.pyc
+*/__pycache__/
+*.code-workspace
+*.log
+*.vcd
+/sim/
+/coverageReports/
+*.xml
+*.gtkw
