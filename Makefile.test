@@ -34,6 +34,7 @@ $(foreach test,$(TESTS),$(eval $(call RUN_TEST_TEMPLATE,$(test))))
 # Target to run all tests in parallel
 run_all_tests:
 	@$(MAKE) $(addprefix run_,$(TESTS)) -j$(shell nproc)
+	$(MAKE) run_merge_coverage
 
 create_top_py:
 	@echo "from os import path" > $(SIM_PATH)/$(UVM_TEST)/top_module.py

@@ -4,6 +4,7 @@ from EF_UVM.ip_env.ip_agent.ip_agent import ip_agent
 from EF_UVM.ip_env.ip_coverage.ip_coverage import ip_coverage
 from EF_UVM.ip_env.ip_logger.ip_logger import ip_logger
 from uvm.tlm1.uvm_analysis_port import UVMAnalysisExport
+from uvm.base.uvm_config_db import UVMConfigDb
 
 
 class ip_env(UVMEnv):
@@ -27,15 +28,29 @@ class ip_env(UVMEnv):
 
     def build_phase(self, phase):
         self.ip_agent = ip_agent.type_id.create("ip_agent", self)
-        self.coverage_comp = ip_coverage.type_id.create("ip_coverage", self)
-        self.logger_comp = ip_logger.type_id.create("ip_logger", self)
+        collect_cov = []
+        if (not UVMConfigDb.get(self, "", "collect_coverage", collect_cov)):
+            collect_cov = False
+        else:
+            collect_cov = collect_cov[0]
+        if (collect_cov):
+            self.coverage_comp = ip_coverage.type_id.create("ip_coverage", self)
+        disable_logger = []
+        if (not UVMConfigDb.get(self, "", "disable_logger", disable_logger)):
+            disable_logger = False
+        else:
+            disable_logger = disable_logger[0]
+        if not disable_logger:
+            self.logger_comp = ip_logger.type_id.create("ip_logger", self)
         pass
 
     def connect_phase(self, phase):
         self.ip_agent.agent_export.connect(self.ip_env_export)
         self.ip_agent.agent_irq_export.connect(self.ip_env_irq_export)
-        self.ip_agent.agent_export.connect(self.coverage_comp.analysis_imp)
-        self.ip_agent.agent_export.connect(self.logger_comp.analysis_imp)
+        if self.coverage_comp is not None:
+            self.ip_agent.agent_export.connect(self.coverage_comp.analysis_imp)
+        if self.logger_comp is not None:
+            self.ip_agent.agent_export.connect(self.logger_comp.analysis_imp)
         pass
 
 

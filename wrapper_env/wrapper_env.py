@@ -4,6 +4,7 @@ from EF_UVM.wrapper_env.wrapper_agent.wrapper_agent import wrapper_agent
 from EF_UVM.wrapper_env.wrapper_coverage.wrapper_coverage import wrapper_coverage
 from EF_UVM.wrapper_env.wrapper_logger.wrapper_logger import wrapper_logger
 from uvm.tlm1.uvm_analysis_port import UVMAnalysisExport
+from uvm.base.uvm_config_db import UVMConfigDb
 
 
 class wrapper_env(UVMEnv):
@@ -24,16 +25,30 @@ class wrapper_env(UVMEnv):
 
     def build_phase(self, phase):
         self.wrapper_agent = wrapper_agent.type_id.create("wrapper_agent", self)
-        self.coverage_comp = wrapper_coverage.type_id.create("wrapper_coverage", self)
-        self.logger_comp = wrapper_logger.type_id.create("wrapper_logger", self)
+        collect_cov = []
+        if (not UVMConfigDb.get(self, "", "collect_coverage", collect_cov)):
+            collect_cov = False
+        else:
+            collect_cov = collect_cov[0]
+        if (collect_cov):
+            self.coverage_comp = wrapper_coverage.type_id.create("wrapper_coverage", self)
+        disable_logger = []
+        if (not UVMConfigDb.get(self, "", "disable_logger", disable_logger)):
+            disable_logger = False
+        else:
+            disable_logger = disable_logger[0]
+        if not disable_logger:
+            self.logger_comp = wrapper_logger.type_id.create("wrapper_logger", self)
         pass
 
     def connect_phase(self, phase):
         self.wrapper_agent.agent_bus_export.connect(self.wrapper_bus_export)
         self.wrapper_agent.agent_irq_export.connect(self.wrapper_irq_export)
-        self.wrapper_agent.agent_bus_export.connect(self.coverage_comp.analysis_imp_bus)
-        self.wrapper_agent.agent_irq_export.connect(self.coverage_comp.analysis_imp_irq)
-        self.wrapper_agent.agent_bus_export.connect(self.logger_comp.analysis_imp_bus)
+        if self.coverage_comp is not None:
+            self.wrapper_agent.agent_bus_export.connect(self.coverage_comp.analysis_imp_bus)
+            self.wrapper_agent.agent_irq_export.connect(self.coverage_comp.analysis_imp_irq)
+        if self.logger_comp is not None:
+            self.wrapper_agent.agent_bus_export.connect(self.logger_comp.analysis_imp_bus)
         pass
 
 
