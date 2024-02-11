@@ -20,7 +20,7 @@ class wrapper_driver(UVMDriver):
             self.sigs = arr[0]
 
     async def run_phase(self, phase):
-        uvm_info(self.tag, "run_phase started", UVM_HIGH)
+        uvm_info(self.tag, "run_phase started", UVM_MEDIUM)
         await self.reset()
 
         while True:

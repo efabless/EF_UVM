@@ -98,7 +98,7 @@ class wrapper_logger(UVMComponent):
                 for field in self.regs.regs[transaction.addr]["fields"]:
                     the_type = "FIELD"
                     Name = f"{field['name']}"
-                    data = f"{hex((transaction.data>>field['bit_offset'])&((1 << field['bit_width']) - 1))}"
+                    data = f"{hex((transaction.data>>int(field['bit_offset']))&((1 << int(field['bit_width'])) - 1))}"
                     # Now, assemble your table_data with the pre-formatted fields
                     table_data = [f"{sim_time}", f"{the_type}", f"{Name}", f"{data}"]
                     table = self.format_row(table_data)

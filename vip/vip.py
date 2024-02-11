@@ -5,6 +5,7 @@ from uvm.macros import uvm_component_utils, uvm_info
 from uvm.tlm1.uvm_analysis_port import UVMAnalysisExport
 from uvm.macros.uvm_tlm_defines import uvm_analysis_imp_decl
 import cocotb
+from EF_UVM.wrapper_env.wrapper_item import wrapper_bus_item
 
 uvm_analysis_imp_bus = uvm_analysis_imp_decl("_bus")
 uvm_analysis_imp_ip = uvm_analysis_imp_decl("_ip")
@@ -36,7 +37,7 @@ class VIP(UVMComponent):
         pass
 
     def write_bus(self, tr):
-        uvm_info(self.tag, "Vip write: " + tr.convert2string(), UVM_MEDIUM)
+        uvm_info(self.tag, "Vip write: " + tr.convert2string(), UVM_HIGH)
         pass
 
     def write_ip(self, tr):

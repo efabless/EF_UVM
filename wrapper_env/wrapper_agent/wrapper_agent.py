@@ -42,7 +42,8 @@ class wrapper_agent(UVMAgent):
     def connect_phase(self, phase):
         self.driver.seq_item_port.connect(self.wrapper_sequencer.seq_item_export)
         self.bus_monitor.monitor_port.connect(self.agent_bus_export)
-        self.irq_monitor.monitor_port.connect(self.agent_irq_export)
+        if self.irq_monitor is not None:
+            self.irq_monitor.monitor_port.connect(self.agent_irq_export)
         pass
 
 

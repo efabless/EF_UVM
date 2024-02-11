@@ -15,8 +15,11 @@ class wrapper_regs():
                 self.data = json.load(file)
             elif design_file.endswith('.yaml') or design_file.endswith('.yml'):
                 self.data = yaml.safe_load(file)
-        parameter_values = {param["name"]: param["default"] for param in self.data["parameters"]}
-        self.replace_parameters(self.data, parameter_values)
+        try:
+            parameter_values = {param["name"]: param["default"] for param in self.data["parameters"]}
+            self.replace_parameters(self.data, parameter_values)
+        except KeyError:
+            pass
         self.init_regs()
         uvm_info(self.tag, f"Regs: {self.regs}", UVM_HIGH)
 
@@ -40,7 +43,10 @@ class wrapper_regs():
             if "init" not in reg:
                 reg["val"] = 0
             else:
-                reg["val"] = int(reg["init"][2:], 16)
+                try:
+                    reg["val"] = int(reg["init"], 16)
+                except ValueError:
+                    reg["val"] = int(reg["init"])
             regs[int(reg["offset"])] = reg
         self.regs = regs
         self.reg_name_to_address = {info['name']: address for address, info in self.regs.items()}

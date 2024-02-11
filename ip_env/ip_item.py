@@ -7,6 +7,7 @@ from uvm.base.sv import sv
 class ip_item(UVMSequenceItem):
     def __init__(self, name="ip_item"):
         super().__init__(name)
+        self.tag = name
         pass
 
     def convert2string(self):

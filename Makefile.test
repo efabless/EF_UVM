@@ -3,6 +3,7 @@ RED=\033[0;31m
 GREEN=\033[0;32m
 YELLOW=\033[0;33m
 NC=\033[0m # No Color
+NUM_ITERATIONS := 3
 
 # Target to run a single test
 define RUN_TEST_TEMPLATE
@@ -45,6 +46,25 @@ create_top_py:
 run_merge_coverage:
 	@python3 $(PWD)/merge_cov.py $(SIM_PATH)
 
+run_all_tests_multiple:
+	@for i in $$(seq 1 $(NUM_ITERATIONS)); do \
+		TAG="run$$i" ; \
+		$(MAKE) run_all_tests SIM_TAG=$$TAG ; \
+	done
+
 clean_sim:
 	@echo "Cleaning up..."
 	@rm -rf $(PWD)/sim
+
+
+# Target to clean directories under sim/ with a file named passed, including their parent directories up to sim/
+clean_passed_dirs:
+	@echo "Cleaning directories with a passed test and their parents up to sim..."
+	@find $(PWD)/sim -type f -name passed | while read passed_file; do \
+		dir=$$(dirname $$passed_file); \
+		while [ "$$dir" != "$(PWD)/sim" -a "$$dir" != "$(PWD)" ]; do \
+			echo "Cleaning $$dir..."; \
+			rm -rf $$dir; \
+			dir=$$(dirname $$dir); \
+		done; \
+	done
