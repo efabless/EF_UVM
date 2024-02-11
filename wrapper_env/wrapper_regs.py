@@ -44,7 +44,7 @@ class wrapper_regs():
                 reg["val"] = 0
             else:
                 try:
-                    reg["val"] = int(reg["init"], 16)
+                    reg["val"] = int(reg["init"][2:], 16)
                 except ValueError:
                     reg["val"] = int(reg["init"])
             regs[int(reg["offset"])] = reg
