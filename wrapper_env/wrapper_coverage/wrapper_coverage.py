@@ -27,9 +27,9 @@ class wrapper_coverage(UVMComponent):
         if (not UVMConfigDb.get(self, "", "wrapper_regs", arr)):
             uvm_fatal(self.tag, "No json file wrapper regs")
         else:
-            regs = arr[0]
+            self.regs = arr[0]
 
-        self.cov_groups = wrapper_cov_groups("top.wrapper", regs.get_regs(), regs.get_irq_exist())
+        self.cov_groups = wrapper_cov_groups("top.wrapper", self.regs.get_regs(), self.regs.get_irq_exist())
 
     def write_bus(self, tr):
         uvm_info(self.tag, "get bus coverage for " + tr.convert2string(), UVM_HIGH)

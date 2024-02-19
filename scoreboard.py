@@ -4,7 +4,7 @@ from uvm.macros import uvm_component_utils, uvm_info, uvm_error
 from cocotb.queue import Queue
 import cocotb
 from EF_UVM.wrapper_env.wrapper_item import wrapper_bus_item
-from uvm.base.uvm_object_globals import UVM_MEDIUM, UVM_LOW
+from uvm.base.uvm_object_globals import UVM_MEDIUM, UVM_LOW, UVM_HIGH
 from EF_UVM.ip_env.ip_item import ip_item
 
 
@@ -58,6 +58,8 @@ class scoreboard(UVMScoreboard):
             exp = await self.q_bus_vip.get()
             if not val.do_compare(exp):
                 uvm_error(self.tag, "Bus mismatch: " + val.convert2string() + " != " + exp.convert2string())
+            else:
+                uvm_info(self.tag, "Bus match: " + val.convert2string() + " == " + exp.convert2string(), UVM_HIGH)
 
     def write_irq(self, tr):
         uvm_info(self.tag, "write_irq: " + tr.convert2string(), UVM_MEDIUM)

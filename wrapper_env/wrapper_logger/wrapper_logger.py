@@ -105,7 +105,6 @@ class wrapper_logger(UVMComponent):
                     table = self.format_row(table_data)
                     with open(self.logger_file_regs_w, 'a') as f:
                         f.write(f"{table}\n")
-                    
 
     def format_row(self, row_data):
         # Define a max width for each column
