@@ -29,7 +29,7 @@ class write_read_regs(UVMSequence):
         self.address = list(self.regs_dict.keys())
         # remove non read write addresses
         uvm_info(self.tag, "Got addresses: " + str(self.address), UVM_LOW)
-        self.address = [addr for addr in self.address if self.regs_dict[addr]["mode"] == "wr"]
+        self.address = [addr for addr in self.address if self.regs_dict[addr]["mode"] == "w" and self.regs_dict[addr]["fifo"] is False]
         uvm_info(self.tag, "Got addresses: " + str(self.address), UVM_LOW)
         self.add_cov_notify()
         for i in range(3000):

@@ -32,7 +32,7 @@ class wrapper_regs():
             reg_im = {'name': 'im', "offset" : 0xf00,'size': size, 'mode': 'w', 'fifo': "no","bit_access": "no", "val": 0}
             reg_mis = {'name': 'mis', "offset" : 0xf04,'size': size, 'mode': 'r', 'fifo': "no","bit_access": "no", "val": 0}
             reg_ris = {'name': 'ris', "offset" : 0xf08,'size': size, 'mode': 'r', 'fifo': "no","bit_access": "no", "val": 0}
-            reg_icr = {'name': 'icr', "offset" : 0xf0c, 'size': size, 'mode': 'wo', 'fifo': "no","bit_access": "no", "val": 0}
+            reg_icr = {'name': 'icr', "offset" : 0xf0c, 'size': size, 'mode': 'w', 'fifo': "yes","bit_access": "no", "val": 0}
             address = 0xf00
             self.data["registers"].append(reg_im)
             self.data["registers"].append(reg_mis)

@@ -55,7 +55,7 @@ class wrapper_cov_groups():
                     # skip non write or read fields
                     if access == "write" and "w" not in reg["mode"]:
                         continue
-                    if access == "read" and "r" not in reg["mode"]:
+                    if access == "read" and reg["fifo"] and "w" in reg["mode"]:
                         continue
                     reg_size = int(reg["size"])
                     if reg_size < 5:
@@ -81,7 +81,7 @@ class wrapper_cov_groups():
                     for access in ["write", "read"]:
                         if access == "write" and "w" not in reg["mode"]:
                             continue
-                        if access == "read" and "r" not in reg["mode"]:
+                        if access == "read" and reg["fifo"] and "w" in reg["mode"]:
                             continue
                         field_size = int(field["bit_width"])
                         field_start = int(field["bit_offset"])
