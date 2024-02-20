@@ -17,7 +17,7 @@ run_$(1):
 	@mkdir -p $(SIM_PATH)/$(1)
 	@if [ ! -f "$(SIM_PATH)/compilation/sim.vvp" ]; then \
         echo "Compiling since sim.vvp does not exist..."; \
-        docker run --rm --init -it --sig-proxy=true\
+        docker run --rm \
 		-v "$(GRANDPARENT_DIR)":"$(GRANDPARENT_DIR)" \
 		-e RTL_MACROS="$(RTL_MACROS)" \
 		-e VERILOG_SOURCES="$(VERILOG_SOURCES)" \
