@@ -7,7 +7,8 @@ NUM_ITERATIONS := 3
 UVM_PY_DIR = $(PWD)
 GRANDPARENT_DIR:="$(shell cd ../../; pwd)"
 DOCKER_IMAGE = efabless/dv:cocotb
-DOCKER_COCOTB_LIB_DIR := $(shell docker run --rm efabless/dv:cocotb cocotb-config --lib-dir)
+RUN_MERGE_COVERAGE := true
+DOCKER_COCOTB_LIB_DIR := $(shell docker run --rm $(DOCKER_IMAGE) cocotb-config --lib-dir)
 
 # Target to run a single test
 define RUN_TEST_TEMPLATE
@@ -24,7 +25,7 @@ run_$(1):
 		-e SIM_PATH="$(SIM_PATH)" \
 		-e UVM_PY_DIR="$(UVM_PY_DIR)" \
 		-u $(id -u $USER):$(id -g $USER)\
-		efabless/dv:cocotb /bin/sh -ec "cd $(UVM_PY_DIR) && iverilog -g2012 -Ttyp $(RTL_MACROS) $(VERILOG_SOURCES) -o $(SIM_PATH)/compilation/sim.vvp -s top"; \
+		$(DOCKER_IMAGE) /bin/sh -ec "cd $(UVM_PY_DIR) && iverilog -g2012 -Ttyp $(RTL_MACROS) $(VERILOG_SOURCES) -o $(SIM_PATH)/compilation/sim.vvp -s top"; \
     fi
 	@$(MAKE) create_top_py UVM_TEST=$(1)
 	@docker run --rm \
@@ -32,7 +33,7 @@ run_$(1):
 	-e SIM_PATH="$(SIM_PATH)" \
 	-e PYTHONIOENCODING=utf-8 \
 	-e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 \
-	efabless/dv:cocotb /bin/sh -c "cd $(SIM_PATH)/$(1) &&  MODULE=top_module vvp -M $(DOCKER_COCOTB_LIB_DIR) -m libcocotbvpi_icarus $(SIM_PATH)/compilation/sim.vvp +UVM_TESTNAME=$(1) +TEST_PATH=$(SIM_PATH)/$(1) +YAML_FILE=$(YAML_FILE) COCOTB_RESULTS_FILE=$(SIM_PATH)/$(1)/results.xml > $(SIM_PATH)/$(1)/test.log 2>&1"
+	$(DOCKER_IMAGE) /bin/sh -c "cd $(SIM_PATH)/$(1) &&  MODULE=top_module vvp -M $(DOCKER_COCOTB_LIB_DIR) -m libcocotbvpi_icarus $(SIM_PATH)/compilation/sim.vvp +UVM_TESTNAME=$(1) +TEST_PATH=$(SIM_PATH)/$(1) +YAML_FILE=$(YAML_FILE) COCOTB_RESULTS_FILE=$(SIM_PATH)/$(1)/results.xml > $(SIM_PATH)/$(1)/test.log 2>&1"
 	@echo "Checking test results..."
 	@if grep -q "UVM TEST FAIL" $(SIM_PATH)/$(1)/test.log; then \
 		echo "Test Failed" > $(SIM_PATH)/$(1)/failed; \
@@ -51,7 +52,9 @@ $(foreach test,$(TESTS),$(eval $(call RUN_TEST_TEMPLATE,$(test))))
 # Target to run all tests in parallel
 run_all_tests:
 	@$(MAKE) $(addprefix run_,$(TESTS)) -j$(shell nproc)
-	$(MAKE) run_merge_coverage
+ifeq ($(RUN_MERGE_COVERAGE),true)
+	$(MAKE) run_merge_coverage 
+endif
 
 create_top_py:
 	@echo "from os import path" > $(SIM_PATH)/$(UVM_TEST)/top_module.py
@@ -60,7 +63,12 @@ create_top_py:
 	@echo "from test_lib import *" >> $(SIM_PATH)/$(UVM_TEST)/top_module.py
 
 run_merge_coverage:
-	@python3 $(PWD)/merge_cov.py $(SIM_PATH)
+	@@docker run --rm \
+	-v "$(GRANDPARENT_DIR)":"$(GRANDPARENT_DIR)" \
+	-e SIM_PATH="$(SIM_PATH)" \
+	-e PYTHONIOENCODING=utf-8 \
+	-e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 \
+	$(DOCKER_IMAGE) /bin/sh -c "python3 $(PWD)/EF_UVM/merge_cov.py $(SIM_PATH)"
 
 run_all_tests_multiple:
 	@for i in $$(seq 1 $(NUM_ITERATIONS)); do \
