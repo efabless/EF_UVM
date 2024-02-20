@@ -4,19 +4,35 @@ GREEN=\033[0;32m
 YELLOW=\033[0;33m
 NC=\033[0m # No Color
 NUM_ITERATIONS := 3
+UVM_PY_DIR = $(PWD)
+GRANDPARENT_DIR:="$(shell cd ../../; pwd)"
+DOCKER_IMAGE = efabless/dv:cocotb
+DOCKER_COCOTB_LIB_DIR := $(shell docker run --rm efabless/dv:cocotb cocotb-config --lib-dir)
 
 # Target to run a single test
 define RUN_TEST_TEMPLATE
 run_$(1):
-	@echo "Running test: $(1) with tag: $(SIM_TAG)"
+	@echo "Running test: $(1) with tag: $(SIM_TAG) $(DOCKER_COCOTB_LIB_DIR)"
 	@mkdir -p $(SIM_PATH)/compilation
 	@mkdir -p $(SIM_PATH)/$(1)
 	@if [ ! -f "$(SIM_PATH)/compilation/sim.vvp" ]; then \
         echo "Compiling since sim.vvp does not exist..."; \
-        iverilog -g2012 -Ttyp $(RTL_MACROS) $(VERILOG_SOURCES) -o $(SIM_PATH)/compilation/sim.vvp -s top; \
+        docker run --rm --init -it --sig-proxy=true\
+		-v "$(GRANDPARENT_DIR)":"$(GRANDPARENT_DIR)" \
+		-e RTL_MACROS="$(RTL_MACROS)" \
+		-e VERILOG_SOURCES="$(VERILOG_SOURCES)" \
+		-e SIM_PATH="$(SIM_PATH)" \
+		-e UVM_PY_DIR="$(UVM_PY_DIR)" \
+		-u $(id -u $USER):$(id -g $USER)\
+		efabless/dv:cocotb /bin/sh -ec "cd $(UVM_PY_DIR) && iverilog -g2012 -Ttyp $(RTL_MACROS) $(VERILOG_SOURCES) -o $(SIM_PATH)/compilation/sim.vvp -s top"; \
     fi
 	@$(MAKE) create_top_py UVM_TEST=$(1)
-	@cd $(SIM_PATH)/$(1) &&  MODULE=top_module vvp -M $$(shell cocotb-config --lib-dir) -m $$(shell cocotb-config --lib-name vpi icarus) $(SIM_PATH)/compilation/sim.vvp +UVM_TESTNAME=$(1) +TEST_PATH=$(SIM_PATH)/$(1) +YAML_FILE=$(YAML_FILE) COCOTB_RESULTS_FILE=$(SIM_PATH)/$(1)/results.xml > $(SIM_PATH)/$(1)/test.log 2>&1
+	@docker run --rm \
+	-v "$(GRANDPARENT_DIR)":"$(GRANDPARENT_DIR)" \
+	-e SIM_PATH="$(SIM_PATH)" \
+	-e PYTHONIOENCODING=utf-8 \
+	-e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 \
+	efabless/dv:cocotb /bin/sh -c "cd $(SIM_PATH)/$(1) &&  MODULE=top_module vvp -M $(DOCKER_COCOTB_LIB_DIR) -m libcocotbvpi_icarus $(SIM_PATH)/compilation/sim.vvp +UVM_TESTNAME=$(1) +TEST_PATH=$(SIM_PATH)/$(1) +YAML_FILE=$(YAML_FILE) COCOTB_RESULTS_FILE=$(SIM_PATH)/$(1)/results.xml > $(SIM_PATH)/$(1)/test.log 2>&1"
 	@echo "Checking test results..."
 	@if grep -q "UVM TEST FAIL" $(SIM_PATH)/$(1)/test.log; then \
 		echo "Test Failed" > $(SIM_PATH)/$(1)/failed; \
