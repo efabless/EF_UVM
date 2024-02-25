@@ -8,17 +8,22 @@ UVM_PY_DIR = $(PWD)
 GRANDPARENT_DIR:="$(shell cd ../../; pwd)"
 DOCKER_IMAGE = efabless/dv:cocotb
 RUN_MERGE_COVERAGE := true
-DOCKER_COCOTB_LIB_DIR := $(shell docker run --rm $(DOCKER_IMAGE) cocotb-config --lib-dir)
+USER_ARGS = -u $$(id -u $$USER):$$(id -g $$USER)
+ifeq ($(ROOTLESS), 1)
+	USER_ARGS =
+endif
+DOCKER_COCOTB_LIB_DIR := $(shell docker run $(USER_ARGS) --rm $(DOCKER_IMAGE) cocotb-config --lib-dir)
 
 # Target to run a single test
 define RUN_TEST_TEMPLATE
 run_$(1):
-	@echo "Running test: $(1) with tag: $(SIM_TAG) $(DOCKER_COCOTB_LIB_DIR)"
+	@echo "\033[45;37mRunning test:\033[0m \033[44;37m$(1) with tag: $(SIM_TAG)\033[0m"
 	@mkdir -p $(SIM_PATH)/compilation
 	@mkdir -p $(SIM_PATH)/$(1)
 	@if [ ! -f "$(SIM_PATH)/compilation/sim.vvp" ]; then \
         echo "Compiling since sim.vvp does not exist..."; \
         docker run --rm \
+		$(USER_ARGS) \
 		-v "$(GRANDPARENT_DIR)":"$(GRANDPARENT_DIR)" \
 		-e RTL_MACROS="$(RTL_MACROS)" \
 		-e VERILOG_SOURCES="$(VERILOG_SOURCES)" \
@@ -29,6 +34,7 @@ run_$(1):
     fi
 	@$(MAKE) create_top_py UVM_TEST=$(1)
 	@docker run --rm \
+	$(USER_ARGS) \
 	-v "$(GRANDPARENT_DIR)":"$(GRANDPARENT_DIR)" \
 	-e SIM_PATH="$(SIM_PATH)" \
 	-e PYTHONIOENCODING=utf-8 \

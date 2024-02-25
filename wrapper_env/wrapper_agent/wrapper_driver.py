@@ -32,6 +32,7 @@ class wrapper_driver(UVMDriver):
             if tr.reset:
                 uvm_info(self.tag, "Doing reset", UVM_MEDIUM)
                 await self.reset()
+                self.end_of_trans()
                 self.seq_item_port.item_done()
                 continue
             #if (not self.sigs.clk.triggered):
@@ -72,7 +73,6 @@ class wrapper_driver(UVMDriver):
 
     async def read(self, addr, data):
         uvm_info(self.tag, "Doing APB read to addr " + hex(addr), UVM_HIGH)
-
         self.sigs.PADDR.value = addr
         self.sigs.PWRITE.value = 0
         self.sigs.PSEL.value = 1
@@ -80,8 +80,7 @@ class wrapper_driver(UVMDriver):
         self.sigs.PENABLE.value = 1
         await self.drive_delay()
         data.append(self.sigs.PRDATA)
-        self.sigs.PSEL.value = 0
-        self.sigs.PENABLE.value = 0
+        self.end_of_trans()
 
     async def write(self, addr, data):
         uvm_info(self.tag, "Doing APB write to addr " + hex(addr), UVM_HIGH)
@@ -92,9 +91,11 @@ class wrapper_driver(UVMDriver):
         await self.drive_delay()
         self.sigs.PENABLE.value = 1
         await self.drive_delay()
-        self.sigs.PSEL.value = 0
-        self.sigs.PENABLE.value = 0
+        self.end_of_trans()
         uvm_info(self.tag, "Finished APB write to addr " + hex(addr), UVM_HIGH)
 
+    def end_of_trans(self):
+        self.sigs.PSEL.value = 0
+        self.sigs.PENABLE.value = 0
 
 uvm_component_utils(wrapper_driver)
