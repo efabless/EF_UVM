@@ -6,8 +6,8 @@ from uvm.base.uvm_object_globals import UVM_HIGH, UVM_MEDIUM, UVM_LOW
 from EF_UVM.wrapper_env.wrapper_item import wrapper_bus_item
 
 
-class wrapper_driver(UVMDriver):
-    def __init__(self, name="wrapper_driver", parent=None):
+class wrapper_apb_driver(UVMDriver):
+    def __init__(self, name="wrapper_apb_driver", parent=None):
         super().__init__(name, parent)
         self.tag = name
 
@@ -17,12 +17,12 @@ class wrapper_driver(UVMDriver):
         if (not UVMConfigDb.get(self, "", "wrapper_bus_if", arr)):
             uvm_fatal(self.tag, "No interface specified for self driver instance")
         else:
-            self.sigs = arr[0]
+            self.vif = arr[0]
 
     async def run_phase(self, phase):
         uvm_info(self.tag, "run_phase started", UVM_MEDIUM)
         await self.reset()
-
+        self.end_of_trans()
         while True:
             await self.drive_delay()
             tr = []
@@ -35,10 +35,10 @@ class wrapper_driver(UVMDriver):
                 self.end_of_trans()
                 self.seq_item_port.item_done()
                 continue
-            #if (not self.sigs.clk.triggered):
-            #yield Edge(self.sigs.clk)
+            #if (not self.vif.clk.triggered):
+            #yield Edge(self.vif.clk)
             # await self.drive_delay()
-            #yield RisingEdge(self.sigs.clk)
+            #yield RisingEdge(self.vif.clk)
             #yield Timer(1, "NS")
 
             await self.trans_received(tr)
@@ -56,13 +56,13 @@ class wrapper_driver(UVMDriver):
             self.seq_item_port.item_done()
 
     async def reset(self, num_cycles=3):
-        self.sigs.PRESETn.value = 0
+        self.vif.PRESETn.value = 0
         for _ in range(num_cycles):
             await self.drive_delay()
-        self.sigs.PRESETn.value = 1
+        self.vif.PRESETn.value = 1
 
     async def drive_delay(self):
-        await RisingEdge(self.sigs.PCLK)
+        await RisingEdge(self.vif.PCLK)
         await Timer(1, "NS")
 
     async def trans_received(self, tr):
@@ -73,29 +73,29 @@ class wrapper_driver(UVMDriver):
 
     async def read(self, addr, data):
         uvm_info(self.tag, "Doing APB read to addr " + hex(addr), UVM_HIGH)
-        self.sigs.PADDR.value = addr
-        self.sigs.PWRITE.value = 0
-        self.sigs.PSEL.value = 1
+        self.vif.PADDR.value = addr
+        self.vif.PWRITE.value = 0
+        self.vif.PSEL.value = 1
         await self.drive_delay()
-        self.sigs.PENABLE.value = 1
+        self.vif.PENABLE.value = 1
         await self.drive_delay()
-        data.append(self.sigs.PRDATA)
+        data.append(self.vif.PRDATA)
         self.end_of_trans()
 
     async def write(self, addr, data):
         uvm_info(self.tag, "Doing APB write to addr " + hex(addr), UVM_HIGH)
-        self.sigs.PADDR.value = addr
-        self.sigs.PWDATA.value = data
-        self.sigs.PWRITE.value = 1
-        self.sigs.PSEL.value = 1
+        self.vif.PADDR.value = addr
+        self.vif.PWDATA.value = data
+        self.vif.PWRITE.value = 1
+        self.vif.PSEL.value = 1
         await self.drive_delay()
-        self.sigs.PENABLE.value = 1
+        self.vif.PENABLE.value = 1
         await self.drive_delay()
         self.end_of_trans()
         uvm_info(self.tag, "Finished APB write to addr " + hex(addr), UVM_HIGH)
 
     def end_of_trans(self):
-        self.sigs.PSEL.value = 0
-        self.sigs.PENABLE.value = 0
+        self.vif.PSEL.value = 0
+        self.vif.PENABLE.value = 0
 
-uvm_component_utils(wrapper_driver)
+uvm_component_utils(wrapper_apb_driver)

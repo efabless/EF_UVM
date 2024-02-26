@@ -7,8 +7,8 @@ from EF_UVM.wrapper_env.wrapper_item import wrapper_bus_item
 from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW
 import cocotb
 
-class wrapper_bus_monitor(UVMMonitor):
-    def __init__(self, name="wrapper_bus_monitor", parent=None):
+class wrapper_apb_monitor(UVMMonitor):
+    def __init__(self, name="wrapper_apb_monitor", parent=None):
         super().__init__(name, parent)
         self.monitor_port = UVMAnalysisPort("monitor_port", self)
         self.tag = name
@@ -70,4 +70,4 @@ class wrapper_bus_monitor(UVMMonitor):
         # await Timer(1, "NS")
 
 
-uvm_component_utils(wrapper_bus_monitor)
+uvm_component_utils(wrapper_apb_monitor)

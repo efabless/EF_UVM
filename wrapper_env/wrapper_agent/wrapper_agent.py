@@ -1,8 +1,8 @@
 from uvm.comps.uvm_agent import UVMAgent
 from uvm.macros import uvm_component_utils, uvm_fatal, uvm_info
 from EF_UVM.wrapper_env.wrapper_agent.wrapper_sequencer import wrapper_sequencer
-from EF_UVM.wrapper_env.wrapper_agent.wrapper_driver import wrapper_driver
-from EF_UVM.wrapper_env.wrapper_agent.wrapper_bus_monitor import wrapper_bus_monitor
+from EF_UVM.wrapper_env.wrapper_agent.wrapper_apb_driver import wrapper_apb_driver
+from EF_UVM.wrapper_env.wrapper_agent.wrapper_apb_monitor import wrapper_apb_monitor
 from EF_UVM.wrapper_env.wrapper_agent.wrapper_irq_monitor import wrapper_irq_monitor
 from uvm.tlm1.uvm_analysis_port import UVMAnalysisExport
 from uvm.base.uvm_config_db import UVMConfigDb
@@ -29,8 +29,8 @@ class wrapper_agent(UVMAgent):
 
     def build_phase(self, phase):
         self.wrapper_sequencer = wrapper_sequencer.type_id.create("wrapper_sequencer", self)
-        self.driver = wrapper_driver.type_id.create("wrapper_driver", self)
-        self.bus_monitor = wrapper_bus_monitor.type_id.create("wrapper_bus_monitor", self)
+        self.driver = wrapper_apb_driver.type_id.create("wrapper_apb_driver", self)
+        self.bus_monitor = wrapper_apb_monitor.type_id.create("wrapper_apb_monitor", self)
         arr = []
         if (not UVMConfigDb.get(self, "", "irq_exist", arr)):
             uvm_fatal(self.tag, "No info about irq exists in config DB")
