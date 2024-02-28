@@ -7,8 +7,8 @@ from EF_UVM.wrapper_env.wrapper_item import wrapper_bus_item
 from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW
 import cocotb
 
-class wrapper_apb_monitor(UVMMonitor):
-    def __init__(self, name="wrapper_apb_monitor", parent=None):
+class wrapper_ahb_monitor(UVMMonitor):
+    def __init__(self, name="wrapper_ahb_monitor", parent=None):
         super().__init__(name, parent)
         self.monitor_port = UVMAnalysisPort("monitor_port", self)
         self.tag = name
@@ -19,7 +19,7 @@ class wrapper_apb_monitor(UVMMonitor):
         if (not UVMConfigDb.get(self, "", "wrapper_if", arr)):
             uvm_fatal(self.tag, "No interface specified for self driver instance")
         else:
-            self.sigs = arr[0]
+            self.vif = arr[0]
         regs_arr = []
         if (not UVMConfigDb.get(self, "", "wrapper_regs", regs_arr)):
             uvm_fatal(self.tag, "No json file wrapper regs")
@@ -31,32 +31,20 @@ class wrapper_apb_monitor(UVMMonitor):
         while True:
             tr = None
             # wait for a transaction
-            while True:
-                await self.sample_delay()
-                if self.sigs.PSEL.value.binstr == "1" and self.sigs.PENABLE.value.binstr == "0":
-                    break
+            address, is_write = await self.address_phase()
+            data = await self.data_phase(is_write)
             tr = wrapper_bus_item.type_id.create("tr", self)
-            tr.kind = wrapper_bus_item.WRITE if self.sigs.PWRITE.value == 1 else wrapper_bus_item.READ
-            tr.addr = self.sigs.PADDR.value.integer
-            await self.sample_delay()
-            if self.sigs.PENABLE.value.binstr != "1":
-                uvm_error(self.tag, f"APB protocol violation: SETUP cycle not followed by ENABLE cycle PENABLE={self.sigs.PENABLE.value.binstr}")
-            if tr.kind == wrapper_bus_item.WRITE:
-                tr.data = self.sigs.PWDATA.value.integer
-            else:
-                try:
-                    tr.data = self.sigs.PRDATA.value.integer
-                except ValueError:
-                    uvm_error(self.tag, f"PRDATA is not an integer {self.sigs.PRDATA.value.binstr}")
-                    tr.data = self.sigs.PRDATA.value.binstr
+            tr.kind = wrapper_bus_item.WRITE if is_write else wrapper_bus_item.READ
+            tr.addr = address
+            tr.data = data
             self.monitor_port.write(tr)
             # update reg value #TODO: move this to the vip later
             # self.regs.write_reg_value(tr.addr, tr.data)
-            uvm_info(self.tag, "sampled APB transaction: " + tr.convert2string(), UVM_HIGH)
+            uvm_info(self.tag, "sampled AHB transaction: " + tr.convert2string(), UVM_HIGH)
 
     async def watch_reset(self):
         while True:
-            await FallingEdge(self.sigs.PRESETn)
+            await FallingEdge(self.vif.HRESETn)
             # send reset tr 
             tr = wrapper_bus_item.type_id.create("tr", self)
             tr.reset = 1
@@ -66,8 +54,33 @@ class wrapper_apb_monitor(UVMMonitor):
             uvm_info(self.tag, "sampled reset transaction: " + tr.convert2string(), UVM_HIGH)
 
     async def sample_delay(self):
-        await RisingEdge(self.sigs.PCLK)
-        # await Timer(1, "NS")
+        await RisingEdge(self.vif.HCLK)
+        await Timer(1, "NS")
+
+    async def address_phase(self):
+        while True:
+            await RisingEdge(self.vif.HCLK)
+            if self.vif.HSEL.value.binstr == "1":
+                if self.vif.HTRANS.value.binstr[0] == "1":
+                    break
+        address = self.vif.HADDR.value.integer
+        write = self.vif.HWRITE.value.integer
+        return address, write
+
+    async def data_phase(self, is_write):
+        # await self.sample_delay()
+        await Timer(1, "NS")
+        while self.vif.HREADYOUT.value == 0:
+            await self.sample_delay()
+        if is_write:
+            data = self.vif.HWDATA.value.integer
+        else:
+            try:
+                data = self.vif.HRDATA.value.integer
+            except ValueError:
+                uvm_error(self.tag, f"HRDATA is not an integer {self.vif.HRDATA.value.binstr}")
+                data = self.vif.HRDATA.value.binstr
+        return data
 
 
-uvm_component_utils(wrapper_apb_monitor)
+uvm_component_utils(wrapper_ahb_monitor)

@@ -14,7 +14,7 @@ class wrapper_apb_driver(UVMDriver):
     def build_phase(self, phase):
         super().build_phase(phase)
         arr = []
-        if (not UVMConfigDb.get(self, "", "wrapper_bus_if", arr)):
+        if (not UVMConfigDb.get(self, "", "wrapper_if", arr)):
             uvm_fatal(self.tag, "No interface specified for self driver instance")
         else:
             self.vif = arr[0]
@@ -22,7 +22,6 @@ class wrapper_apb_driver(UVMDriver):
     async def run_phase(self, phase):
         uvm_info(self.tag, "run_phase started", UVM_MEDIUM)
         await self.reset()
-        self.end_of_trans()
         while True:
             await self.drive_delay()
             tr = []
@@ -32,7 +31,6 @@ class wrapper_apb_driver(UVMDriver):
             if tr.reset:
                 uvm_info(self.tag, "Doing reset", UVM_MEDIUM)
                 await self.reset()
-                self.end_of_trans()
                 self.seq_item_port.item_done()
                 continue
             #if (not self.vif.clk.triggered):
@@ -60,6 +58,7 @@ class wrapper_apb_driver(UVMDriver):
         for _ in range(num_cycles):
             await self.drive_delay()
         self.vif.PRESETn.value = 1
+        self.end_of_trans()
 
     async def drive_delay(self):
         await RisingEdge(self.vif.PCLK)
