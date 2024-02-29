@@ -37,6 +37,11 @@ class wrapper_ahb_if(sv_if):
         bus_map = {"HCLK": "CLK", "HRESETn": "RESETn", "HADDR": "HADDR", "HWRITE": "HWRITE", "HSEL": "HSEL", "HREADYOUT": "HREADYOUT", "HTRANS": "HTRANS", "HWDATA": "HWDATA", "HRDATA": "HRDATA", "HREADY": "HREADY"}
         sv_if.__init__(self, dut, "", bus_map)
 
+class wrapper_wb_if(sv_if):
+    def __init__(self, dut):
+        bus_map = {"clk_i": "CLK", "rst_i": "RESETn", "adr_i": "adr_i", "dat_i": "dat_i", "dat_o": "dat_o", "sel_i": "sel_i", "cyc_i": "cyc_i", "stb_i": "stb_i", "ack_o": "ack_o", "we_i": "we_i"}
+        sv_if.__init__(self, dut, "", bus_map)
+
 
 class wrapper_irq_if(sv_if):
 
