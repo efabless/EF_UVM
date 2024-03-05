@@ -5,7 +5,7 @@ from uvm.macros import uvm_component_utils, uvm_info
 from uvm.tlm1.uvm_analysis_port import UVMAnalysisExport
 from uvm.macros.uvm_tlm_defines import uvm_analysis_imp_decl
 import cocotb
-from EF_UVM.wrapper_env.wrapper_item import wrapper_bus_item
+from EF_UVM.bus_env.bus_item import bus_bus_item
 
 uvm_analysis_imp_bus = uvm_analysis_imp_decl("_bus")
 uvm_analysis_imp_ip = uvm_analysis_imp_decl("_ip")
@@ -25,8 +25,8 @@ class VIP(UVMComponent):
         super().__init__(name, parent)
         self.analysis_imp_bus = uvm_analysis_imp_bus("vip_ap_bus", self)
         self.analysis_imp_ip = uvm_analysis_imp_ip("vip_ap_ip", self)
-        self.wrapper_bus_export = UVMAnalysisExport("vip_bus_export", self)
-        self.wrapper_irq_export = UVMAnalysisExport("vip_irq_export", self)
+        self.bus_bus_export = UVMAnalysisExport("vip_bus_export", self)
+        self.bus_irq_export = UVMAnalysisExport("vip_irq_export", self)
         self.ip_export = UVMAnalysisExport("vip_ip_export", self)
         self.analysis_imp_ip_irq = uvm_analysis_imp_ip_irq("vip_ap_ip_irq", self)
         self.model = None

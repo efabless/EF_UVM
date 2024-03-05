@@ -1,7 +1,7 @@
 from uvm.comps import UVMEnv
 from uvm.macros import uvm_component_utils, uvm_fatal, uvm_info
 from EF_UVM.ip_env.ip_env import ip_env
-from EF_UVM.wrapper_env.wrapper_env import wrapper_env
+from EF_UVM.bus_env.bus_env import bus_env
 from EF_UVM.vip.vip import VIP
 from EF_UVM.scoreboard import scoreboard
 
@@ -18,13 +18,13 @@ class top_env(UVMEnv):
     def __init__(self, name="env", parent=None):
         super().__init__(name, parent)
         self.ip_env = None
-        self.wrapper_env = None
+        self.bus_env = None
         self.vip = None
         self.scoreboard = None
 
     def build_phase(self, phase):
         self.ip_env = ip_env.type_id.create("ip_env", self)
-        self.wrapper_env = wrapper_env.type_id.create("wrapper_env", self)
+        self.bus_env = bus_env.type_id.create("bus_env", self)
         self.vip = VIP.type_id.create("vip", self)
         self.scoreboard = scoreboard.type_id.create("scoreboard", self)
 
@@ -34,15 +34,15 @@ class top_env(UVMEnv):
             Connect the scorebord with  the vip.
             Connect the vip with bus and ip environment monitors.
         """
-        self.wrapper_env.wrapper_bus_export.connect(self.vip.analysis_imp_bus)
+        self.bus_env.bus_bus_export.connect(self.vip.analysis_imp_bus)
         self.ip_env.ip_env_export.connect(self.vip.analysis_imp_ip)
         self.ip_env.ip_env_irq_export.connect(self.vip.analysis_imp_ip_irq)
         # scoreboard connection
-        self.wrapper_env.wrapper_bus_export.connect(self.scoreboard.analysis_imp_bus)
-        self.wrapper_env.wrapper_irq_export.connect(self.scoreboard.analysis_imp_irq)
+        self.bus_env.bus_bus_export.connect(self.scoreboard.analysis_imp_bus)
+        self.bus_env.bus_irq_export.connect(self.scoreboard.analysis_imp_irq)
         self.ip_env.ip_env_export.connect(self.scoreboard.uvm_analysis_imp_ip)
-        self.vip.wrapper_bus_export.connect(self.scoreboard.analysis_imp_bus_vip)
-        self.vip.wrapper_irq_export.connect(self.scoreboard.analysis_imp_irq_vip)
+        self.vip.bus_bus_export.connect(self.scoreboard.analysis_imp_bus_vip)
+        self.vip.bus_irq_export.connect(self.scoreboard.analysis_imp_irq_vip)
         self.vip.ip_export.connect(self.scoreboard.uvm_analysis_imp_ip_vip)
         pass
 

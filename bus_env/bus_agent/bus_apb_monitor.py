@@ -3,12 +3,12 @@ from uvm.comps.uvm_monitor import UVMMonitor
 from uvm.tlm1.uvm_analysis_port import UVMAnalysisPort
 from uvm.base.uvm_config_db import UVMConfigDb
 from cocotb.triggers import Timer, RisingEdge, FallingEdge
-from EF_UVM.wrapper_env.wrapper_item import wrapper_bus_item
+from EF_UVM.bus_env.bus_item import bus_bus_item
 from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW
 import cocotb
 
-class wrapper_apb_monitor(UVMMonitor):
-    def __init__(self, name="wrapper_apb_monitor", parent=None):
+class bus_apb_monitor(UVMMonitor):
+    def __init__(self, name="bus_apb_monitor", parent=None):
         super().__init__(name, parent)
         self.monitor_port = UVMAnalysisPort("monitor_port", self)
         self.tag = name
@@ -16,12 +16,12 @@ class wrapper_apb_monitor(UVMMonitor):
     def build_phase(self, phase):
         super().build_phase(phase)
         arr = []
-        if (not UVMConfigDb.get(self, "", "wrapper_if", arr)):
+        if (not UVMConfigDb.get(self, "", "bus_if", arr)):
             uvm_fatal(self.tag, "No interface specified for self driver instance")
         else:
             self.sigs = arr[0]
         regs_arr = []
-        if (not UVMConfigDb.get(self, "", "wrapper_regs", regs_arr)):
+        if (not UVMConfigDb.get(self, "", "bus_regs", regs_arr)):
             uvm_fatal(self.tag, "No json file wrapper regs")
         else:
             self.regs = regs_arr[0]
@@ -35,13 +35,13 @@ class wrapper_apb_monitor(UVMMonitor):
                 await self.sample_delay()
                 if self.sigs.PSEL.value.binstr == "1" and self.sigs.PENABLE.value.binstr == "0":
                     break
-            tr = wrapper_bus_item.type_id.create("tr", self)
-            tr.kind = wrapper_bus_item.WRITE if self.sigs.PWRITE.value == 1 else wrapper_bus_item.READ
+            tr = bus_bus_item.type_id.create("tr", self)
+            tr.kind = bus_bus_item.WRITE if self.sigs.PWRITE.value == 1 else bus_bus_item.READ
             tr.addr = self.sigs.PADDR.value.integer
             await self.sample_delay()
             if self.sigs.PENABLE.value.binstr != "1":
                 uvm_error(self.tag, f"APB protocol violation: SETUP cycle not followed by ENABLE cycle PENABLE={self.sigs.PENABLE.value.binstr}")
-            if tr.kind == wrapper_bus_item.WRITE:
+            if tr.kind == bus_bus_item.WRITE:
                 tr.data = self.sigs.PWDATA.value.integer
             else:
                 try:
@@ -58,9 +58,9 @@ class wrapper_apb_monitor(UVMMonitor):
         while True:
             await FallingEdge(self.sigs.PRESETn)
             # send reset tr 
-            tr = wrapper_bus_item.type_id.create("tr", self)
+            tr = bus_bus_item.type_id.create("tr", self)
             tr.reset = 1
-            tr.kind = wrapper_bus_item.READ
+            tr.kind = bus_bus_item.READ
             tr.addr = 0
             self.monitor_port.write(tr)
             uvm_info(self.tag, "sampled reset transaction: " + tr.convert2string(), UVM_HIGH)
@@ -70,4 +70,4 @@ class wrapper_apb_monitor(UVMMonitor):
         # await Timer(1, "NS")
 
 
-uvm_component_utils(wrapper_apb_monitor)
+uvm_component_utils(bus_apb_monitor)

@@ -8,14 +8,14 @@ from uvm.macros.uvm_tlm_defines import uvm_analysis_imp_decl
 import os
 import cocotb
 from tabulate import tabulate
-from EF_UVM.wrapper_env.wrapper_item import wrapper_bus_item
+from EF_UVM.bus_env.bus_item import bus_bus_item
 
 uvm_analysis_imp_bus = uvm_analysis_imp_decl("_bus")
 uvm_analysis_imp_irq = uvm_analysis_imp_decl("_irq")
 
 
-class wrapper_logger(UVMComponent):
-    def __init__(self, name="wrapper_logger", parent=None):
+class bus_logger(UVMComponent):
+    def __init__(self, name="bus_logger", parent=None):
         super().__init__(name, parent)
         self.analysis_imp_bus = uvm_analysis_imp_bus("analysis_imp_bus", self)
         self.analysis_imp_irq = uvm_analysis_imp_irq("analysis_imp_irq", self)
@@ -24,7 +24,7 @@ class wrapper_logger(UVMComponent):
     def build_phase(self, phase):
         super().build_phase(phase)
         arr = []
-        if (not UVMConfigDb.get(self, "", "wrapper_regs", arr)):
+        if (not UVMConfigDb.get(self, "", "bus_regs", arr)):
             uvm_fatal(self.tag, "No json file wrapper regs")
         else:
             self.regs = arr[0]
@@ -62,7 +62,7 @@ class wrapper_logger(UVMComponent):
         else:
             # Ensure each piece of data fits within the specified width
             sim_time = f"{cocotb.utils.get_sim_time(units='ns')} ns"
-            operation = f"{'Write' if transaction.kind == wrapper_bus_item.WRITE else 'Read'}"
+            operation = f"{'Write' if transaction.kind == bus_bus_item.WRITE else 'Read'}"
             address = f"{hex(transaction.addr)}"
             data = transaction.data if type(transaction.data) is not int else f"{hex(transaction.data)}"
 
@@ -116,4 +116,4 @@ class wrapper_logger(UVMComponent):
 
 
 
-uvm_component_utils(wrapper_logger)
+uvm_component_utils(bus_logger)

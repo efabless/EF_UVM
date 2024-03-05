@@ -4,12 +4,12 @@ from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW, UVM_MEDIUM
 import yaml
 
 
-class wrapper_regs():
+class bus_regs():
     """
-    The wrapper_regs class is used to initialize and manage a set of registers specified in a JSON or YAML file.
+    The bus_regs class is used to initialize and manage a set of registers specified in a JSON or YAML file.
     """
     def __init__(self, design_file) -> None:
-        self.tag = "wrapper_regs"
+        self.tag = "bus_regs"
         with open(design_file, 'r') as file:
             if design_file.endswith('.json'):
                 self.data = json.load(file)

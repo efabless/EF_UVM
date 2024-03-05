@@ -20,7 +20,7 @@ class ip_monitor(UVMMonitor):
         else:
             self.vif = arr[0]
         regs_arr = []
-        if (not UVMConfigDb.get(self, "", "wrapper_regs", regs_arr)):
+        if (not UVMConfigDb.get(self, "", "bus_regs", regs_arr)):
             uvm_fatal(self.tag, "No json file wrapper regs")
         else:
             self.regs = regs_arr[0]
