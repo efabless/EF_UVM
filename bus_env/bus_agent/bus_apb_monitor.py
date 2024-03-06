@@ -50,7 +50,7 @@ class bus_apb_monitor(UVMMonitor):
                     uvm_error(self.tag, f"PRDATA is not an integer {self.sigs.PRDATA.value.binstr}")
                     tr.data = self.sigs.PRDATA.value.binstr
             self.monitor_port.write(tr)
-            # update reg value #TODO: move this to the vip later
+            # update reg value #TODO: move this to the ref_model later
             # self.regs.write_reg_value(tr.addr, tr.data)
             uvm_info(self.tag, "sampled APB transaction: " + tr.convert2string(), UVM_HIGH)
 

@@ -38,7 +38,7 @@ class bus_ahb_monitor(UVMMonitor):
             tr.addr = address
             tr.data = data
             self.monitor_port.write(tr)
-            # update reg value #TODO: move this to the vip later
+            # update reg value #TODO: move this to the ref_model later
             # self.regs.write_reg_value(tr.addr, tr.data)
             uvm_info(self.tag, "sampled AHB transaction: " + tr.convert2string(), UVM_HIGH)
 
