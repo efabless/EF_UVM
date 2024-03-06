@@ -23,15 +23,28 @@ class bus_seq_base(UVMSequence):
         else:
             self.adress_dict = arr[0].reg_name_to_address
 
-    async def send_req(self, is_write, reg, data_condition=None):
+    async def send_req(self, is_write, reg, data_condition=None, data_value = None):
         # send request
+        if data_condition is not None and data_value is not None:
+            uvm_fatal (self.tag, "You should only provide data condition or data value")
         if is_write:
             if data_condition is None:
-                await uvm_do_with(self, self.req, lambda addr: addr == self.adress_dict[reg], lambda kind: kind == bus_item.WRITE)
+                if data_value is not None:
+                    self.req.rand_mode(0)
+                    self.req.addr = self.adress_dict[reg]
+                    self.req.data = data_value
+                    self.req.kind = bus_item.WRITE
+                    await uvm_do(self, self.req)
+                else:
+                    await uvm_do_with(self, self.req, lambda addr: addr == self.adress_dict[reg], lambda kind: kind == bus_item.WRITE)
             else:
                 await uvm_do_with(self, self.req, lambda addr: addr == self.adress_dict[reg], lambda kind: kind == bus_item.WRITE, data_condition)
         else:
-            await uvm_do_with(self, self.req, lambda addr: addr == self.adress_dict[reg], lambda kind: kind == bus_item.READ)
+            self.req.rand_mode(0)
+            self.req.addr = self.adress_dict[reg]
+            self.req.kind = bus_item.READ
+            await uvm_do(self, self.req)
 
+    
 
 uvm_object_utils(bus_seq_base)
