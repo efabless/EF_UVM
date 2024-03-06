@@ -3,7 +3,7 @@ from uvm.comps.uvm_driver import UVMDriver
 from uvm.base.uvm_config_db import UVMConfigDb
 from cocotb.triggers import Timer, RisingEdge
 from uvm.base.uvm_object_globals import UVM_HIGH, UVM_MEDIUM, UVM_LOW
-from EF_UVM.bus_env.bus_item import bus_bus_item
+from EF_UVM.bus_env.bus_item import bus_item
 
 
 class bus_ahb_driver(UVMDriver):
@@ -45,7 +45,7 @@ class bus_ahb_driver(UVMDriver):
         self.end_of_trans()
 
     async def address_phase(self, tr):
-        if tr.kind == bus_bus_item.READ:
+        if tr.kind == bus_item.READ:
             self.vif.HWRITE.value = 0
         else:
             self.vif.HWRITE.value = 1
@@ -58,7 +58,7 @@ class bus_ahb_driver(UVMDriver):
         self.end_of_trans()
 
     async def data_phase(self, tr):
-        if tr.kind == bus_bus_item.WRITE:
+        if tr.kind == bus_item.WRITE:
             self.vif.HWDATA.value = tr.data
             while self.vif.HREADYOUT == 0:
                 await self.drive_delay()

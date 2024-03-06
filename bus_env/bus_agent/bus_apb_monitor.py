@@ -3,7 +3,7 @@ from uvm.comps.uvm_monitor import UVMMonitor
 from uvm.tlm1.uvm_analysis_port import UVMAnalysisPort
 from uvm.base.uvm_config_db import UVMConfigDb
 from cocotb.triggers import Timer, RisingEdge, FallingEdge
-from EF_UVM.bus_env.bus_item import bus_bus_item
+from EF_UVM.bus_env.bus_item import bus_item
 from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW
 import cocotb
 
@@ -35,13 +35,13 @@ class bus_apb_monitor(UVMMonitor):
                 await self.sample_delay()
                 if self.sigs.PSEL.value.binstr == "1" and self.sigs.PENABLE.value.binstr == "0":
                     break
-            tr = bus_bus_item.type_id.create("tr", self)
-            tr.kind = bus_bus_item.WRITE if self.sigs.PWRITE.value == 1 else bus_bus_item.READ
+            tr = bus_item.type_id.create("tr", self)
+            tr.kind = bus_item.WRITE if self.sigs.PWRITE.value == 1 else bus_item.READ
             tr.addr = self.sigs.PADDR.value.integer
             await self.sample_delay()
             if self.sigs.PENABLE.value.binstr != "1":
                 uvm_error(self.tag, f"APB protocol violation: SETUP cycle not followed by ENABLE cycle PENABLE={self.sigs.PENABLE.value.binstr}")
-            if tr.kind == bus_bus_item.WRITE:
+            if tr.kind == bus_item.WRITE:
                 tr.data = self.sigs.PWDATA.value.integer
             else:
                 try:
@@ -58,9 +58,9 @@ class bus_apb_monitor(UVMMonitor):
         while True:
             await FallingEdge(self.sigs.PRESETn)
             # send reset tr 
-            tr = bus_bus_item.type_id.create("tr", self)
+            tr = bus_item.type_id.create("tr", self)
             tr.reset = 1
-            tr.kind = bus_bus_item.READ
+            tr.kind = bus_item.READ
             tr.addr = 0
             self.monitor_port.write(tr)
             uvm_info(self.tag, "sampled reset transaction: " + tr.convert2string(), UVM_HIGH)
