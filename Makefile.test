@@ -8,7 +8,7 @@ UVM_PY_DIR = $(PWD)
 GRANDPARENT_DIR:="$(shell cd ../../; pwd)"
 DOCKER_IMAGE = efabless/dv:cocotb
 RUN_MERGE_COVERAGE := true
-USER_ARGS = -u $$(id -u $$USER):$$(id -g $$USER)
+USER_ARGS = -u $(shell id -u $$USER):$(shell id -g $$USER)
 ifeq ($(ROOTLESS), 1)
 	USER_ARGS =
 endif
