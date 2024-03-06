@@ -1,7 +1,7 @@
 from uvm.seq import UVMSequence
 from uvm.macros.uvm_object_defines import uvm_object_utils
 from uvm.macros.uvm_message_defines import uvm_fatal
-from EF_UVM.bus_env.bus_item import bus_bus_item
+from EF_UVM.bus_env.bus_item import bus_item
 from uvm.base.uvm_config_db import UVMConfigDb
 from uvm.macros.uvm_sequence_defines import uvm_do_with, uvm_do
 
@@ -11,8 +11,8 @@ class bus_seq_base(UVMSequence):
     def __init__(self, name="bus_seq_base"):
         UVMSequence.__init__(self, name)
         self.set_automatic_phase_objection(1)
-        self.req = bus_bus_item()
-        self.rsp = bus_bus_item()
+        self.req = bus_item()
+        self.rsp = bus_item()
         self.tag = name
 
     async def body(self):
@@ -27,11 +27,11 @@ class bus_seq_base(UVMSequence):
         # send request
         if is_write:
             if data_condition is None:
-                await uvm_do_with(self, self.req, lambda addr: addr == self.adress_dict[reg], lambda kind: kind == bus_bus_item.WRITE)
+                await uvm_do_with(self, self.req, lambda addr: addr == self.adress_dict[reg], lambda kind: kind == bus_item.WRITE)
             else:
-                await uvm_do_with(self, self.req, lambda addr: addr == self.adress_dict[reg], lambda kind: kind == bus_bus_item.WRITE, data_condition)
+                await uvm_do_with(self, self.req, lambda addr: addr == self.adress_dict[reg], lambda kind: kind == bus_item.WRITE, data_condition)
         else:
-            await uvm_do_with(self, self.req, lambda addr: addr == self.adress_dict[reg], lambda kind: kind == bus_bus_item.READ)
+            await uvm_do_with(self, self.req, lambda addr: addr == self.adress_dict[reg], lambda kind: kind == bus_item.READ)
 
 
 uvm_object_utils(bus_seq_base)

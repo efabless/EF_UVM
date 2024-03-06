@@ -2,7 +2,7 @@ from uvm.macros.uvm_message_defines import uvm_info
 from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW
 from cocotb_coverage.coverage import CoverPoint
 from uvm.macros import uvm_component_utils
-from EF_UVM.bus_env.bus_item import bus_bus_item
+from EF_UVM.bus_env.bus_item import bus_item
 
 
 class bus_cov_groups():
@@ -61,7 +61,7 @@ class bus_cov_groups():
                     if reg_size < 5:
                         cov_points.append(CoverPoint(
                             f"{self.hierarchy}.regs.{reg['name']}.{access}",
-                            xf=lambda tr, reg_size=reg_size: (tr.addr & 0xffff, "write" if tr.kind == bus_bus_item.WRITE else "read", None if type(tr.data) is not int else (tr.data) & (1 << reg_size) - 1),
+                            xf=lambda tr, reg_size=reg_size: (tr.addr & 0xffff, "write" if tr.kind == bus_item.WRITE else "read", None if type(tr.data) is not int else (tr.data) & (1 << reg_size) - 1),
                             bins=[i for i in range(2**reg_size)],
                             bins_labels=[format(i, f'0{reg_size}b') for i in range(2 ** reg_size)],
                             rel=lambda val, b, address=reg_addr, access=access: val[2] is not None and val[1] == access and val[0] == address and val[2] == b
@@ -70,7 +70,7 @@ class bus_cov_groups():
                     else:
                         cov_points.append(CoverPoint(
                             f"{self.hierarchy}.regs.{reg['name']}.{access}",
-                            xf=lambda tr, reg_size=reg_size: (tr.addr & 0xffff, "write" if tr.kind == bus_bus_item.WRITE else "read", None if type(tr.data) is not int else (tr.data ) & (1 << reg_size) - 1),
+                            xf=lambda tr, reg_size=reg_size: (tr.addr & 0xffff, "write" if tr.kind == bus_item.WRITE else "read", None if type(tr.data) is not int else (tr.data ) & (1 << reg_size) - 1),
                             bins=[(1 << i, (1 << i + 1) - 1) if i != 0 else (0, 1) for i in range(reg_size)],
                             bins_labels=[f"from {hex(1 << i)} to {hex((1 << i + 1) - 1)}" if i != 0 else f"from {hex(0)} to {hex(1)}" for i in range(reg_size)],
                             rel=lambda val, b, address=reg_addr, access=access: val[2] is not None and val[1] == access and val[0] == address and b[0] <= val[2] <= b[1]
@@ -88,7 +88,7 @@ class bus_cov_groups():
                         if field_size < 5:
                             cov_points.append(CoverPoint(
                                 f"{self.hierarchy}.regs.{reg['name']}.{field['name']}.{access}",
-                                xf=lambda tr, field_start=field_start, field_size=field_size: (tr.addr & 0xffff, "write" if tr.kind == bus_bus_item.WRITE else "read", None if type(tr.data) is not int else (tr.data >> field_start) & (1 << field_size) - 1),
+                                xf=lambda tr, field_start=field_start, field_size=field_size: (tr.addr & 0xffff, "write" if tr.kind == bus_item.WRITE else "read", None if type(tr.data) is not int else (tr.data >> field_start) & (1 << field_size) - 1),
                                 bins=[i for i in range(2**field_size)],
                                 bins_labels=[format(i, f'0{field_size}b') for i in range(2 ** field_size)],
                                 rel=lambda val, b, address=reg_addr, access=access: val[2] is not None and val[1] == access and val[0] == address and val[2] == b
@@ -97,7 +97,7 @@ class bus_cov_groups():
                         else:
                             cov_points.append(CoverPoint(
                                 f"{self.hierarchy}.regs.{reg['name']}.{field['name']}.{access}",
-                                xf=lambda tr, field_start=field_start, field_size=field_size: (tr.addr & 0xffff, "write" if tr.kind == bus_bus_item.WRITE else "read", None if type(tr.data) is not int else (tr.data >> field_start) & (1 << field_size) - 1),
+                                xf=lambda tr, field_start=field_start, field_size=field_size: (tr.addr & 0xffff, "write" if tr.kind == bus_item.WRITE else "read", None if type(tr.data) is not int else (tr.data >> field_start) & (1 << field_size) - 1),
                                 bins=[(1 << i, (1 << i + 1) - 1) if i != 0 else (0, 1) for i in range(field_size)],
                                 bins_labels=[f"from {hex(1 << i)} to {hex((1 << i + 1) - 1)}" if i != 0 else f"from {hex(0)} to {hex(1)}" for i in range(field_size)],
                                 rel=lambda val, b, address=reg_addr, access=access: val[2] is not None and val[1] == access and val[0] == address and b[0] <= val[2] <= b[1]

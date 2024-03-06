@@ -8,7 +8,7 @@ from uvm.macros.uvm_tlm_defines import uvm_analysis_imp_decl
 import os
 import cocotb
 from tabulate import tabulate
-from EF_UVM.bus_env.bus_item import bus_bus_item
+from EF_UVM.bus_env.bus_item import bus_item
 
 uvm_analysis_imp_bus = uvm_analysis_imp_decl("_bus")
 uvm_analysis_imp_irq = uvm_analysis_imp_decl("_irq")
@@ -62,7 +62,7 @@ class bus_logger(UVMComponent):
         else:
             # Ensure each piece of data fits within the specified width
             sim_time = f"{cocotb.utils.get_sim_time(units='ns')} ns"
-            operation = f"{'Write' if transaction.kind == bus_bus_item.WRITE else 'Read'}"
+            operation = f"{'Write' if transaction.kind == bus_item.WRITE else 'Read'}"
             address = f"{hex(transaction.addr)}"
             data = transaction.data if type(transaction.data) is not int else f"{hex(transaction.data)}"
 
