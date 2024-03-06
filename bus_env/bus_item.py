@@ -6,20 +6,20 @@ from uvm.macros import uvm_component_utils, uvm_info, uvm_error, uvm_warning
 from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW
 
 
-class wrapper_bus_item(UVMSequenceItem):
+class bus_bus_item(UVMSequenceItem):
 
     READ = 0
     WRITE = 1
     RESET = 2
-    def __init__(self, name="wrapper_bus_item"):
+    def __init__(self, name="bus_bus_item"):
         super().__init__(name)
         self.tag = name
         self.addr = 0  # bit
         self.rand("addr", range(0, 0xFFF))
         self.data = 0  # logic
         self.rand("data", range(0, 0xFFFF))
-        self.kind = wrapper_bus_item.READ  # kind_e
-        self.rand("kind", [wrapper_bus_item.READ, wrapper_bus_item.WRITE])
+        self.kind = bus_bus_item.READ  # kind_e
+        self.rand("kind", [bus_bus_item.READ, bus_bus_item.WRITE])
         self.reset = 0
 
     def convert2string(self):
@@ -34,7 +34,7 @@ class wrapper_bus_item(UVMSequenceItem):
             return sv.sformatf("kind=%s addr=%s data=%s", kind, self.addr, self.data)
 
     def do_clone(self):
-        t = wrapper_bus_item()
+        t = bus_bus_item()
         t.copy(self)
         return t
 
@@ -46,15 +46,15 @@ class wrapper_bus_item(UVMSequenceItem):
         return self.kind == tr.kind and self.addr == tr.addr and self.data == tr.data
 
 
-uvm_object_utils_begin(wrapper_bus_item)
+uvm_object_utils_begin(bus_bus_item)
 uvm_field_int("addr", UVM_ALL_ON | UVM_NOPACK)
 uvm_field_int("data", UVM_ALL_ON | UVM_NOPACK)
-uvm_object_utils_end(wrapper_bus_item)
+uvm_object_utils_end(bus_bus_item)
 
 
-class wrapper_irq_item(UVMSequenceItem):
+class bus_irq_item(UVMSequenceItem):
 
-    def __init__(self, name="wrapper_irq_item"):
+    def __init__(self, name="bus_irq_item"):
         super().__init__(name)
         self.trg_irq = 0  # bit
 
@@ -64,4 +64,4 @@ class wrapper_irq_item(UVMSequenceItem):
     def do_compare(self, tr):
         # check if the data is trash return True
         return self.trg_irq == tr.trg_irq
-uvm_object_utils(wrapper_irq_item)
+uvm_object_utils(bus_irq_item)

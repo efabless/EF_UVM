@@ -3,20 +3,20 @@ from uvm.comps.uvm_monitor import UVMMonitor
 from uvm.tlm1.uvm_analysis_port import UVMAnalysisPort
 from uvm.base.uvm_config_db import UVMConfigDb
 from cocotb.triggers import Edge, Timer
-from EF_UVM.wrapper_env.wrapper_item import wrapper_irq_item
+from EF_UVM.bus_env.bus_item import bus_irq_item
 from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW
 
 
-class wrapper_irq_monitor(UVMMonitor):
-    def __init__(self, name="wrapper_irq_monitor", parent=None):
+class bus_irq_monitor(UVMMonitor):
+    def __init__(self, name="bus_irq_monitor", parent=None):
         super().__init__(name, parent)
-        self.monitor_port = UVMAnalysisPort("wrapper_irq_monitor", self)
+        self.monitor_port = UVMAnalysisPort("bus_irq_monitor", self)
         self.tag = name
 
     def build_phase(self, phase):
         super().build_phase(phase)
         arr = []
-        if (not UVMConfigDb.get(self, "", "wrapper_irq_if", arr)):
+        if (not UVMConfigDb.get(self, "", "bus_irq_if", arr)):
             uvm_fatal(self.tag, "No interface specified for self driver instance")
         else:
             self.sigs = arr[0]
@@ -28,7 +28,7 @@ class wrapper_irq_monitor(UVMMonitor):
         while True:
             tr = None
             await Edge(self.sigs.irq)
-            tr = wrapper_irq_item.type_id.create("tr", self)
+            tr = bus_irq_item.type_id.create("tr", self)
             if self.sigs.irq == 1:
                 tr.trg_irq = 1
             else:
@@ -37,4 +37,4 @@ class wrapper_irq_monitor(UVMMonitor):
             uvm_info(self.tag, "sampled IRQ transaction: " + tr.convert2string(), UVM_HIGH)
 
 
-uvm_component_utils(wrapper_irq_monitor)
+uvm_component_utils(bus_irq_monitor)

@@ -76,9 +76,9 @@ The efabless-uvm-env is a project aimed at providing a comprehensive and reusabl
     ├── test_lib.py
     ├── top.v
     ├── top_env.py
-    ├── vip
+    ├── ref_model
     │   ├── model.py
-    │   └── vip.py
+    │   └── ref_model.py
     └── wrapper_env
         ├── wrapper_agent
         │   ├── wrapper_agent.py
@@ -111,8 +111,8 @@ The efabless-uvm-env is a project aimed at providing a comprehensive and reusabl
 | ---                              | ---                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | [.gitignore](.gitignore)         | This code snippet represents the file `.gitignore` in the repository. It specifies the files and directories to be ignored by version control, such as YAML files, HTML files, compiled Python files, and various build artifacts.                                                                                                                                                                                     |
 | [test_lib.py](test_lib.py)       | The test_lib.py code is the toppest level component of the efabless-uvm-env repository. It defines the test class, which initializes the top environment,executes test sequences and provide interfaces and data to the top environment.|
-| [scoreboard.py](scoreboard.py)   | The `scoreboard.py` code snippet is a part of the `efabless-uvm-env` repository. It defines a `scoreboard` class that serves as a scoreboard component in the Universal Verification Methodology (UVM) architecture. The scoreboard receives data from EF_UVM.vip and RTL and performs comparisons to check for mismatches.                                                                                        |
-| [top_env.py](top_env.py)         | The `top_env.py` file in the `efabless-uvm-env` repository is the top-level verification environment for any Intellectual Property (IP) encapsulated by a bus. It connects the wrapperEnv (verification environment for the bus), ipEnv (verification environment specific to the IP), VIP (Verification IP), and Scoreboard components. It initializes and connects these components to ensure correct functionality. |
+| [scoreboard.py](scoreboard.py)   | The `scoreboard.py` code snippet is a part of the `efabless-uvm-env` repository. It defines a `scoreboard` class that serves as a scoreboard component in the Universal Verification Methodology (UVM) architecture. The scoreboard receives data from EF_UVM.ref_model and RTL and performs comparisons to check for mismatches.                                                                                        |
+| [top_env.py](top_env.py)         | The `top_env.py` file in the `efabless-uvm-env` repository is the top-level verification environment for any Intellectual Property (IP) encapsulated by a bus. It connects the wrapperEnv (verification environment for the bus), ipEnv (verification environment specific to the IP), ref_model (Verification IP), and Scoreboard components. It initializes and connects these components to ensure correct functionality. |
 | [Makefile](Makefile)             | This code snippet consists of a Makefile that is responsible for building and running the simulation of the efabless-uvm-env repository. The Makefile includes the necessary verilog sources and invokes the cocotb-config tool to generate the simulation makefiles. It allows for efficient simulation of the test environment defined in the repository.                                                            |
 | [top.v](top.v)                   | This code snippet is a module called top where the dut is initialized.                                                                                                                                                                                                                          |
 
@@ -162,11 +162,11 @@ The efabless-uvm-env is a project aimed at providing a comprehensive and reusabl
 
 </details>
 
-<details closed><summary>vip</summary>
+<details closed><summary>ref_model</summary>
 
 | File                     | Summary                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | ---                      | ---                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| [vip.py](vip/vip.py)     | The code snippet represents the VIP (Verification IP) component within the efabless-uvm-env repository. Its main role is to validate the IP and bus functionality and performance. It emulates the behavior of the IP and bus, generates expected outputs, interfaces with the scoreboard for verification, and integrates with the Register Abstraction Layer (RAL) for comprehensive register testing and error detection. |
+| [ref_model.py](ref_model/ref_model.py)     | The code snippet represents the ref_model (Verification IP) component within the efabless-uvm-env repository. Its main role is to validate the IP and bus functionality and performance. It emulates the behavior of the IP and bus, generates expected outputs, interfaces with the scoreboard for verification, and integrates with the Register Abstraction Layer (RAL) for comprehensive register testing and error detection. |
 
 </details>
 
@@ -243,7 +243,7 @@ Copy the all files from and update the following files:
     - Modify the bus map with new ip signals
 - ip_driver.py and ip_montor.py 
     - Modify the reading and writing to the signals
-- vip.py
+- ref_model.py
     - Update the model with the new ip specifications
 - ip_coverage.py
     - Add coverage groups for the new IP
