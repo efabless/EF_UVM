@@ -6,9 +6,9 @@ from EF_UVM.bus_env.bus_item import bus_item
 
 
 class bus_cov_groups():
-    def __init__(self, hierarchy, ip_regs_dict, irq_exist=False) -> None:
+    def __init__(self, hierarchy, regs, irq_exist=False) -> None:
         self.hierarchy = hierarchy
-        self.ip_regs_dict = ip_regs_dict
+        self.regs = regs
         # initialize coverage no covearge happened just sample nothing so the coverge is initialized
         self.cov_points = self._cov_points()
         
@@ -24,32 +24,31 @@ class bus_cov_groups():
             sample(tr)
 
     def irq_cov(self, tr, do_sampling=True):
-        im_size = int(self.ip_regs_dict[3848]["size"])
+        im_size = int(self.regs.regs[self.regs.reg_name_to_address["im"]]["size"])
 
         @CoverPoint(
-            f"{self.hierarchy}.irq.irq",
+            f"{self.hierarchy}.irq.interrupt",
             xf=lambda tr: tr.trg_irq,
             bins=[0, 1],
             bins_labels=["clear", "set"],
         )
         @CoverPoint(
             f"{self.hierarchy}.irq.irq_im",
-            xf=lambda tr: (tr.trg_irq, self.ip_regs_dict[0xf08]["val"]),
+            xf=lambda tr: (tr.trg_irq, self.regs.regs[self.regs.reg_name_to_address["im"]]["val"]),
             bins=[(i, 1 << j) for i in [0, 1] for j in range(im_size)],
             bins_labels=[f"({i}, flag{j})" for i in ["clear", "set"] for j in range(im_size)],
             rel=lambda val, b: val[1] == b[1] and val[0] == b[0]
         )
         def sample(tr):
-            uvm_info("coverage", f"im_val: {self.ip_regs_dict[0xf08]['val']}", UVM_HIGH)
+            uvm_info("coverage", f"im_val: {self.regs.regs[self.regs.reg_name_to_address['im']]['val']}", UVM_HIGH)
             pass
         if do_sampling:
             sample(tr)
 
     def _cov_points(self):
         cov_points = []
-        for reg_addr, reg in self.ip_regs_dict.items():
+        for reg_addr, reg in self.regs.regs.items():
             uvm_info("coverage", f"register: {reg['name']} reg_addr: {hex(reg_addr)}", UVM_HIGH)
-            
             if "fields" not in reg:
                 for access in ["write", "read"]:
                     # skip non write or read fields
