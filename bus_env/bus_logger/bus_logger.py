@@ -52,7 +52,7 @@ class bus_logger(UVMComponent):
         # # log the header
         self.bus_log(None, header_logged=True)
         self.regs_log(None, header_logged=True)
-        self.regs_log(None, header_logged=True)
+        self.irq_log(None, header_logged=True)
 
     def bus_log(self, transaction, header_logged=False):
         # Define a max width for each column
@@ -82,7 +82,7 @@ class bus_logger(UVMComponent):
             header = self.format_row(headers)
             with open(self.logger_irq, 'w') as f:
                 f.write(f"{header}\n")
-        else: 
+        else:
             sim_time = f"{cocotb.utils.get_sim_time(units='ns')} ns"
             irq = f"{'clear' if self.trg_irq == 0 else 'trigger'}"
             table_data = [f"{sim_time}", f"{irq}"]
@@ -125,10 +125,11 @@ class bus_logger(UVMComponent):
 
     def format_row(self, row_data):
         # Define a max width for each column
-        for i in range(len(self.col_widths)):
-            self.col_widths[i] = max(self.col_widths[i], len(row_data[i]) + 1)
-        row_header = '+' + '+'.join('-' * (w) for w in self.col_widths) + '+'
-        row = '|' + '|'.join(f"{item:{w}}" for item, w in zip(row_data, self.col_widths)) + '|'
+        trimmed_col_width = self.col_widths[:len(row_data)] 
+        for i in range(len(row_data)):
+            trimmed_col_width[i] = max(trimmed_col_width[i], len(row_data[i]) + 1)
+        row_header = '+' + '+'.join('-' * (w) for w in trimmed_col_width) + '+'
+        row = '|' + '|'.join(f"{item:{w}}" for item, w in zip(row_data, trimmed_col_width)) + '|'
         return row_header + "\n" + row
 
 
