@@ -29,7 +29,7 @@ class bus_coverage(UVMComponent):
         else:
             self.regs = arr[0]
 
-        self.cov_groups = bus_cov_groups("top.wrapper", self.regs.get_regs(), self.regs.get_irq_exist())
+        self.cov_groups = bus_cov_groups("top.wrapper", self.regs, self.regs.get_irq_exist())
 
     def write_bus(self, tr):
         uvm_info(self.tag, "get bus coverage for " + tr.convert2string(), UVM_HIGH)
