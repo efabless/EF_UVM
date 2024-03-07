@@ -84,7 +84,7 @@ class bus_logger(UVMComponent):
                 f.write(f"{header}\n")
         else:
             sim_time = f"{cocotb.utils.get_sim_time(units='ns')} ns"
-            irq = f"{'clear' if self.trg_irq == 0 else 'trigger'}"
+            irq = f"{'clear' if transaction.trg_irq == 0 else 'trigger'}"
             table_data = [f"{sim_time}", f"{irq}"]
             table = self.format_row(table_data)
             with open(self.logger_irq, 'a') as f:
