@@ -47,7 +47,7 @@ class bus_logger(UVMComponent):
             os.makedirs("loggers")
         self.logger_file = f"{os.getcwd()}/loggers/logger_bus.log"
         self.logger_file_regs_w = f"{os.getcwd()}/loggers/regs_write.log"
-        self.logger_irq = f"{os.getcwd()}/loggers/regs_write.log"
+        self.logger_irq = f"{os.getcwd()}/loggers/logger_irq.log"
         self.col_widths = [10, 10, 10, 10]
         # # log the header
         self.bus_log(None, header_logged=True)
