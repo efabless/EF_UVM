@@ -38,6 +38,7 @@ class bus_logger(UVMComponent):
 
     def write_irq(self, tr):
         uvm_info(self.tag, "get irq logg for " + tr.convert2string(), UVM_HIGH)
+        self.irq_log(tr)
         # self.cov_groups.irq_cov(tr)
         pass
 
@@ -46,9 +47,11 @@ class bus_logger(UVMComponent):
             os.makedirs("loggers")
         self.logger_file = f"{os.getcwd()}/loggers/logger_bus.log"
         self.logger_file_regs_w = f"{os.getcwd()}/loggers/regs_write.log"
+        self.logger_irq = f"{os.getcwd()}/loggers/regs_write.log"
         self.col_widths = [10, 10, 10, 10]
         # # log the header
         self.bus_log(None, header_logged=True)
+        self.regs_log(None, header_logged=True)
         self.regs_log(None, header_logged=True)
 
     def bus_log(self, transaction, header_logged=False):
@@ -71,6 +74,20 @@ class bus_logger(UVMComponent):
 
             table = self.format_row(table_data)
             with open(self.logger_file, 'a') as f:
+                f.write(f"{table}\n")
+
+    def irq_log(self, transaction, header_logged=False):
+        if header_logged:
+            headers = [f"{'Time (ns)'}", f"IRQ"]
+            header = self.format_row(headers)
+            with open(self.logger_irq, 'w') as f:
+                f.write(f"{header}\n")
+        else: 
+            sim_time = f"{cocotb.utils.get_sim_time(units='ns')} ns"
+            irq = f"{'clear' if self.trg_irq == 0 else 'trigger'}"
+            table_data = [f"{sim_time}", f"{irq}"]
+            table = self.format_row(table_data)
+            with open(self.logger_irq, 'a') as f:
                 f.write(f"{table}\n")
 
     def regs_log(self, transaction, header_logged=False):
