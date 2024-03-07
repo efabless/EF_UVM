@@ -49,6 +49,7 @@ class bus_env(UVMEnv):
             self.bus_agent.agent_irq_export.connect(self.coverage_comp.analysis_imp_irq)
         if self.logger_comp is not None:
             self.bus_agent.agent_bus_export.connect(self.logger_comp.analysis_imp_bus)
+            self.bus_agent.agent_bus_export.connect(self.logger_comp.analysis_imp_irq)
         pass
 
 
