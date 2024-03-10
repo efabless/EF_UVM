@@ -6,6 +6,7 @@ import cocotb
 from EF_UVM.bus_env.bus_item import bus_item
 from uvm.base.uvm_object_globals import UVM_MEDIUM, UVM_LOW, UVM_HIGH
 from EF_UVM.ip_env.ip_item import ip_item
+from cocotb.triggers import Event
 
 
 uvm_analysis_imp_bus = uvm_analysis_imp_decl("_bus")
@@ -26,12 +27,12 @@ class scoreboard(UVMScoreboard):
         self.analysis_imp_irq_ref_model = uvm_analysis_imp_irq_ref_model("analysis_imp_irq_ref_model", self)
         self.uvm_analysis_imp_ip_ref_model = uvm_analysis_imp_ip_ref_model("analysis_imp_ip_ref_model", self)
         self.tag = name
-        self.q_bus = Queue()
-        self.q_bus_ref_model = Queue()
-        self.q_irq = Queue()
-        self.q_irq_ref_model = Queue()
-        self.q_ip = Queue()
-        self.q_ip_ref_model = Queue()
+        self.q_bus = QueueUpdated()
+        self.q_bus_ref_model = QueueUpdated()
+        self.q_irq = QueueUpdated()
+        self.q_irq_ref_model = QueueUpdated()
+        self.q_ip = QueueUpdated()
+        self.q_ip_ref_model = QueueUpdated()
         cocotb.scheduler.add(self.checker_bus())
         cocotb.scheduler.add(self.checker_irq())
         cocotb.scheduler.add(self.checker_ip())
@@ -54,6 +55,9 @@ class scoreboard(UVMScoreboard):
 
     async def checker_bus(self):
         while True:
+            # wait until the 2 queus are not empty
+            await self.q_bus.wait_no_empty()
+            await self.q_bus_ref_model.wait_no_empty()
             val = await self.q_bus.get()
             exp = await self.q_bus_ref_model.get()
             if not val.do_compare(exp):
@@ -71,6 +75,9 @@ class scoreboard(UVMScoreboard):
 
     async def checker_irq(self):
         while True:
+            # wait until the 2 queus are not empty
+            await self.q_irq.wait_no_empty()
+            await self.q_irq_ref_model.wait_no_empty()
             val = await self.q_irq.get()
             exp = await self.q_irq_ref_model.get()
             if not val.do_compare(exp):
@@ -86,6 +93,9 @@ class scoreboard(UVMScoreboard):
 
     async def checker_ip(self):
         while True:
+            # wait until the 2 queus are not empty
+            await self.q_ip.wait_no_empty()
+            await self.q_ip_ref_model.wait_no_empty()
             val = await self.q_ip.get()
             exp = await self.q_ip_ref_model.get()
             if not val.do_compare(exp):
@@ -103,3 +113,17 @@ class scoreboard(UVMScoreboard):
 
 
 uvm_component_utils(scoreboard)
+
+
+class QueueUpdated(Queue):
+
+    def __init__(self, maxsize=0):
+        super().__init__(maxsize=maxsize)
+
+    async def wait_no_empty(self):
+        while self.empty():
+            event = Event("{} wait_no_empty".format(type(self).__name__))
+            self._getters.append((event, cocotb.scheduler._current_task))
+            # uvm_info("QueueUpdated", f"wait_no_empty getter {self._getters}", UVM_MEDIUM)
+            await event.wait()
+        return
