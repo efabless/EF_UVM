@@ -21,11 +21,10 @@
 ##  Quick Links
 
 > - [ Overview](#-overview)
-> - [ Features](#-features)
-> - [ Repository Structure](#-repository-structure)
-> - [ Modules](#-modules)
-> - [ Getting Started](#-getting-started)
-> - [ Project Roadmap](#-project-roadmap)
+> - [ Prerequisites](#-Prerequisites)
+> - [ Structure](#-Structure)
+> - [ Updates required](#-Updates_required)
+> - [ How to run](#-how-to-run)
 > - [ Contributing](#-contributing)
 > - [ License](#-license)
 
@@ -129,7 +128,7 @@ Managing the overall verification process. It coordinates the creation and execu
 #### Functionality
 Represents a single transaction or data item that is passed between all the relevant components, including the monitor, sequence, sequencer, driver, etc. It encapsulates the information and behavior related to a specific transaction within the testbench environment.
 
-## Updates required
+## Updates required {#Updates_required}
 
 ### Intro
 For new IPs all the red rectangles should be inherited from the parent IP and updated, then the type should be overridden in the test.
@@ -170,7 +169,7 @@ Add logger by inheriting from [`ip_logger`](https://github.com/efabless/EF_UVM/b
 ### files to copy
 #### TODO: update this section after creating the new flow
 
-## How to run
+## How to run {#how-to-run}
 #### TODO: update this section after creating the new flow
 
 Until the flow is updated. copying and updating the Makefile from verified design is needed. Update the make file with the verilog files paths, yaml/json file path and tests names. 
@@ -191,13 +190,6 @@ make run_<test_name> BUS_TYPE=APB
 make run_all_tests TAG=<new_tag> BUS_TYPE=APB
 ```
 
-
----
-##  Project Roadmap
-
-***TODO***
-
----
 
 ##  Contributing
 
