@@ -60,6 +60,12 @@ class bus_ahb_driver(UVMDriver):
     async def data_phase(self, tr):
         if tr.kind == bus_item.WRITE:
             self.vif.HWDATA.value = tr.data
+            await self.drive_delay()
+            while self.vif.HREADYOUT == 0:
+                await self.drive_delay()
+        else:
+            # for reading just wait until the data is ready
+            await self.drive_delay()
             while self.vif.HREADYOUT == 0:
                 await self.drive_delay()
 

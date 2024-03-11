@@ -63,15 +63,16 @@ class bus_logger(UVMComponent):
             with open(self.logger_file, 'w') as f:
                 f.write(f"{header}\n")
         else:
-            # Ensure each piece of data fits within the specified width
             sim_time = f"{cocotb.utils.get_sim_time(units='ns')} ns"
-            operation = f"{'Write' if transaction.kind == bus_item.WRITE else 'Read'}"
-            address = f"{hex(transaction.addr)}"
-            data = transaction.data if type(transaction.data) is not int else f"{hex(transaction.data)}"
-
-            # Now, assemble your table_data with the pre-formatted fields
-            table_data = [f"{sim_time}", f"{operation}", f"{address}", f"{data}"]
-
+            if transaction.reset:
+                table_data = [f"{sim_time}", "Reset", "--", "--"]
+            else:
+                # Ensure each piece of data fits within the specified width
+                operation = f"{'Write' if transaction.kind == bus_item.WRITE else 'Read'}"
+                address = f"{hex(transaction.addr)}"
+                data = transaction.data if type(transaction.data) is not int else f"{hex(transaction.data)}"
+                # Now, assemble your table_data with the pre-formatted fields
+                table_data = [f"{sim_time}", f"{operation}", f"{address}", f"{data}"]                
             table = self.format_row(table_data)
             with open(self.logger_file, 'a') as f:
                 f.write(f"{table}\n")
@@ -103,7 +104,10 @@ class bus_logger(UVMComponent):
             sim_time = f"{cocotb.utils.get_sim_time(units='ns')} ns"
             # first write the register write then if it has fields
             the_type = "REG"
-            Name = f"{self.regs.regs[transaction.addr]['name']}"
+            try:
+                Name = f"{self.regs.regs[transaction.addr]['name']}" 
+            except KeyError: 
+                Name = f"{hex(transaction.addr)}"
             data = f"{transaction.data}" if type(transaction.data) is not int else f"{hex(transaction.data)}({bin(transaction.data)})"
             # Now, assemble your table_data with the pre-formatted fields
             table_data = [f"{sim_time}", f"{the_type}", f"{Name}", f"{data}"]
@@ -111,17 +115,20 @@ class bus_logger(UVMComponent):
             table = self.format_row(table_data)
             with open(self.logger_file_regs_w, 'a') as f:
                 f.write(f"{table}\n")
-            if "fields" in self.regs.regs[transaction.addr]:
-                for field in self.regs.regs[transaction.addr]["fields"]:
-                    the_type = "FIELD"
-                    Name = f"{field['name']}"
-                    field_data = (transaction.data>>int(field['bit_offset']))&((1 << int(field['bit_width'])) - 1)
-                    data = f"{hex(field_data)}({bin(field_data)})"
-                    # Now, assemble your table_data with the pre-formatted fields
-                    table_data = [f"{sim_time}", f"{the_type}", f"{Name}", f"{data}"]
-                    table = self.format_row(table_data)
-                    with open(self.logger_file_regs_w, 'a') as f:
-                        f.write(f"{table}\n")
+            try:
+                if "fields" in self.regs.regs[transaction.addr]:
+                    for field in self.regs.regs[transaction.addr]["fields"]:
+                        the_type = "FIELD"
+                        Name = f"{field['name']}"
+                        field_data = (transaction.data>>int(field['bit_offset']))&((1 << int(field['bit_width'])) - 1)
+                        data = f"{hex(field_data)}({bin(field_data)})"
+                        # Now, assemble your table_data with the pre-formatted fields
+                        table_data = [f"{sim_time}", f"{the_type}", f"{Name}", f"{data}"]
+                        table = self.format_row(table_data)
+                        with open(self.logger_file_regs_w, 'a') as f:
+                            f.write(f"{table}\n")
+            except KeyError:
+                pass
 
     def format_row(self, row_data):
         # Define a max width for each column

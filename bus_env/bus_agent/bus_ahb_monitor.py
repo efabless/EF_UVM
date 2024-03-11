@@ -7,6 +7,7 @@ from EF_UVM.bus_env.bus_item import bus_item
 from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW
 import cocotb
 
+
 class bus_ahb_monitor(UVMMonitor):
     def __init__(self, name="bus_ahb_monitor", parent=None):
         super().__init__(name, parent)

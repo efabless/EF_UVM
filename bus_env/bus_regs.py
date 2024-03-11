@@ -27,7 +27,7 @@ class bus_regs():
         regs = {}
         address = 0
         self.irq_exist = False
-        if "flags" in self.data:
+        if "flags" in self.data and len(self.data["flags"]) > 0:
             size = len(self.data["flags"])
             reg_im = {'name': 'im', "offset" : 0xf00,'size': size, 'mode': 'w', 'fifo': "no","bit_access": "no", "val": 0}
             reg_mis = {'name': 'mis', "offset" : 0xf04,'size': size, 'mode': 'r', 'fifo': "no","bit_access": "no", "val": 0}
