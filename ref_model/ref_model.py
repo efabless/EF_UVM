@@ -1,11 +1,12 @@
 from uvm.base.uvm_component import UVMComponent
 from uvm.macros import uvm_component_utils
 from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW, UVM_MEDIUM 
-from uvm.macros import uvm_component_utils, uvm_info
+from uvm.macros import uvm_component_utils, uvm_info, uvm_fatal
 from uvm.tlm1.uvm_analysis_port import UVMAnalysisExport
 from uvm.macros.uvm_tlm_defines import uvm_analysis_imp_decl
 import cocotb
 from EF_UVM.bus_env.bus_item import bus_item
+from uvm.base.uvm_config_db import UVMConfigDb
 
 uvm_analysis_imp_bus = uvm_analysis_imp_decl("_bus")
 uvm_analysis_imp_ip = uvm_analysis_imp_decl("_ip")
@@ -34,7 +35,11 @@ class ref_model(UVMComponent):
 
     def build_phase(self, phase):
         super().build_phase(phase)
-        pass
+        arr = []
+        if (not UVMConfigDb.get(self, "", "bus_regs", arr)):
+            uvm_fatal(self.tag, "No json file wrapper regs")
+        else:
+            self.regs = arr[0]
 
     def write_bus(self, tr):
         uvm_info(self.tag, " write: " + tr.convert2string(), UVM_HIGH)
