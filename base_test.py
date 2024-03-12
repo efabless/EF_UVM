@@ -6,15 +6,8 @@ from uvm.base.uvm_config_db import UVMConfigDb
 from uvm.base.uvm_printer import UVMTablePrinter
 from uvm.base.sv import sv
 from uvm.base.uvm_object_globals import UVM_FULL, UVM_LOW, UVM_ERROR
-from uvm.base.uvm_globals import run_test
 from EF_UVM.top_env import top_env
-from skeleton_interface.skeleton_if import skeleton_if
-from EF_UVM.bus_env.bus_interface.bus_if import bus_apb_if, bus_irq_if, bus_ahb_if, bus_wb_if
-from cocotb_coverage.coverage import coverage_db
-from cocotb.triggers import Event, First
-from EF_UVM.bus_env.bus_regs import bus_regs
 from uvm.base.uvm_report_server import UVMReportServer
-from uvm.base import UVMRoot
 
 # override bus classes
 from EF_UVM.bus_env.bus_agent.bus_ahb_driver import bus_ahb_driver
