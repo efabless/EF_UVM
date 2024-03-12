@@ -25,7 +25,7 @@ class ip_monitor(UVMMonitor):
         else:
             self.regs = regs_arr[0]
 
-    
+
     async def run_phase(self, phase):
         uvm_fatal(self.tag, "please write your monitor for the ip and replace it in the test")
 
