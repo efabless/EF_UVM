@@ -64,7 +64,7 @@ class bus_logger(UVMComponent):
                 f.write(f"{header}\n")
         else:
             sim_time = f"{cocotb.utils.get_sim_time(units='ns')} ns"
-            if transaction.reset:
+            if transaction.kind == bus_item.RESET:
                 table_data = [f"{sim_time}", "Reset", "--", "--"]
             else:
                 # Ensure each piece of data fits within the specified width

@@ -33,6 +33,10 @@ class bus_ahb_driver(UVMDriver):
                 await self.reset()
                 self.seq_item_port.item_done()
                 continue
+            elif tr.kind == bus_item.NOPE:
+                await self.drive_delay()
+                self.seq_item_port.item_done()
+                continue
             await self.address_phase(tr)
             await self.data_phase(tr)
             self.seq_item_port.item_done()

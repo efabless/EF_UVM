@@ -36,10 +36,11 @@ run_$(1):
 	@docker run --rm \
 	$(USER_ARGS) \
 	-v "$(GRANDPARENT_DIR)":"$(GRANDPARENT_DIR)" \
+	-e RANDOM_SEED:$(RANDOM_SEED) \
 	-e SIM_PATH="$(SIM_PATH)" \
 	-e PYTHONIOENCODING=utf-8 \
 	-e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 \
-	$(DOCKER_IMAGE) /bin/sh -c "cd $(SIM_PATH)/$(1) &&  MODULE=top_module vvp -M $(DOCKER_COCOTB_LIB_DIR) -m libcocotbvpi_icarus $(SIM_PATH)/compilation/sim.vvp +UVM_TESTNAME=$(1) +TEST_PATH=$(SIM_PATH)/$(1) +YAML_FILE=$(YAML_FILE) +BUS_TYPE=$(BUS_TYPE) COCOTB_RESULTS_FILE=$(SIM_PATH)/$(1)/results.xml > $(SIM_PATH)/$(1)/test.log 2>&1"
+	$(DOCKER_IMAGE) /bin/sh -c "cd $(SIM_PATH)/$(1) &&  MODULE=top_module RANDOM_SEED=$(RANDOM_SEED) vvp -M $(DOCKER_COCOTB_LIB_DIR) -m libcocotbvpi_icarus $(SIM_PATH)/compilation/sim.vvp +UVM_TESTNAME=$(1) +TEST_PATH=$(SIM_PATH)/$(1) +YAML_FILE=$(YAML_FILE) +BUS_TYPE=$(BUS_TYPE) COCOTB_RESULTS_FILE=$(SIM_PATH)/$(1)/results.xml > $(SIM_PATH)/$(1)/test.log 2>&1"
 	@echo "Checking test results..."
 	@if grep -q "UVM TEST FAIL" $(SIM_PATH)/$(1)/test.log; then \
 		echo "Test Failed" > $(SIM_PATH)/$(1)/failed; \

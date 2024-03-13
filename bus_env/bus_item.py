@@ -11,6 +11,7 @@ class bus_item(UVMSequenceItem):
     READ = 0
     WRITE = 1
     RESET = 2
+    NOPE = 3  # Insert a no-op in the sequence
     def __init__(self, name="bus_item"):
         super().__init__(name)
         self.tag = name
@@ -20,11 +21,12 @@ class bus_item(UVMSequenceItem):
         self.rand("data", range(0, 0xFFFF))
         self.kind = bus_item.READ  # kind_e
         self.rand("kind", [bus_item.READ, bus_item.WRITE])
-        self.reset = 0
 
     def convert2string(self):
-        if self.reset:
+        if self.kind == bus_item.RESET:
             return sv.sformatf("RESET command send to DUT")
+        if self.kind == bus_item.NOPE:
+            return sv.sformatf("NO-OP command send to DUT")
         kind = "READ"
         if self.kind == 1:
             kind = "WRITE"

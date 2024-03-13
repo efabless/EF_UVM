@@ -48,4 +48,19 @@ class bus_seq_base(UVMSequence):
             self.req.data = 0  # needed to add any dummy value
             await uvm_do(self, self.req)
 
+    async def send_nop(self):
+        self.req.rand_mode(0)
+        self.req.addr = 0
+        self.req.kind = bus_item.NOPE
+        self.req.data = 0  # needed to add any dummy value
+        await uvm_do(self, self.req)
+
+    async def send_reset(self):
+        self.req.rand_mode(0)
+        self.req.addr = 0
+        self.req.kind = bus_item.RESET
+        self.req.data = 0  # needed to add any dummy value
+        await uvm_do(self, self.req)
+
+
 uvm_object_utils(bus_seq_base)

@@ -28,9 +28,13 @@ class bus_wb_driver(UVMDriver):
             await self.seq_item_port.get_next_item(tr)
             tr = tr[0]
             uvm_info(self.tag, "Driving trans into DUT: " + tr.convert2string(), UVM_HIGH)
-            if tr.reset:
+            if tr.kind == bus_item.RESET:
                 uvm_info(self.tag, "Doing reset", UVM_MEDIUM)
                 await self.reset()
+                self.seq_item_port.item_done()
+                continue
+            elif tr.kind == bus_item.NOPE:
+                await self.drive_delay()
                 self.seq_item_port.item_done()
                 continue
             await self.send_trans(tr)

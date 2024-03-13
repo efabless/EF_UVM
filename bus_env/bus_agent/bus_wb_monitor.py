@@ -47,8 +47,7 @@ class bus_wb_monitor(UVMMonitor):
             await FallingEdge(self.vif.rst_i)
             # send reset tr
             tr = bus_item.type_id.create("tr", self)
-            tr.reset = 1
-            tr.kind = bus_item.READ
+            tr.kind = bus_item.RESET
             tr.addr = 0
             self.monitor_port.write(tr)
             uvm_info(self.tag, "sampled reset transaction: " + tr.convert2string(), UVM_HIGH)

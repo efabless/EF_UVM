@@ -33,6 +33,10 @@ class bus_apb_driver(UVMDriver):
                 await self.reset()
                 self.seq_item_port.item_done()
                 continue
+            elif tr.kind == bus_item.NOPE:
+                await self.drive_delay()
+                self.seq_item_port.item_done()
+                continue
             #if (not self.vif.clk.triggered):
             #yield Edge(self.vif.clk)
             # await self.drive_delay()

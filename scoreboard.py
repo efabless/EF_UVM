@@ -46,12 +46,12 @@ class scoreboard(UVMScoreboard):
     def write_bus(self, tr):
         if tr.kind == bus_item.READ:
             self.q_bus.put_nowait(tr)
-            uvm_info(self.tag, "write_bus: " + tr.convert2string(), UVM_MEDIUM)
+            uvm_info(self.tag, "write_bus: " + tr.convert2string(), UVM_HIGH)
 
     def write_bus_ref_model(self, tr):
         if tr.kind == bus_item.READ:
             self.q_bus_ref_model.put_nowait(tr)
-            uvm_info(self.tag, "write_bus_ref_model: " + tr.convert2string(), UVM_MEDIUM)
+            uvm_info(self.tag, "write_bus_ref_model: " + tr.convert2string(), UVM_HIGH)
 
     async def checker_bus(self):
         while True:
@@ -66,11 +66,11 @@ class scoreboard(UVMScoreboard):
                 uvm_info(self.tag, "Bus match: " + val.convert2string() + " == " + exp.convert2string(), UVM_HIGH)
 
     def write_irq(self, tr):
-        uvm_info(self.tag, "write_irq: " + tr.convert2string(), UVM_MEDIUM)
+        uvm_info(self.tag, "write_irq: " + tr.convert2string(), UVM_HIGH)
         self.q_irq.put_nowait(tr)
 
     def write_irq_ref_model(self, tr):
-        uvm_info(self.tag, "write_irq_ref_model: " + tr.convert2string(), UVM_MEDIUM)
+        uvm_info(self.tag, "write_irq_ref_model: " + tr.convert2string(), UVM_HIGH)
         self.q_irq_ref_model.put_nowait(tr)
 
     async def checker_irq(self):
@@ -84,11 +84,11 @@ class scoreboard(UVMScoreboard):
                 uvm_error(self.tag, "IRQ mismatch: " + val.convert2string() + " != " + exp.convert2string())
 
     def write_ip(self, tr):
-        uvm_info(self.tag, "write_ip: " + tr.convert2string(), UVM_MEDIUM)
+        uvm_info(self.tag, "write_ip: " + tr.convert2string(), UVM_HIGH)
         self.q_ip.put_nowait(tr)
 
     def write_ip_ref_model(self, tr):
-        uvm_info(self.tag, "write_ip_ref_model: " + tr.convert2string(), UVM_MEDIUM)
+        uvm_info(self.tag, "write_ip_ref_model: " + tr.convert2string(), UVM_HIGH)
         self.q_ip_ref_model.put_nowait(tr)
 
     async def checker_ip(self):
@@ -100,6 +100,8 @@ class scoreboard(UVMScoreboard):
             exp = await self.q_ip_ref_model.get()
             if not val.do_compare(exp):
                 uvm_error(self.tag, "IP mismatch: " + val.convert2string() + " != " + exp.convert2string())
+            else:
+                uvm_info(self.tag, "IP match: " + val.convert2string() + " == " + exp.convert2string(), UVM_HIGH)
 
     def extract_phase(self, phase):
         super().extract_phase(phase)
