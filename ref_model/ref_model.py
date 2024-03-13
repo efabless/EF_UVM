@@ -1,11 +1,12 @@
 from uvm.base.uvm_component import UVMComponent
 from uvm.macros import uvm_component_utils
 from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW, UVM_MEDIUM 
-from uvm.macros import uvm_component_utils, uvm_info
+from uvm.macros import uvm_component_utils, uvm_info, uvm_fatal
 from uvm.tlm1.uvm_analysis_port import UVMAnalysisExport
 from uvm.macros.uvm_tlm_defines import uvm_analysis_imp_decl
 import cocotb
 from EF_UVM.bus_env.bus_item import bus_item
+from uvm.base.uvm_config_db import UVMConfigDb
 
 uvm_analysis_imp_bus = uvm_analysis_imp_decl("_bus")
 uvm_analysis_imp_ip = uvm_analysis_imp_decl("_ip")
@@ -14,7 +15,7 @@ uvm_analysis_imp_ip_irq = uvm_analysis_imp_decl("_ip_irq")
 
 class ref_model(UVMComponent):
     """
-    The , or Verification IP, is a crucial element within the top-level verification environment, designed to validate the functionality and performance of both the IP (Intellectual Property) and the bus system. Its primary role is to act as a representative or mimic of the actual hardware components, including the IP and the bus. Key features and functions of the  include:
+    The reference model or Verification IP, is a crucial element within the top-level verification environment, designed to validate the functionality and performance of both the IP (Intellectual Property) and the bus system. Its primary role is to act as a representative or mimic of the actual hardware components, including the IP and the bus. Key features and functions of the  include:
     1) Input Simulation: The  is capable of receiving the same inputs that would be provided to the actual IP and bus via connection with the monitors of the bus and IP.
     2) Functional Emulation: It emulates the behavior and responses of the IP and bus under test. By replicating the operational characteristics of these components, the  serves as a benchmark for expected performance and behavior.
     3) Output Generation: Upon receiving inputs, the  processes them in a manner akin to the real hardware, subsequently generating expected outputs. These outputs are essential for comparison in the verification process.
@@ -34,7 +35,11 @@ class ref_model(UVMComponent):
 
     def build_phase(self, phase):
         super().build_phase(phase)
-        pass
+        arr = []
+        if (not UVMConfigDb.get(self, "", "bus_regs", arr)):
+            uvm_fatal(self.tag, "No json file wrapper regs")
+        else:
+            self.regs = arr[0]
 
     def write_bus(self, tr):
         uvm_info(self.tag, " write: " + tr.convert2string(), UVM_HIGH)
