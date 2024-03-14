@@ -39,6 +39,7 @@ class skeleton_ref_model(ref_model):
             self.bus_bus_export.write(tr)
             uvm_info("Ref model", "reset from ref model", UVM_LOW)
             # TODO: write logic needed when reset is received
+            #self.bus_bus_export.write(tr)
             return
         if tr.kind == bus_item.WRITE:
             # TODO: write logic needed when write transaction is received
