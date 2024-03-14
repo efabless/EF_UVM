@@ -35,10 +35,11 @@ class skeleton_ref_model(ref_model):
         # Called when new transaction is received from the bus monitor
         # TODO: update the following logic to determine what to do with the received transaction
         uvm_info(self.tag, " write: " + tr.convert2string(), UVM_HIGH)
-        if tr.reset:
+        if tr.kind == bus_item.RESET:
             self.bus_bus_export.write(tr)
             uvm_info("vip", "reset from the vip", UVM_LOW)
             # TODO: write logic needed when reset is received
+            #self.bus_bus_export.write(tr)
             return
         if tr.kind == bus_item.WRITE:
             # TODO: write logic needed when write transaction is received
