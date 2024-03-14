@@ -34,21 +34,21 @@ class skeleton_ref_model(ref_model):
     def write_bus(self, tr):
         # Called when new transaction is received from the bus monitor
         # TODO: update the following logic to determine what to do with the received transaction
-        uvm_info(self.tag, " write: " + tr.convert2string(), UVM_HIGH)
-        if tr.reset:
+        uvm_info(self.tag, " Ref model recieved from bus monitor: " + tr.convert2string(), UVM_HIGH)
+        if tr.kind == bus_item.RESET:
             self.bus_bus_export.write(tr)
-            uvm_info("vip", "reset from the vip", UVM_LOW)
+            uvm_info("Ref model", "reset from ref model", UVM_LOW)
             # TODO: write logic needed when reset is received
             return
         if tr.kind == bus_item.WRITE:
             # TODO: write logic needed when write transaction is received
-            # for example
+            # For example, to write the same value to the same resgiter uncomment the following lines
             # self.regs.write_reg_value(tr.addr, tr.data)
             # self.bus_bus_export.write(tr) # this is output to the scoreboard
             pass
         elif tr.kind == bus_item.READ:
             # TODO: write logic needed when read transaction is received
-            # for example
+            # For example, to read the same resgiter uncomment the following lines
             # data = self.regs.read_reg_value(tr.addr)
             # td = tr.do_clone()
             # td.data = data
@@ -56,9 +56,10 @@ class skeleton_ref_model(ref_model):
             pass
 
     def write_ip(self, tr):
-        uvm_info(self.tag, "ip  write: " + tr.convert2string(), UVM_HIGH)
         # Called when new transaction is received from the ip monitor
         # TODO: write what to do when new transaction ip transaction is received
-
+        uvm_info(self.tag, "Ref model recieved from ip monitor: " + tr.convert2string(), UVM_HIGH)        
+        # Here the ref model should predict the transaction and send it to scoreboard 
+        #self.ip_export.write(td) # this is output ro scoreboard
 
 uvm_component_utils(skeleton_ref_model)
