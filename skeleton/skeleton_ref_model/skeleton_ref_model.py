@@ -22,6 +22,11 @@ class skeleton_ref_model(ref_model):
     def __init__(self, name="skeleton_ref_model", parent=None):
         super().__init__(name, parent)
         self.tag = name
+        self.ris_reg = 0 
+        self.mis_reg = 0
+        self.irq = 0
+        self.mis_changed = Event()
+        self.icr_changed = Event()
 
     def build_phase(self, phase):
         super().build_phase(phase)
@@ -30,6 +35,11 @@ class skeleton_ref_model(ref_model):
     async def run_phase(self, phase):
         await super().run_phase(phase)
         # Here add the log to run when simulation starts
+
+        # Checking for interrupts should be run as a concurrent coroutine 
+        await cocotb.start (self.send_irq_tr())
+        await cocotb.start (self.clear_ris_reg())
+
 
     def write_bus(self, tr):
         # Called when new transaction is received from the bus monitor
@@ -46,6 +56,10 @@ class skeleton_ref_model(ref_model):
             # For example, to write the same value to the same resgiter uncomment the following lines
             # self.regs.write_reg_value(tr.addr, tr.data)
             # self.bus_bus_export.write(tr) # this is output to the scoreboard
+
+            # check if the write register is icr , set the icr changed event
+            if tr.addr == self.regs.reg_name_to_address["icr"] and tr.data != 0:
+                self.icr_changed.set()
             pass
         elif tr.kind == bus_item.READ:
             # TODO: write logic needed when read transaction is received
@@ -55,12 +69,69 @@ class skeleton_ref_model(ref_model):
             # td.data = data
             # self.bus_bus_export.write(td) # this is output to the scoreboard
             pass
+        self.update_interrupt_regs()
 
     def write_ip(self, tr):
         # Called when new transaction is received from the ip monitor
         # TODO: write what to do when new transaction ip transaction is received
-        uvm_info(self.tag, "Ref model recieved from ip monitor: " + tr.convert2string(), UVM_HIGH)        
+        uvm_info(self.tag, "Ref model recieved from ip monitor: " + tr.convert2string(), UVM_HIGH) 
+        
+        # Update interrupts when a new ip transaction is received 
+        self.set_ris_reg()
+        self.update_interrupt_regs()       
         # Here the ref model should predict the transaction and send it to scoreboard 
         #self.ip_export.write(td) # this is output ro scoreboard
+
+
+
+    
+    def set_ris_reg(self):         
+        # TODO: update this function to update the value of 'self.ris_reg' according to the ip transaction  
+        # For example:         
+        # rx_fifo_threshold = self.regs.read_reg_value("RXFIFOT")
+        # if self.fifo_rx.qsize() > rx_fifo_threshold:
+        #     self.ris_reg |= 0x2
+
+    
+    async def clear_ris_reg (self):
+        # This coroutine runs concurrently it waits for icr_changed event then update interrupt registers 
+        while (True):
+            await self.icr_changed.wait()
+            icr_reg = self.regs.read_reg_value("icr")
+            mask = ~icr_reg
+            self.ris_reg = self.ris_reg & mask
+            self.update_interrupt_regs()
+            self.regs.write_reg_value("icr", 0, force_write=True)  # clear icr register
+            self.icr_changed.clear()
+    
+    def update_interrupt_regs(self):
+        # This function updates ris and mis with new values and set mis changed event if mis has a new value 
+        self.regs.write_reg_value("ris", self.ris_reg, force_write=True)
+        im_reg = self.regs.read_reg_value("im")
+        mis_reg_new = self.ris_reg & im_reg
+        uvm_info(self.tag, f" Update interrupts :  im =  {im_reg:X}, ris =  {self.ris_reg:X}, mis = {mis_reg_new:X}", UVM_LOW)
+        if mis_reg_new != self.mis_reg:
+            self.mis_changed.set()
+        self.mis_reg = mis_reg_new
+        self.regs.write_reg_value("mis", self.mis_reg, force_write=True)
+
+    async def send_irq_tr(self):
+        # This coroutine waits for mis_changed event, create an interrupt transaction, then send it to scoreboard for comparison 
+        # if trg_irq = 1 means that irq changed from low to high, if it is 0,  it means irq changed from high to low 
+        while (True):
+            await self.mis_changed.wait()
+            irq_new = 1 if self.mis_reg else 0                                        
+            if irq_new and not self.irq: # irq changed from low to high 
+                self.irq = 1 
+                tr = bus_irq_item.type_id.create("tr", self)
+                tr.trg_irq = 1                      
+                self.bus_irq_export.write(tr)
+            elif not irq_new and self.irq: # irq changed from high to low 
+                self.irq = 0
+                tr = bus_irq_item.type_id.create("tr", self)
+                tr.trg_irq = 0
+                self.bus_irq_export.write(tr)
+            
+            self.mis_changed.clear()
 
 uvm_component_utils(skeleton_ref_model)
