@@ -1,4 +1,3 @@
-
 RED=\033[0;31m
 GREEN=\033[0;32m
 YELLOW=\033[0;33m
@@ -9,6 +8,7 @@ GRANDPARENT_DIR:="$(shell cd ../../; pwd)"
 DOCKER_IMAGE = efabless/dv:cocotb
 RUN_MERGE_COVERAGE := true
 USER_ARGS = -u $(shell id -u $$USER):$(shell id -g $$USER)
+OPENLANE_RUN = $(SIM_PATH)/openlane_run/
 ifeq ($(ROOTLESS), 1)
 	USER_ARGS =
 endif
@@ -25,6 +25,7 @@ run_$(1):
         docker run --rm \
 		$(USER_ARGS) \
 		-v "$(GRANDPARENT_DIR)":"$(GRANDPARENT_DIR)" \
+		-v "$(PDK_DIR)":"$(PDK_DIR)" \
 		-e RTL_MACROS="$(RTL_MACROS)" \
 		-e VERILOG_SOURCES="$(VERILOG_SOURCES)" \
 		-e SIM_PATH="$(SIM_PATH)" \
@@ -36,6 +37,7 @@ run_$(1):
 	@docker run --rm \
 	$(USER_ARGS) \
 	-v "$(GRANDPARENT_DIR)":"$(GRANDPARENT_DIR)" \
+	-v "$(PDK_DIR)":"$(PDK_DIR)" \
 	-e SIM_PATH="$(SIM_PATH)" \
 	-e PYTHONIOENCODING=utf-8 \
 	-e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 \
@@ -51,6 +53,10 @@ run_$(1):
 		echo "Test Result Unknown" > $(SIM_PATH)/$(1)/unknown; \
 		echo "$$(YELLOW)Test $(1) Result Unknown$$(NC)" ; \
 	fi
+
+run_gl_$(1):
+	@$(MAKE) generate_gl
+	$(MAKE) run_$(1) VERILOG_SOURCES="$(POST_SYS_FILES) $(PDK_FILES) " RTL_MACROS="$(GL_MACROS)"
 endef
 
 $(foreach test,$(TESTS),$(eval $(call RUN_TEST_TEMPLATE,$(test))))
@@ -58,6 +64,13 @@ $(foreach test,$(TESTS),$(eval $(call RUN_TEST_TEMPLATE,$(test))))
 # Target to run all tests in parallel
 run_all_tests:
 	@$(MAKE) $(addprefix run_,$(TESTS)) -j$(shell nproc)
+ifeq ($(RUN_MERGE_COVERAGE),true)
+	$(MAKE) run_merge_coverage 
+endif
+
+# Target to run all tests in parallel
+run_all_gl_tests:
+	@$(MAKE) $(addprefix run_gl_,$(TESTS)) -j$(shell nproc)
 ifeq ($(RUN_MERGE_COVERAGE),true)
 	$(MAKE) run_merge_coverage 
 endif
@@ -109,3 +122,21 @@ clean_passed_dirs:
 			dir=$$(dirname $$dir); \
 		done; \
 	done
+
+generate_gl:
+	@if [ ! -d "$(OPENLANE_RUN)/final" ]; then \
+		echo "Generating netlist with Yosys"; \
+		mkdir -p $(OPENLANE_RUN); \
+		cd $(GRANDPARENT_DIR) && openlane --dockerized --docker-no-tty --save-views-to hdl/gl/synthesis   --log-level WARNING -c DESIGN_NAME=$(DESIGN_NAME) -c VERILOG_FILES="$(PRE_SYS_FILES)" --force-run-dir $(OPENLANE_RUN) synthesis/config.json; \
+    fi
+	# @$(MAKE) get_pdk_files
+
+get_pdk_files:
+	@echo "Getting PDK files..."
+	if [ -f "$(OPENLANE_RUN)/resolved.json" ]; then \
+		json_file="$(OPENLANE_RUN)/resolved.json"; \
+		pdk_files=$$(jq -r '.CELL_VERILOG_MODELS[]' $$json_file | tr '\n' ' '); \
+		echo $${pdk_files}; \
+		echo "PDK_FILES = $$pdk_files" > $(SIM_PATH)/pdk_files.mk; \
+	fi
+
