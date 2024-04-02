@@ -63,6 +63,7 @@ $(foreach test,$(TESTS),$(eval $(call RUN_TEST_TEMPLATE,$(test))))
 
 # Target to run all tests in parallel
 run_all_tests:
+	@$(MAKE) generate_gl
 	@$(MAKE) $(addprefix run_,$(TESTS)) -j$(shell nproc)
 ifeq ($(RUN_MERGE_COVERAGE),true)
 	$(MAKE) run_merge_coverage 
