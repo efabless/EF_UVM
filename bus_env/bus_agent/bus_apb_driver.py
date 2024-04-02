@@ -65,7 +65,7 @@ class bus_apb_driver(UVMDriver):
         self.end_of_trans()
 
     async def drive_delay(self):
-        await RisingEdge(self.vif.PCLK)
+        await RisingEdge(self.vif.CLK)
         await Timer(1, "NS")
 
     async def trans_received(self, tr):

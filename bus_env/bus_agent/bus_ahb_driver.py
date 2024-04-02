@@ -74,7 +74,7 @@ class bus_ahb_driver(UVMDriver):
                 await self.drive_delay()
 
     async def drive_delay(self):
-        await RisingEdge(self.vif.HCLK)
+        await RisingEdge(self.vif.CLK)
 
     def end_of_trans(self):
         self.vif.HSEL.value = 0b00

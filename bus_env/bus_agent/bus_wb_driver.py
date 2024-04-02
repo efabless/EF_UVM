@@ -64,7 +64,7 @@ class bus_wb_driver(UVMDriver):
         self.end_of_trans()
 
     async def drive_delay(self):
-        await RisingEdge(self.vif.HCLK)
+        await RisingEdge(self.vif.CLK)
 
     def end_of_trans(self):
         self.vif.sel_i.value = 0b0000

@@ -54,12 +54,12 @@ class bus_ahb_monitor(UVMMonitor):
             uvm_info(self.tag, "sampled reset transaction: " + tr.convert2string(), UVM_HIGH)
 
     async def sample_delay(self):
-        await RisingEdge(self.vif.HCLK)
+        await RisingEdge(self.vif.CLK)
         await Timer(1, "NS")
 
     async def address_phase(self):
         while True:
-            await RisingEdge(self.vif.HCLK)
+            await RisingEdge(self.vif.CLK)
             if self.vif.HSEL.value.binstr == "1":
                 if self.vif.HTRANS.value.binstr[0] == "1":
                     break

@@ -53,7 +53,7 @@ class bus_wb_monitor(UVMMonitor):
             uvm_info(self.tag, "sampled reset transaction: " + tr.convert2string(), UVM_HIGH)
 
     async def sample_delay(self):
-        await RisingEdge(self.vif.clk_i)
+        await RisingEdge(self.vif.CLK)
         await Timer(1, "NS")
 
     async def recieve_transaction(self):

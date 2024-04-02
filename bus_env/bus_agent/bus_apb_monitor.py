@@ -65,7 +65,7 @@ class bus_apb_monitor(UVMMonitor):
             uvm_info(self.tag, "sampled reset transaction: " + tr.convert2string(), UVM_HIGH)
 
     async def sample_delay(self):
-        await RisingEdge(self.sigs.PCLK)
+        await RisingEdge(self.vif.CLK)
         # await Timer(1, "NS")
 
 
