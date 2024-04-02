@@ -23,6 +23,9 @@ class bus_regs():
         self.init_regs()
         uvm_info(self.tag, f"Regs: {self.regs}", UVM_HIGH)
 
+    def set_clock(self, clock):
+        self.clock = clock
+
     def init_regs(self):
         regs = {}
         address = 0
