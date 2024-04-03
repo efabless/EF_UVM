@@ -2,7 +2,7 @@ from uvm.base.uvm_component import UVMComponent
 from uvm.macros import uvm_component_utils
 from uvm.tlm1.uvm_analysis_port import UVMAnalysisImp
 from uvm.macros import uvm_component_utils, uvm_fatal, uvm_info
-from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW 
+from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW
 from uvm.base.uvm_config_db import UVMConfigDb
 import os
 import cocotb
@@ -39,22 +39,26 @@ class ip_logger(UVMComponent):
 
         if header_logged:
             header = self.format_row(self.header)
-            with open(self.logger_file, 'w') as f:
+            with open(self.logger_file, "w") as f:
                 f.write(f"{header}\n")
         else:
             # Ensure each piece of data fits within the specified width
             # Now, assemble your table_data with the pre-formatted fields
             table_data = self.logger_formatter(transaction)
             table = self.format_row(table_data)
-            with open(self.logger_file, 'a') as f:
+            with open(self.logger_file, "a") as f:
                 f.write(f"{table}\n")
 
     def format_row(self, row_data):
         # Define a max width for each column
         for i in range(len(self.col_widths)):
             self.col_widths[i] = max(self.col_widths[i], len(row_data[i]) + 1)
-        row_header = '+' + '+'.join('-' * (w) for w in self.col_widths) + '+'
-        row = '|' + '|'.join(f"{item:{w}}" for item, w in zip(row_data, self.col_widths)) + '|'
+        row_header = "+" + "+".join("-" * (w) for w in self.col_widths) + "+"
+        row = (
+            "|"
+            + "|".join(f"{item:{w}}" for item, w in zip(row_data, self.col_widths))
+            + "|"
+        )
         return row_header + "\n" + row
 
     def logger_formatter(self, transaction):

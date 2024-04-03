@@ -4,7 +4,12 @@ from uvm.base.uvm_config_db import UVMConfigDb
 from uvm.base.uvm_object_globals import UVM_LOW
 from uvm.base.uvm_globals import run_test
 from skeleton_interface.skeleton_if import skeleton_if
-from EF_UVM.bus_env.bus_interface.bus_if import bus_apb_if, bus_irq_if, bus_ahb_if, bus_wb_if
+from EF_UVM.bus_env.bus_interface.bus_if import (
+    bus_apb_if,
+    bus_irq_if,
+    bus_ahb_if,
+    bus_wb_if,
+)
 from cocotb_coverage.coverage import coverage_db
 from cocotb.triggers import Event, First
 from EF_UVM.bus_env.bus_regs import bus_regs
@@ -32,7 +37,7 @@ from skeleton_logger.skeleton_logger import skeleton_logger
 async def module_top(dut):
     # profiler = cProfile.Profile()
     # profiler.enable()
-    BUS_TYPE = cocotb.plusargs['BUS_TYPE']
+    BUS_TYPE = cocotb.plusargs["BUS_TYPE"]
     pif = skeleton_if(dut)
     if BUS_TYPE == "APB":
         w_if = bus_apb_if(dut)
@@ -65,7 +70,7 @@ async def module_top(dut):
 
 class skeleton_base_test(base_test):
     def __init__(self, name="skeleton_first_test", parent=None):
-        BUS_TYPE = cocotb.plusargs['BUS_TYPE']
+        BUS_TYPE = cocotb.plusargs["BUS_TYPE"]
         super().__init__(name, bus_type=BUS_TYPE, parent=parent)
         self.tag = name
 
@@ -73,9 +78,15 @@ class skeleton_base_test(base_test):
         super().build_phase(phase)
         # override
         self.set_type_override_by_type(ip_driver.get_type(), skeleton_driver.get_type())
-        self.set_type_override_by_type(ip_monitor.get_type(), skeleton_monitor.get_type())
-        self.set_type_override_by_type(ref_model.get_type(), skeleton_ref_model.get_type())
-        self.set_type_override_by_type(ip_coverage.get_type(), skeleton_coverage.get_type())
+        self.set_type_override_by_type(
+            ip_monitor.get_type(), skeleton_monitor.get_type()
+        )
+        self.set_type_override_by_type(
+            ref_model.get_type(), skeleton_ref_model.get_type()
+        )
+        self.set_type_override_by_type(
+            ip_coverage.get_type(), skeleton_coverage.get_type()
+        )
         self.set_type_override_by_type(ip_logger.get_type(), skeleton_logger.get_type())
 
 

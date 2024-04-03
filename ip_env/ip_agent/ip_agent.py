@@ -17,6 +17,7 @@ class ip_agent(UVMAgent):
     The monitor tracks data outputs, state transitions, timing, and other relevant metrics, providing insights into the IP's performance, behavior, and compliance with the required protocol.
     Sequencer (if present): Manages the sequence of operations and tests, allowing for the creation of complex test scenarios that mimic real-world IP usage.
     """
+
     def __init__(self, name="ip_agent", parent=None):
         super().__init__(name, parent)
         self.tag = name

@@ -19,7 +19,9 @@ class skeleton_driver(ip_driver):
             await self.seq_item_port.get_next_item(tr)
             tr = tr[0]
             # TODO: Add your code here for driving the IP
-            uvm_fatal(self.tag, "please remove this line and write your code for driving here")
+            uvm_fatal(
+                self.tag, "please remove this line and write your code for driving here"
+            )
             # use self.vif.<signal name> for driving interface signals
             self.seq_item_port.item_done()
 

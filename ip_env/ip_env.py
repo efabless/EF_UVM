@@ -18,6 +18,7 @@ class ip_env(UVMEnv):
         These logs are formatted into tables, providing a clear and chronological record of the IP's behavior.
         This detailed logging is invaluable for debugging and pinpointing specific issues in the IP's functionality.
     """
+
     def __init__(self, name="ip_env", parent=None):
         super().__init__(name, parent)
         self.coverage_comp = None
@@ -29,14 +30,14 @@ class ip_env(UVMEnv):
     def build_phase(self, phase):
         self.ip_agent = ip_agent.type_id.create("ip_agent", self)
         collect_cov = []
-        if (not UVMConfigDb.get(self, "", "collect_coverage", collect_cov)):
+        if not UVMConfigDb.get(self, "", "collect_coverage", collect_cov):
             collect_cov = False
         else:
             collect_cov = collect_cov[0]
-        if (collect_cov):
+        if collect_cov:
             self.coverage_comp = ip_coverage.type_id.create("ip_coverage", self)
         disable_logger = []
-        if (not UVMConfigDb.get(self, "", "disable_logger", disable_logger)):
+        if not UVMConfigDb.get(self, "", "disable_logger", disable_logger):
             disable_logger = False
         else:
             disable_logger = disable_logger[0]
