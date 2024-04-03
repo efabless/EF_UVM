@@ -41,10 +41,10 @@ class bus_wb_driver(UVMDriver):
             self.seq_item_port.item_done()
 
     async def reset(self, num_cycles=3):
-        self.vif.HRESETn.value = 0
+        self.vif.RESETn.value = 0
         for _ in range(num_cycles):
             await self.drive_delay()
-        self.vif.HRESETn.value = 1
+        self.vif.RESETn.value = 1
         self.end_of_trans()
 
     async def send_trans(self, tr):

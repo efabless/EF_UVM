@@ -55,7 +55,7 @@ class bus_apb_monitor(bus_base_monitor):
 
     async def watch_reset(self):
         while True:
-            await FallingEdge(self.vif.PRESETn)
+            await FallingEdge(self.vif.RESETn)
             # send reset tr
             tr = bus_item.type_id.create("tr", self)
             tr.kind = bus_item.RESET
