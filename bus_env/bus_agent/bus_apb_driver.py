@@ -14,7 +14,7 @@ class bus_apb_driver(UVMDriver):
     def build_phase(self, phase):
         super().build_phase(phase)
         arr = []
-        if (not UVMConfigDb.get(self, "", "bus_if", arr)):
+        if not UVMConfigDb.get(self, "", "bus_if", arr):
             uvm_fatal(self.tag, "No interface specified for self driver instance")
         else:
             self.vif = arr[0]
@@ -27,7 +27,9 @@ class bus_apb_driver(UVMDriver):
             tr = []
             await self.seq_item_port.get_next_item(tr)
             tr = tr[0]
-            uvm_info(self.tag, "Driving trans into DUT: " + tr.convert2string(), UVM_HIGH)
+            uvm_info(
+                self.tag, "Driving trans into DUT: " + tr.convert2string(), UVM_HIGH
+            )
             if tr.kind == bus_item.RESET:
                 uvm_info(self.tag, "Doing reset", UVM_MEDIUM)
                 await self.reset()
@@ -37,14 +39,14 @@ class bus_apb_driver(UVMDriver):
                 await self.drive_delay()
                 self.seq_item_port.item_done()
                 continue
-            #if (not self.vif.clk.triggered):
-            #yield Edge(self.vif.clk)
+            # if (not self.vif.clk.triggered):
+            # yield Edge(self.vif.clk)
             # await self.drive_delay()
-            #yield RisingEdge(self.vif.clk)
-            #yield Timer(1, "NS")
+            # yield RisingEdge(self.vif.clk)
+            # yield Timer(1, "NS")
 
             await self.trans_received(tr)
-            #uvm_do_callbacks(apb_master,apb_master_cbs,trans_received(self,tr))
+            # uvm_do_callbacks(apb_master,apb_master_cbs,trans_received(self,tr))
 
             if tr.kind == bus_item.READ:
                 data = []
@@ -54,7 +56,7 @@ class bus_apb_driver(UVMDriver):
                 await self.write(tr.addr, tr.data)
 
             await self.trans_executed(tr)
-            #uvm_do_callbacks(apb_master,apb_master_cbs,trans_executed(self,tr))
+            # uvm_do_callbacks(apb_master,apb_master_cbs,trans_executed(self,tr))
             self.seq_item_port.item_done()
 
     async def reset(self, num_cycles=3):
@@ -100,5 +102,6 @@ class bus_apb_driver(UVMDriver):
     def end_of_trans(self):
         self.vif.PSEL.value = 0
         self.vif.PENABLE.value = 0
+
 
 uvm_component_utils(bus_apb_driver)

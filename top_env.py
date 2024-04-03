@@ -15,6 +15,7 @@ class top_env(UVMEnv):
         4)Scoreboard: This is used to compare the outputs from the ref_model (which are the expected outputs) with the actual outputs from the IP and bus.
     The Top-Level Environment is responsible for initializing these components and ensuring they are correctly connected.
     """
+
     def __init__(self, name="env", parent=None):
         super().__init__(name, parent)
         self.ip_env = None
@@ -30,9 +31,9 @@ class top_env(UVMEnv):
 
     def connect_phase(self, phase):
         """
-            Connect the scoreboard  with the bus and ip environment.
-            Connect the scorebord with  the ref_model.
-            Connect the ref_model with bus and ip environment monitors.
+        Connect the scoreboard  with the bus and ip environment.
+        Connect the scorebord with  the ref_model.
+        Connect the ref_model with bus and ip environment monitors.
         """
         self.bus_env.bus_bus_export.connect(self.ref_model.analysis_imp_bus)
         self.ip_env.ip_env_export.connect(self.ref_model.analysis_imp_ip)
@@ -41,8 +42,12 @@ class top_env(UVMEnv):
         self.bus_env.bus_bus_export.connect(self.scoreboard.analysis_imp_bus)
         self.bus_env.bus_irq_export.connect(self.scoreboard.analysis_imp_irq)
         self.ip_env.ip_env_export.connect(self.scoreboard.uvm_analysis_imp_ip)
-        self.ref_model.bus_bus_export.connect(self.scoreboard.analysis_imp_bus_ref_model)
-        self.ref_model.bus_irq_export.connect(self.scoreboard.analysis_imp_irq_ref_model)
+        self.ref_model.bus_bus_export.connect(
+            self.scoreboard.analysis_imp_bus_ref_model
+        )
+        self.ref_model.bus_irq_export.connect(
+            self.scoreboard.analysis_imp_irq_ref_model
+        )
         self.ref_model.ip_export.connect(self.scoreboard.uvm_analysis_imp_ip_ref_model)
         pass
 

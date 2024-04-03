@@ -1,6 +1,6 @@
 from uvm.base.uvm_component import UVMComponent
 from uvm.macros import uvm_component_utils
-from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW, UVM_MEDIUM 
+from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW, UVM_MEDIUM
 from uvm.macros import uvm_component_utils, uvm_info, uvm_fatal
 from uvm.tlm1.uvm_analysis_port import UVMAnalysisExport
 from uvm.macros.uvm_tlm_defines import uvm_analysis_imp_decl
@@ -22,6 +22,7 @@ class ref_model(UVMComponent):
     4) Interface with Scoreboard: The outputs from the , representing the expected results, are forwarded to the scoreboard. The scoreboard then compares these expected results with the actual outputs from the IP and bus for verification.
     5)Register Abstraction Layer (RAL) Integration: The  includes a RAL model that mirrors the register values of the RTL, ensuring synchronization between expected and actual register states. This model facilitates register-level tests and error detection, offering accessible and up-to-date register values for other verification components. It enhances the automation and coverage of register testing, playing a vital role in ensuring the accuracy and comprehensiveness of the verification process.
     """
+
     def __init__(self, name="", parent=None):
         super().__init__(name, parent)
         self.analysis_imp_bus = uvm_analysis_imp_bus("_ap_bus", self)
@@ -36,7 +37,7 @@ class ref_model(UVMComponent):
     def build_phase(self, phase):
         super().build_phase(phase)
         arr = []
-        if (not UVMConfigDb.get(self, "", "bus_regs", arr)):
+        if not UVMConfigDb.get(self, "", "bus_regs", arr):
             uvm_fatal(self.tag, "No json file wrapper regs")
         else:
             self.regs = arr[0]

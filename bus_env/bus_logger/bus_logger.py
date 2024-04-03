@@ -2,7 +2,7 @@ from uvm.base.uvm_component import UVMComponent
 from uvm.macros import uvm_component_utils
 from uvm.tlm1.uvm_analysis_port import UVMAnalysisImp
 from uvm.macros import uvm_component_utils, uvm_fatal, uvm_info
-from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW 
+from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW
 from uvm.base.uvm_config_db import UVMConfigDb
 from uvm.macros.uvm_tlm_defines import uvm_analysis_imp_decl
 import os
@@ -24,7 +24,7 @@ class bus_logger(UVMComponent):
     def build_phase(self, phase):
         super().build_phase(phase)
         arr = []
-        if (not UVMConfigDb.get(self, "", "bus_regs", arr)):
+        if not UVMConfigDb.get(self, "", "bus_regs", arr):
             uvm_fatal(self.tag, "No json file wrapper regs")
         else:
             self.regs = arr[0]
@@ -60,7 +60,7 @@ class bus_logger(UVMComponent):
         if header_logged:
             headers = [f"{'Time (ns)'}", f"{'Kind'}", f"{'Address'}", f"{'Data'}"]
             header = self.format_row(headers)
-            with open(self.logger_file, 'w') as f:
+            with open(self.logger_file, "w") as f:
                 f.write(f"{header}\n")
         else:
             sim_time = f"{cocotb.utils.get_sim_time(units='ns')} ns"
@@ -68,27 +68,33 @@ class bus_logger(UVMComponent):
                 table_data = [f"{sim_time}", "Reset", "--", "--"]
             else:
                 # Ensure each piece of data fits within the specified width
-                operation = f"{'Write' if transaction.kind == bus_item.WRITE else 'Read'}"
+                operation = (
+                    f"{'Write' if transaction.kind == bus_item.WRITE else 'Read'}"
+                )
                 address = f"{hex(transaction.addr)}"
-                data = transaction.data if type(transaction.data) is not int else f"{hex(transaction.data)}"
+                data = (
+                    transaction.data
+                    if type(transaction.data) is not int
+                    else f"{hex(transaction.data)}"
+                )
                 # Now, assemble your table_data with the pre-formatted fields
-                table_data = [f"{sim_time}", f"{operation}", f"{address}", f"{data}"]                
+                table_data = [f"{sim_time}", f"{operation}", f"{address}", f"{data}"]
             table = self.format_row(table_data)
-            with open(self.logger_file, 'a') as f:
+            with open(self.logger_file, "a") as f:
                 f.write(f"{table}\n")
 
     def irq_log(self, transaction, header_logged=False):
         if header_logged:
             headers = [f"{'Time (ns)'}", f"IRQ"]
             header = self.format_row(headers)
-            with open(self.logger_irq, 'w') as f:
+            with open(self.logger_irq, "w") as f:
                 f.write(f"{header}\n")
         else:
             sim_time = f"{cocotb.utils.get_sim_time(units='ns')} ns"
             irq = f"{'clear' if transaction.trg_irq == 0 else 'trigger'}"
             table_data = [f"{sim_time}", f"{irq}"]
             table = self.format_row(table_data)
-            with open(self.logger_irq, 'a') as f:
+            with open(self.logger_irq, "a") as f:
                 f.write(f"{table}\n")
 
     def regs_log(self, transaction, header_logged=False):
@@ -97,7 +103,7 @@ class bus_logger(UVMComponent):
         if header_logged:
             headers = [f"{'Time (ns)'}", f"{'Type'}", f"{'Name'}", f"{'Data'}"]
             header = self.format_row(headers)
-            with open(self.logger_file_regs_w, 'w') as f:
+            with open(self.logger_file_regs_w, "w") as f:
                 f.write(f"{header}\n")
         else:
             # Ensure each piece of data fits within the specified width
@@ -105,40 +111,54 @@ class bus_logger(UVMComponent):
             # first write the register write then if it has fields
             the_type = "REG"
             try:
-                Name = f"{self.regs.regs[transaction.addr]['name']}" 
-            except KeyError: 
+                Name = f"{self.regs.regs[transaction.addr]['name']}"
+            except KeyError:
                 Name = f"{hex(transaction.addr)}"
-            data = f"{transaction.data}" if type(transaction.data) is not int else f"{hex(transaction.data)}({bin(transaction.data)})"
+            data = (
+                f"{transaction.data}"
+                if type(transaction.data) is not int
+                else f"{hex(transaction.data)}({bin(transaction.data)})"
+            )
             # Now, assemble your table_data with the pre-formatted fields
             table_data = [f"{sim_time}", f"{the_type}", f"{Name}", f"{data}"]
 
             table = self.format_row(table_data)
-            with open(self.logger_file_regs_w, 'a') as f:
+            with open(self.logger_file_regs_w, "a") as f:
                 f.write(f"{table}\n")
             try:
                 if "fields" in self.regs.regs[transaction.addr]:
                     for field in self.regs.regs[transaction.addr]["fields"]:
                         the_type = "FIELD"
                         Name = f"{field['name']}"
-                        field_data = (transaction.data>>int(field['bit_offset']))&((1 << int(field['bit_width'])) - 1)
+                        field_data = (transaction.data >> int(field["bit_offset"])) & (
+                            (1 << int(field["bit_width"])) - 1
+                        )
                         data = f"{hex(field_data)}({bin(field_data)})"
                         # Now, assemble your table_data with the pre-formatted fields
-                        table_data = [f"{sim_time}", f"{the_type}", f"{Name}", f"{data}"]
+                        table_data = [
+                            f"{sim_time}",
+                            f"{the_type}",
+                            f"{Name}",
+                            f"{data}",
+                        ]
                         table = self.format_row(table_data)
-                        with open(self.logger_file_regs_w, 'a') as f:
+                        with open(self.logger_file_regs_w, "a") as f:
                             f.write(f"{table}\n")
             except KeyError:
                 pass
 
     def format_row(self, row_data):
         # Define a max width for each column
-        trimmed_col_width = self.col_widths[:len(row_data)] 
+        trimmed_col_width = self.col_widths[: len(row_data)]
         for i in range(len(row_data)):
             trimmed_col_width[i] = max(trimmed_col_width[i], len(row_data[i]) + 1)
-        row_header = '+' + '+'.join('-' * (w) for w in trimmed_col_width) + '+'
-        row = '|' + '|'.join(f"{item:{w}}" for item, w in zip(row_data, trimmed_col_width)) + '|'
+        row_header = "+" + "+".join("-" * (w) for w in trimmed_col_width) + "+"
+        row = (
+            "|"
+            + "|".join(f"{item:{w}}" for item, w in zip(row_data, trimmed_col_width))
+            + "|"
+        )
         return row_header + "\n" + row
-
 
 
 uvm_component_utils(bus_logger)

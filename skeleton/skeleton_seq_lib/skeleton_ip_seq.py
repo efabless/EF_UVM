@@ -20,7 +20,7 @@ class skeleton_ip_seq(UVMSequence):
     async def body(self):
         # Add sequence to be used by the ip sequencer
         # you could use method uvm_do and uvm_do_with to send these transactions
-        # send item with conditions 
+        # send item with conditions
         # await uvm_do_with(self, self.req, lambda skeleton_var1: skeleton_var1 == 10, lambda skeleton_var2: skeleton_var2 > 7, ......)
         # send item without conditions
         # await uvm_do(self, self.req)
