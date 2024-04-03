@@ -17,6 +17,8 @@ from EF_UVM.bus_env.bus_agent.bus_ahb_monitor import bus_ahb_monitor
 from EF_UVM.bus_env.bus_agent.bus_apb_monitor import bus_apb_monitor
 from EF_UVM.bus_env.bus_agent.bus_wb_monitor import bus_wb_monitor
 
+from EF_UVM.bus_env.bus_seq_lib.reset_bus_seq import reset_bus_seq
+
 
 class base_test(UVMTest):
     def __init__(self, name="base_test", bus_type="AHB", parent=None):
@@ -80,6 +82,12 @@ class base_test(UVMTest):
     def start_of_simulation_phase(self, phase):
         self.bus_sqr = self.top_env.bus_env.bus_agent.bus_sequencer
         self.ip_sqr = self.top_env.ip_env.ip_agent.ip_sequencer
+
+    async def reset_phase(self, phase):
+        phase.raise_objection(self, f"{self.__class__.__name__} OBJECTED")
+        bus_seq = reset_bus_seq("reset_bus_seq")
+        await bus_seq.start(self.bus_sqr)
+        phase.drop_objection(self, f"{self.__class__.__name__} drop objection")
 
     def extract_phase(self, phase):
         super().check_phase(phase)

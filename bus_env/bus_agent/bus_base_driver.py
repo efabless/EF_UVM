@@ -15,13 +15,10 @@ class bus_base_driver(UVMDriver):
     def build_phase(self, phase):
         super().build_phase(phase)
         arr = []
-        if (not UVMConfigDb.get(self, "", "bus_if", arr)):
+        if not UVMConfigDb.get(self, "", "bus_if", arr):
             uvm_fatal(self.tag, "No interface specified for self driver instance")
         else:
             self.vif = arr[0]
-
-    async def reset_phase(self, phase):
-        await self.reset()
 
     @abstractmethod
     async def run_phase(self, phase):
