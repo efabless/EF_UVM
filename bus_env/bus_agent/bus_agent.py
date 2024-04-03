@@ -17,6 +17,7 @@ class bus_agent(UVMAgent):
         The monitor observes and captures the bus activities to provide insights into its operational compliance and performance, ensuring that the bus behaves as expected under various test conditions.
         Sequencer (if present): Coordinates the sequence of test operations, enabling the creation of complex scenarios that effectively test the bus system in real-world-like conditions.
     """
+
     def __init__(self, name="bus_agent", parent=None):
         super().__init__(name, parent)
         self.tag = name
@@ -32,7 +33,7 @@ class bus_agent(UVMAgent):
         self.driver = bus_apb_driver.type_id.create("bus_apb_driver", self)
         self.bus_monitor = bus_apb_monitor.type_id.create("bus_apb_monitor", self)
         arr = []
-        if (not UVMConfigDb.get(self, "", "irq_exist", arr)):
+        if not UVMConfigDb.get(self, "", "irq_exist", arr):
             uvm_fatal(self.tag, "No info about irq exists in config DB")
         else:
             irq_exist = arr[0]

@@ -6,6 +6,7 @@ from uvm.base.uvm_object_globals import UVM_HIGH, UVM_MEDIUM, UVM_LOW
 from EF_UVM.bus_env.bus_item import bus_item
 from EF_UVM.bus_env.bus_agent.bus_base_driver import bus_base_driver
 
+
 class bus_ahb_driver(bus_base_driver):
     def __init__(self, name="bus_ahb_driver", parent=None):
         super().__init__(name, parent)
@@ -19,7 +20,9 @@ class bus_ahb_driver(bus_base_driver):
             tr = []
             await self.seq_item_port.get_next_item(tr)
             tr = tr[0]
-            uvm_info(self.tag, "Driving trans into DUT: " + tr.convert2string(), UVM_HIGH)
+            uvm_info(
+                self.tag, "Driving trans into DUT: " + tr.convert2string(), UVM_HIGH
+            )
             if tr.kind == bus_item.RESET:
                 uvm_info(self.tag, "Doing reset", UVM_MEDIUM)
                 await self.reset()

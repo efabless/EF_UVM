@@ -1,5 +1,5 @@
 from EF_UVM.ip_env.ip_logger.ip_logger import ip_logger
-import cocotb 
+import cocotb
 from uvm.macros import uvm_component_utils, uvm_fatal
 
 
@@ -8,13 +8,15 @@ class skeleton_logger(ip_logger):
         super().__init__(name, parent)
         uvm_fatal("skeleton_logger", "please write self.header in list format")
         # self.header = ['Time (ns)', "Direction", "value"]
-        self.col_widths = [10]* len(self.header)
+        self.col_widths = [10] * len(self.header)
 
     def logger_formatter(self, transaction):
         sim_time = f"{cocotb.utils.get_sim_time(units='ns')} ns"
         # this called when new transaction is called from ip monitor
         # TODO: should return the list of strings by the information in the header with the same order
-        return [sim_time, ]
+        return [
+            sim_time,
+        ]
 
 
 uvm_component_utils(skeleton_logger)

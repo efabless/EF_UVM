@@ -12,6 +12,7 @@ class skeleton_coverage(ip_coverage):
     """
     component that initialize the coverage groups and control when to sample the data.
     """
+
     def __init__(self, name="skeleton_coverage", parent=None):
         super().__init__(name, parent)
 

@@ -15,19 +15,20 @@ class ip_monitor(UVMMonitor):
     def build_phase(self, phase):
         super().build_phase(phase)
         arr = []
-        if (not UVMConfigDb.get(self, "", "ip_if", arr)):
+        if not UVMConfigDb.get(self, "", "ip_if", arr):
             uvm_fatal(self.tag, "No interface specified for self monitor instance")
         else:
             self.vif = arr[0]
         regs_arr = []
-        if (not UVMConfigDb.get(self, "", "bus_regs", regs_arr)):
+        if not UVMConfigDb.get(self, "", "bus_regs", regs_arr):
             uvm_fatal(self.tag, "No json file wrapper regs")
         else:
             self.regs = regs_arr[0]
 
-
     async def run_phase(self, phase):
-        uvm_fatal(self.tag, "please write your monitor for the ip and replace it in the test")
+        uvm_fatal(
+            self.tag, "please write your monitor for the ip and replace it in the test"
+        )
 
 
 uvm_component_utils(ip_monitor)

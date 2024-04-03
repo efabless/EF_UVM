@@ -14,7 +14,7 @@ class bus_wb_driver(UVMDriver):
     def build_phase(self, phase):
         super().build_phase(phase)
         arr = []
-        if (not UVMConfigDb.get(self, "", "bus_if", arr)):
+        if not UVMConfigDb.get(self, "", "bus_if", arr):
             uvm_fatal(self.tag, "No interface specified for self driver instance")
         else:
             self.vif = arr[0]
@@ -27,7 +27,9 @@ class bus_wb_driver(UVMDriver):
             tr = []
             await self.seq_item_port.get_next_item(tr)
             tr = tr[0]
-            uvm_info(self.tag, "Driving trans into DUT: " + tr.convert2string(), UVM_HIGH)
+            uvm_info(
+                self.tag, "Driving trans into DUT: " + tr.convert2string(), UVM_HIGH
+            )
             if tr.kind == bus_item.RESET:
                 uvm_info(self.tag, "Doing reset", UVM_MEDIUM)
                 await self.reset()
