@@ -1,5 +1,10 @@
 from uvm.seq.uvm_sequence_item import UVMSequenceItem
-from uvm.macros import uvm_object_utils_begin, uvm_object_utils_end, uvm_field_int, uvm_object_utils
+from uvm.macros import (
+    uvm_object_utils_begin,
+    uvm_object_utils_end,
+    uvm_field_int,
+    uvm_object_utils,
+)
 from uvm.base.uvm_object_globals import UVM_ALL_ON, UVM_NOPACK
 from uvm.base.sv import sv
 from uvm.macros import uvm_component_utils, uvm_info, uvm_error, uvm_warning
@@ -12,6 +17,7 @@ class bus_item(UVMSequenceItem):
     WRITE = 1
     RESET = 2
     NOPE = 3  # Insert a no-op in the sequence
+
     def __init__(self, name="bus_item"):
         super().__init__(name)
         self.tag = name
@@ -43,7 +49,10 @@ class bus_item(UVMSequenceItem):
     def do_compare(self, tr):
         # check if the data is trash return True
         if tr.data == "X":
-            uvm_warning(self.tag, f"Data for comparing {self.convert2string()} is trash as it's not upredictable and in valid so the scoreboard should not check it")
+            uvm_warning(
+                self.tag,
+                f"Data for comparing {self.convert2string()} is trash as it's not upredictable and in valid so the scoreboard should not check it",
+            )
             return True
         return self.kind == tr.kind and self.addr == tr.addr and self.data == tr.data
 
@@ -61,9 +70,13 @@ class bus_irq_item(UVMSequenceItem):
         self.trg_irq = 0  # bit
 
     def convert2string(self):
-        return sv.sformatf(f"{'clear interrupt' if self.trg_irq == 0 else 'set interrupt'}")
+        return sv.sformatf(
+            f"{'clear interrupt' if self.trg_irq == 0 else 'set interrupt'}"
+        )
 
     def do_compare(self, tr):
         # check if the data is trash return True
         return self.trg_irq == tr.trg_irq
+
+
 uvm_object_utils(bus_irq_item)

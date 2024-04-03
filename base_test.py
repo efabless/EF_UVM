@@ -29,11 +29,19 @@ class base_test(UVMTest):
     def build_phase(self, phase):
         super().build_phase(phase)
         if self.bus_type == "AHB":
-            self.set_type_override_by_type(bus_apb_driver.get_type(), bus_ahb_driver.get_type())
-            self.set_type_override_by_type(bus_apb_monitor.get_type(), bus_ahb_monitor.get_type())
+            self.set_type_override_by_type(
+                bus_apb_driver.get_type(), bus_ahb_driver.get_type()
+            )
+            self.set_type_override_by_type(
+                bus_apb_monitor.get_type(), bus_ahb_monitor.get_type()
+            )
         elif self.bus_type == "WISHBONE":
-            self.set_type_override_by_type(bus_apb_driver.get_type(), bus_wb_driver.get_type())
-            self.set_type_override_by_type(bus_apb_monitor.get_type(), bus_wb_monitor.get_type())
+            self.set_type_override_by_type(
+                bus_apb_driver.get_type(), bus_wb_driver.get_type()
+            )
+            self.set_type_override_by_type(
+                bus_apb_monitor.get_type(), bus_wb_monitor.get_type()
+            )
         elif self.bus_type == "APB":
             pass
         else:
@@ -56,14 +64,18 @@ class base_test(UVMTest):
             UVMConfigDb.set(self, "*", "bus_if", arr[0])
         else:
             uvm_fatal("NOVIF", "Could not get bus_if from config DB")
-        # set max number of uvm errors 
+        # set max number of uvm errors
         server = UVMReportServer()
         server.set_max_quit_count(3)  # set maximum count of uvm_error before quitting
         UVMCoreService.get().set_report_server(server)
 
     def end_of_elaboration_phase(self, phase):
         # Set verbosity for the bus monitor for this demo
-        uvm_info(self.get_type_name(), sv.sformatf("Printing the test topology :\n%s", self.sprint(self.printer)), UVM_LOW)
+        uvm_info(
+            self.get_type_name(),
+            sv.sformatf("Printing the test topology :\n%s", self.sprint(self.printer)),
+            UVM_LOW,
+        )
 
     def start_of_simulation_phase(self, phase):
         self.bus_sqr = self.top_env.bus_env.bus_agent.bus_sequencer
@@ -74,14 +86,16 @@ class base_test(UVMTest):
         server = UVMCoreService.get().get_report_server()
         errors = server.get_severity_count(UVM_ERROR)
         if errors > 0:
-            uvm_fatal("FOUND ERRORS", "There were " + str(errors) + " UVM_ERRORs in the test")
+            uvm_fatal(
+                "FOUND ERRORS", "There were " + str(errors) + " UVM_ERRORs in the test"
+            )
 
     def report_phase(self, phase):
         uvm_info(self.get_type_name(), "report_phase", UVM_LOW)
         if self.test_pass:
             uvm_info(self.get_type_name(), "** UVM TEST PASSED **", UVM_LOW)
         else:
-            uvm_fatal(self.get_type_name(), "** UVM TEST FAIL **\n" +self.err_msg)
+            uvm_fatal(self.get_type_name(), "** UVM TEST FAIL **\n" + self.err_msg)
 
 
 uvm_component_utils(base_test)

@@ -2,7 +2,15 @@ from uvm.macros import uvm_component_utils, uvm_fatal, uvm_info, uvm_error, uvm_
 from uvm.comps.uvm_monitor import UVMMonitor
 from uvm.tlm1.uvm_analysis_port import UVMAnalysisPort
 from uvm.base.uvm_config_db import UVMConfigDb
-from cocotb.triggers import Timer, ClockCycles, FallingEdge, Event, RisingEdge, Combine, First
+from cocotb.triggers import (
+    Timer,
+    ClockCycles,
+    FallingEdge,
+    Event,
+    RisingEdge,
+    Combine,
+    First,
+)
 from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW, UVM_MEDIUM
 import cocotb
 import math
@@ -14,7 +22,7 @@ class skeleton_monitor(ip_monitor):
         super().__init__(name, parent)
 
     async def run_phase(self, phase):
-        # TODO: Add logic to monitor the IP 
+        # TODO: Add logic to monitor the IP
         # use self.vif.<signal name> for monitoring interface signals
         # self.monitor_port.write(tr) # this is the port to send the transaction after sampling it
         pass

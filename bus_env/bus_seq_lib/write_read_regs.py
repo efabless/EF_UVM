@@ -21,7 +21,7 @@ class write_read_regs(UVMSequence):
     async def body(self):
         # get all regs valid addresses
         arr = []
-        if (not UVMConfigDb.get(self, "", "bus_regs", arr)):
+        if not UVMConfigDb.get(self, "", "bus_regs", arr):
             uvm_fatal(self.tag, "No json file wrapper regs")
         else:
             regs = arr[0]
@@ -29,18 +29,27 @@ class write_read_regs(UVMSequence):
         self.address = list(self.regs_dict.keys())
         # remove non read write addresses
         uvm_info(self.tag, "Got addresses: " + str(self.address), UVM_LOW)
-        self.address = [addr for addr in self.address if self.regs_dict[addr]["mode"] == "w" and self.regs_dict[addr]["fifo"] is False]
+        self.address = [
+            addr
+            for addr in self.address
+            if self.regs_dict[addr]["mode"] == "w"
+            and self.regs_dict[addr]["fifo"] is False
+        ]
         uvm_info(self.tag, "Got addresses: " + str(self.address), UVM_LOW)
         self.add_cov_notify()
         for i in range(3000):
             await uvm_do_with(self, self.req, lambda addr: addr in self.address)
-            if len(self.address) < 2:  # if only one is still can't get high coverage it probabily need corner test
+            if (
+                len(self.address) < 2
+            ):  # if only one is still can't get high coverage it probabily need corner test
                 break
 
     def add_cov_notify(self):
         # add callback to the cover group
         for name in self.regs_dict.values():
-            coverage_db["top.wrapper.regs." + name["name"]].add_threshold_callback(self.remove_addr, 95)
+            coverage_db["top.wrapper.regs." + name["name"]].add_threshold_callback(
+                self.remove_addr, 95
+            )
 
     def remove_addr(self):
         # remove callback from the cover group
@@ -48,7 +57,11 @@ class write_read_regs(UVMSequence):
             if coverage_db["top.wrapper.regs." + name["name"]].cover_percentage >= 95:
                 try:
                     self.address.remove(address)
-                    uvm_info(self.tag, f"removed address: {str(address)}({name['name']})  address available in regs:  {str(self.address)}", UVM_LOW)
+                    uvm_info(
+                        self.tag,
+                        f"removed address: {str(address)}({name['name']})  address available in regs:  {str(self.address)}",
+                        UVM_LOW,
+                    )
                 except ValueError:
                     pass
 
