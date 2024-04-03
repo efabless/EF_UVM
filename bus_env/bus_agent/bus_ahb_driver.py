@@ -14,7 +14,6 @@ class bus_ahb_driver(bus_base_driver):
 
     async def run_phase(self, phase):
         uvm_info(self.tag, "run_phase started", UVM_MEDIUM)
-        await self.reset()
         while True:
             await self.drive_delay()
             tr = []
