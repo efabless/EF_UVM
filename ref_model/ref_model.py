@@ -42,7 +42,7 @@ class ref_model(UVMComponent):
         else:
             self.regs = arr[0]
 
-    def user_write_bus(self, tr):
+    def write_bus(self, tr):
         uvm_info(self.tag, " write: " + tr.convert2string(), UVM_HIGH)
         pass
 
