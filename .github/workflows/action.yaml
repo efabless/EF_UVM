@@ -1,7 +1,7 @@
 name: Test IPs
 on: [push]
 jobs:
-  Prepare-Test-Matrix:
+  Prepare-Tests-Matrix:
     runs-on: ubuntu-latest
     outputs:
       test: ${{ steps.test.outputs.test }}
@@ -14,10 +14,10 @@ jobs:
 
   Test1:
     runs-on: ubuntu-latest
-    needs: [Prepare-Test-Matrix]
+    needs: [Prepare-Tests-Matrix]
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Print Matrix
-        run: ${{ needs.Prepare-Test-Matrix.outputs.test }}
+        run: ${{ needs.Prepare-Tests-Matrix.outputs.test }}
 
