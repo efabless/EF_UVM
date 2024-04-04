@@ -1,11 +1,14 @@
+import os
+
+from typing import Iterable
+from abc import abstractmethod
+
 from uvm.base.uvm_component import UVMComponent
 from uvm.macros import uvm_component_utils
 from uvm.tlm1.uvm_analysis_port import UVMAnalysisImp
 from uvm.macros import uvm_component_utils, uvm_fatal, uvm_info
 from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW
 from uvm.base.uvm_config_db import UVMConfigDb
-import os
-import cocotb
 from tabulate import tabulate
 from EF_UVM.ip_env.ip_item import ip_item
 
@@ -61,7 +64,8 @@ class ip_logger(UVMComponent):
         )
         return row_header + "\n" + row
 
-    def logger_formatter(self, transaction):
+    @abstractmethod
+    def logger_formatter(self, transaction) -> Iterable:
         pass
 
 

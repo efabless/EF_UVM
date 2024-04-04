@@ -1,7 +1,12 @@
 import json
-from uvm.macros.uvm_message_defines import uvm_info, uvm_error
-from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW, UVM_MEDIUM
 import yaml
+
+import cocotb
+
+from cocotb.triggers import ClockCycles
+
+from uvm.macros.uvm_message_defines import uvm_info, uvm_error, uvm_fatal
+from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW, UVM_MEDIUM
 
 
 class bus_regs:
@@ -10,6 +15,7 @@ class bus_regs:
     """
 
     def __init__(self, design_file) -> None:
+        self.clock = None
         self.tag = "bus_regs"
         with open(design_file, "r") as file:
             if design_file.endswith(".json"):
@@ -43,6 +49,7 @@ class bus_regs:
                 "fifo": "no",
                 "bit_access": "no",
                 "val": 0,
+                "delayed_val": 0,
             }
             reg_mis = {
                 "name": "mis",
@@ -52,6 +59,7 @@ class bus_regs:
                 "fifo": "no",
                 "bit_access": "no",
                 "val": 0,
+                "delayed_val": 0,
             }
             reg_ris = {
                 "name": "ris",
@@ -61,6 +69,7 @@ class bus_regs:
                 "fifo": "no",
                 "bit_access": "no",
                 "val": 0,
+                "delayed_val": 0,
             }
             reg_icr = {
                 "name": "icr",
@@ -70,6 +79,7 @@ class bus_regs:
                 "fifo": "yes",
                 "bit_access": "no",
                 "val": 0,
+                "delayed_val": 0,
             }
             address = 0xF00
             self.data["registers"].append(reg_im)
@@ -85,6 +95,7 @@ class bus_regs:
                     reg["val"] = int(reg["init"][2:], 16)
                 except ValueError:
                     reg["val"] = int(reg["init"])
+            reg["delayed_val"] = reg["val"]
             regs[int(reg["offset"])] = reg
         self.regs = regs
         self.reg_name_to_address = {
@@ -99,6 +110,29 @@ class bus_regs:
 
     def get_irq_exist(self):
         return self.irq_exist
+
+    async def __write_reg_value_after(
+        self, reg, value, cycles, mask=0xFFFFFFFF, force_write=False
+    ):
+        uvm_info(self.tag, "delayed write waiting", UVM_LOW)
+        await ClockCycles(self.clock, cycles)
+        self.write_reg_value(reg=reg, value=value, mask=mask, force_write=force_write)
+        uvm_info(self.tag, "delayed write done", UVM_LOW)
+
+    def write_reg_value_after(
+        self, reg, value, cycles, mask=0xFFFFFFFF, force_write=False
+    ):
+        if self.clock is None:
+            uvm_fatal(self.tag, "No clock connected")
+        cocotb.scheduler.add(
+            self.__write_reg_value_after(
+                reg=reg, value=value, mask=mask, force_write=force_write, cycles=cycles
+            )
+        )
+
+    async def update_delayed_reg(self, address):
+        await ClockCycles(self.clock, 1)
+        self.regs[address]["delayed_val"] = self.regs[address]["val"]
 
     def write_reg_value(self, reg, value, mask=0xFFFFFFFF, force_write=False):
         """
@@ -121,7 +155,7 @@ class bus_regs:
         if address in self.regs:
             uvm_info(
                 self.tag,
-                f"value before write {value} to address {hex(address)}: {hex(self.regs[address]['val'])}",
+                f"value before write {hex(value)} to address {hex(address)}: {hex(self.regs[address]['val'])}",
                 UVM_HIGH,
             )
             if "w" in self.regs[address]["mode"] or force_write:
@@ -136,8 +170,9 @@ class bus_regs:
                 f"value after write to address {hex(address)}: {hex(self.regs[address]['val'])}",
                 UVM_HIGH,
             )
+            cocotb.scheduler.add(self.update_delayed_reg(address))
 
-    def read_reg_value(self, reg):
+    def __read_reg_value(self, reg, delayed=False):
         if type(reg) is int:
             address = reg
         elif type(reg) is str:
@@ -145,7 +180,16 @@ class bus_regs:
         else:
             uvm_error(self.tag, f"Invalid reg type: {type(reg)} for read")
         address = address & 0xFFFF
-        return self.regs[address]["val"]
+        if delayed:
+            return self.regs[address]["delayed_val"]
+        else:
+            return self.regs[address]["val"]
+
+    def read_reg_value(self, reg):
+        return self.__read_reg_value(reg)
+
+    def read_reg_value_delayed(self, reg):
+        return self.__read_reg_value(reg, delayed=True)
 
     # Function to replace parameter values in the data
     def replace_parameters(self, data, parameter_values):

@@ -162,7 +162,6 @@ uvm_component_utils(scoreboard)
 
 
 class QueueUpdated(Queue):
-
     def __init__(self, maxsize=0):
         super().__init__(maxsize=maxsize)
 
