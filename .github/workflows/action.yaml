@@ -4,12 +4,12 @@ jobs:
   Prepare-Tests-Matrix:
     runs-on: ubuntu-latest
     outputs:
-      test: ${{ steps.test.outputs.test }}
+      test: ${{ steps.set-tests-matrix.outputs.test }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Set Tests Matrix
-        id: test
+        id: set-tests-matrix
         run: echo "test=$(python3 ./.github/scripts/get_tests_matrix.py)" >> "$GITHUB_OUTPUT"
 
   Test1:
