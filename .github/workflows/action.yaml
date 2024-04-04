@@ -1,0 +1,11 @@
+name: Test IPs
+on: [push]
+jobs:
+  Prepare-Test-Matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Set Test Matrix
+      - run: python3 ./.github/get_test_matrix.py
+

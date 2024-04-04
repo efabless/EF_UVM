@@ -1,0 +1,5 @@
+- name: MS_QSPI_XIP_CACHE
+  url: https://github.com/shalan/MS_SPI_XIP_CACHE.git
+  tests:
+  - flashReadTest
+  - flashResetTest
