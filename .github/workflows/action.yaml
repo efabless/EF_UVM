@@ -7,5 +7,5 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Set Test Matrix
-        run: python3 ./.github/get_test_matrix.py
+        run: python3 ./.github/scripts/get_test_matrix.py
 
