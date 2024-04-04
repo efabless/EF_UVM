@@ -4,7 +4,7 @@ jobs:
   Prepare-Test-Matrix:
     runs-on: ubuntu-latest
     outputs:
-      test: ${{ steps.Prepare-Test-Matrix.outputs.test }}
+      test: ${{ steps.test.outputs.test }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
