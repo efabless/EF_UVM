@@ -15,10 +15,9 @@ jobs:
   Test:
     runs-on: ubuntu-latest
     needs: [Prepare-Tests-Matrix]
-    name: IP-${{ matrix.tests.name }} Test ${{ matrix.tests.test}}
-    strategy:
-      matrix: ${{ fromJSON(needs.Prepare-Tests-Matrix.outputs.test-matrix) }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Print Matrix
+        run: echo ${{ needs.Prepare-Tests-Matrix.outputs.test-matrix }}
 
