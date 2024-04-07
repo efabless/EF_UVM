@@ -21,12 +21,14 @@ runs:
     - name: Run Test
       shell: bash
       run: |
-        cp -r $(pwd) $HOME/work/${{ inputs.name }}/verify/uvm-python/
+        echo $(pwd)
+        ls
+        #cp -r $(pwd) $HOME/work/${{ inputs.name }}/verify/uvm-python/
         cd $HOME/work/${{ inputs.name }}/verify/uvm-python
+        echo $(pwd)
+        ls
         for test in ${{ inputs.test-names }}; do
           echo "Running Test $test"
-          ls 
-          ls EF_UVM/Makefile.test
           make run_$test
         done
 
