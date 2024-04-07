@@ -6,6 +6,7 @@ inputs:
     required: true
   tests:
     description: 'Test Names'
+    required: true
 runs:
   using: "composite"
   steps:

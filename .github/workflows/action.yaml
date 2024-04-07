@@ -25,9 +25,7 @@ jobs:
       - name: Run Test
         uses: ./.github/actions/run-test
         with:
-          url: ${{ matrix.url }}
-          tests: ${{ matrix.test }}
+          url: ${{ matrix.tests.url }}
+          tests: ${{ matrix.tests.test }}
 
-      - name: Print Matrix
-        run: ${{ needs.Prepare-Tests-Matrix.outputs.test }}
 
