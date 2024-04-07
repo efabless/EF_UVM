@@ -1,10 +1,10 @@
 name: 'Run Test'
 description: 'Clones and Runs a test'
 inputs:
-  url:  # id of input
-    description: 'repo url'
+  url:
+    description: 'Repo URL'
     required: true
-  tests:
+  test-names:
     description: 'Test Names'
     required: true
 runs:
@@ -16,7 +16,7 @@ runs:
     - name: Run Test
       shell: bash
       run: |
-        for test in ${{ inputs.tests }}; do
+        for test in ${{ inputs.test-names }}; do
           echo "Running Test $test"
         done
 
