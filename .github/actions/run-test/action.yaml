@@ -10,8 +10,10 @@ runs:
   using: "composite"
   steps:
     - name: Clone IP
+      shell: bash
       run: git clone ${{ inputs.url }}
     - name: Run Test
+      shell: bash
       run: |
         for test in ${{ inputs.tests }}; do
           echo "Running Test $test"
