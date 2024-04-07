@@ -16,14 +16,11 @@ runs:
     - name: Clone IP
       shell: bash
       run: git clone ${{ inputs.url }} $HOME/work/${{ inputs.name }}
-    - name: Download Docker Image
-      shell: bash
-      run: docker pull efabless/dv:cocotb
     - name: Run Test
       shell: bash
       run: |
         set -x
-        cp -r $(pwd) $HOME/work/${{ inputs.name }}/verify/uvm-python/EF_UVM
+        cp -r $(pwd) $HOME/work/${{ inputs.name }}/verify/uvm-python/
         cd $HOME/work/${{ inputs.name }}/verify/uvm-python
         for test in ${{ inputs.test-names }}; do
           echo "Running Test $test"
