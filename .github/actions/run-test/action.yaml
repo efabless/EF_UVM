@@ -22,7 +22,7 @@ runs:
       shell: bash
       run: |
         echo $(pwd)
-        cp -r $(pwd) $HOME/work/${{ inputs.name }}/verify/uvm-python/
+        #cp -r $(pwd) $HOME/work/${{ inputs.name }}/verify/uvm-python/
         cd $HOME/work/${{ inputs.name }}/verify/uvm-python
         echo $(pwd)
         for test in ${{ inputs.test-names }}; do
