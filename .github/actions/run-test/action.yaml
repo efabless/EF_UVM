@@ -19,5 +19,11 @@ runs:
         for test in ${{ inputs.test-names }}; do
           echo "Running Test $test"
         done
+    - name: Echo Dirs
+      shell: bash
+      run: |
+        ls $HOME -l
+        ls $(pwd) -l
+
 
 
