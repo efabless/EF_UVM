@@ -25,9 +25,11 @@ runs:
     - name: Run Test
       shell: bash
       run: |
+        set -x
         cd $HOME/work/${{ inputs.name }}/verify/uvm-python
         for test in ${{ inputs.test-names }}; do
           echo "Running Test $test"
+          ls 
           ls EF_UVM/Makefile.test
           make run_$test
         done
