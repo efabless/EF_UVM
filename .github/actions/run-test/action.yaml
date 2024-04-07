@@ -28,6 +28,7 @@ runs:
         cd $HOME/work/${{ inputs.name }}/verify/uvm-python
         for test in ${{ inputs.test-names }}; do
           echo "Running Test $test"
+          ls EF_UVM/Makefile.test
           make run_$test
         done
 
