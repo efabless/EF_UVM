@@ -24,6 +24,7 @@ runs:
       run: |
         ls $HOME -l
         ls $(pwd) -l
+        echo $(pwd) $HOME
 
 
 
