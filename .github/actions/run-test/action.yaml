@@ -23,7 +23,7 @@ runs:
       run: |
         echo $(pwd)
         ls
-        #cp -r $(pwd) $HOME/work/${{ inputs.name }}/verify/uvm-python/
+        cp -r $(pwd) $HOME/work/${{ inputs.name }}/verify/uvm-python/
         cd $HOME/work/${{ inputs.name }}/verify/uvm-python
         echo $(pwd)
         ls

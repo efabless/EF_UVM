@@ -1,5 +1,5 @@
-- name: MS_QSPI_XIP_CACHE
-  url: https://github.com/efabless/MS_QSPI_XIP_CACHE.git
+- name: EF_GPIO8
+  url: https://github.com/efabless/EF_GPIO8.git
   tests:
-  - flashReadTest
-  - flashResetTest
+  - gpio8_all_out_test 
+  - gpio8_all_in_test
