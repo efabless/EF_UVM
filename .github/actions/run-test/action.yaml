@@ -23,6 +23,7 @@ runs:
       shell: bash
       run: |
         ls $HOME -l
+        ls $HOME/work -l
         ls $(pwd) -l
         echo $(pwd) $HOME
 
