@@ -1,0 +1,23 @@
+name: 'Run Test'
+description: 'Clones and Runs a test'
+inputs:
+  url:  # id of input
+    description: 'repo url'
+    required: true
+  tests:
+    description: 'Test Names'
+env:
+  URL: ${{ inputs.url }}
+  TESTS: ${{ inputs.tests }}
+runs:
+  using: "composite"
+  steps:
+    - name: Clone IP
+      run: git clone ${URL}
+    - name: Run Test
+      run: |
+        for test in $TESTS; do
+          echo "Running Test $test"
+        done
+
+

@@ -22,6 +22,12 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Run Test
+        uses: ./.github/actions/run-test
+        with:
+          url: ${{ matrix.url }}
+          tests: ${{ matrix.test }}
+
       - name: Print Matrix
         run: ${{ needs.Prepare-Tests-Matrix.outputs.test }}
 
