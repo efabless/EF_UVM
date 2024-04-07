@@ -21,10 +21,10 @@ runs:
     - name: Run Test
       shell: bash
       run: |
-        $(pwd)
+        echo $(pwd)
         cp -r $(pwd) $HOME/work/${{ inputs.name }}/verify/uvm-python/
         cd $HOME/work/${{ inputs.name }}/verify/uvm-python
-        $(pwd)
+        echo $(pwd)
         for test in ${{ inputs.test-names }}; do
           echo "Running Test $test"
           ls 
