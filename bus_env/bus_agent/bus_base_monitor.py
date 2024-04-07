@@ -27,6 +27,9 @@ class bus_base_monitor(UVMMonitor):
         else:
             self.regs = regs_arr[0]
 
+    async def reset_phase(self, phase):
+        uvm_info(self.tag, "Resetting", UVM_LOW)
+
     def end_of_elaboration_phase(self, phase):
         super().end_of_elaboration_phase(phase)
         self.regs.set_clock(self.vif.CLK)

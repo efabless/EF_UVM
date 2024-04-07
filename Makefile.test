@@ -125,12 +125,16 @@ clean_passed_dirs:
 	done
 
 generate_gl:
-	@if [ ! -d "$(OPENLANE_RUN)/final" ]; then \
-		echo "Generating netlist with Yosys"; \
-		volare enable bdc9412b3e468c102d01b7cf6337be06ec6e9c9a; \
-		mkdir -p $(OPENLANE_RUN); \
-		cd $(GRANDPARENT_DIR) && openlane --dockerized --docker-no-tty --save-views-to hdl/gl/synthesis   --log-level WARNING -c DESIGN_NAME=$(DESIGN_NAME) -c VERILOG_FILES="$(PRE_SYS_FILES)" --force-run-dir $(OPENLANE_RUN) $(UVM_PY_DIR)/EF_UVM/openlane_synthesis.json; \
-    fi
+	@if [ -z "$(SKIP_SYNTHESIS)" ]; then \
+		if [ ! -d "$(OPENLANE_RUN)/final" ]; then \
+			echo "Generating netlist with Yosys"; \
+			volare enable bdc9412b3e468c102d01b7cf6337be06ec6e9c9a; \
+			mkdir -p $(OPENLANE_RUN); \
+			cd $(GRANDPARENT_DIR) && openlane --dockerized --docker-no-tty --save-views-to hdl/gl/synthesis  --log-level WARNING -c DESIGN_NAME=$(DESIGN_NAME) -c VERILOG_FILES="$(PRE_SYS_FILES)" --force-run-dir $(OPENLANE_RUN) $(UVM_PY_DIR)/EF_UVM/openlane_synthesis.json; \
+		fi; \
+	else \
+		echo "Skipping synthesis because SKIP_SYNTHESIS is defined"; \
+	fi
 	# @$(MAKE) get_pdk_files
 
 get_pdk_files:

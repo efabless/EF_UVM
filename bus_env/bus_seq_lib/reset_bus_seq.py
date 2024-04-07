@@ -9,6 +9,7 @@ class reset_bus_seq(bus_seq_base):
     async def body(self):
         await super().body()
         await self.send_reset()
+        await self.send_nop()
 
 
 uvm_object_utils(reset_bus_seq)
