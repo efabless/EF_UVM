@@ -6,17 +6,14 @@ inputs:
     required: true
   tests:
     description: 'Test Names'
-env:
-  URL: ${{ inputs.url }}
-  TESTS: ${{ inputs.tests }}
 runs:
   using: "composite"
   steps:
     - name: Clone IP
-      run: git clone ${URL}
+      run: git clone ${{ inputs.url }}
     - name: Run Test
       run: |
-        for test in $TESTS; do
+        for test in ${{ inputs.tests }}; do
           echo "Running Test $test"
         done
 
