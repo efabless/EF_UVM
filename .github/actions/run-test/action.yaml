@@ -16,10 +16,11 @@ runs:
     - name: Clone IP
       shell: bash
       run: git clone ${{ inputs.url }} $HOME/work/${{ inputs.name }}
+    - name: Check out repository code
+      uses: actions/checkout@v4
     - name: Run Test
       shell: bash
       run: |
-        set -x
         cp -r $(pwd) $HOME/work/${{ inputs.name }}/verify/uvm-python/
         cd $HOME/work/${{ inputs.name }}/verify/uvm-python
         for test in ${{ inputs.test-names }}; do
