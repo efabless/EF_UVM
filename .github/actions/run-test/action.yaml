@@ -24,6 +24,7 @@ runs:
     - name: Run Test
       shell: bash
       run: |
+        pwd
         for test in ${{ inputs.test-names }}; do
           echo "Running Test $test"
           make run_$test
