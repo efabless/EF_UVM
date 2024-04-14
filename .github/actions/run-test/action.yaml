@@ -23,8 +23,8 @@ runs:
       run: cp -r $(pwd) /home/runner/work/${{ inputs.name }}/verify/uvm-python/
     - name: Run Test
       shell: bash
+      working-directory: /home/runner/work/${{ inputs.name }}/verify/uvm-python
       run: |
-        pwd
         for test in ${{ inputs.test-names }}; do
           echo "Running Test $test"
           make run_$test
