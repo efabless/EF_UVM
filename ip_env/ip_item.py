@@ -1,3 +1,6 @@
+from abc import abstractmethod
+
+
 from uvm.seq.uvm_sequence_item import UVMSequenceItem
 from uvm.macros import (
     uvm_object_utils_begin,
@@ -17,11 +20,13 @@ class ip_item(UVMSequenceItem):
         self.tag = name
         pass
 
-    def convert2string(self):
-        pass
+    @abstractmethod
+    def convert2string(self) -> str:
+        return ""
 
-    def do_compare(self, tr):
-        pass
+    @abstractmethod
+    def do_compare(self, tr) -> bool:
+        return False
 
 
 uvm_object_utils(ip_item)
