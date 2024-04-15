@@ -8,7 +8,6 @@ from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW, UVM_MEDIUM
 
 
 class bus_seq_base(UVMSequence):
-
     def __init__(self, name="bus_seq_base"):
         UVMSequence.__init__(self, name)
         # self.set_automatic_phase_objection(1)

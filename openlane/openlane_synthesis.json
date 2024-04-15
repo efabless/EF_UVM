@@ -1,12 +1,13 @@
 {
-    "meta": {
+	"meta": {
 		"version": 2,
 		"flow": [
 			"Verilator.Lint",
 			"Checker.LintErrors",
 			"Yosys.Synthesis",
-            "Checker.YosysUnmappedCells",
-            "Checker.YosysSynthChecks"
+			"Checker.YosysUnmappedCells",
+			"Checker.YosysSynthChecks",
+			"openroad.staprepnr"
 		]
 	}
 }
