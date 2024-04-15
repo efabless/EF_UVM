@@ -28,5 +28,3 @@ jobs:
           url: ${{ matrix.tests.url }}
           test-names: ${{ matrix.tests.test-names }}
           name: ${{ matrix.tests.name }}
-
-

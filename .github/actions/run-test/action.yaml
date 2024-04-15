@@ -29,6 +29,10 @@ runs:
           echo "Running Test $test"
           make run_$test RTL_MACROS="-DSKIP_WAVE_DUMP"
         done
+    - name: Tar Test Logs
+      shell: bash
+      working-directory: /home/runner/work/${{ inputs.name }}/verify/uvm-python
+      run: tar -czf default_tag.tar.gz sim/default_tag
     - name: Check Test Results
       shell: bash
       working-directory: /home/runner/work/${{ inputs.name }}/verify/uvm-python
@@ -51,16 +55,25 @@ runs:
           echo "All tests passed successfully"
         fi
     - name: Save IP Commit Hash
+      if: always()
       shell: bash
       working-directory: /home/runner/work/${{ inputs.name }}/verify/uvm-python
       run: git rev-parse --verify HEAD > /tmp/ip-commit-hash.txt
     - name: Save EF_UVM Commit Hash
+      if: always()
       shell: bash
       run: git rev-parse --verify HEAD > /tmp/EF_UVM-commit-hash.txt
     - uses: actions/upload-artifact@v4
+      if: always()
       with:
-        name: my-artifact
+        name: commit-hashes
         path: /tmp/*hash.txt
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: default_tag
+        path: /tmp/*hash.txt
+
 
 
 
