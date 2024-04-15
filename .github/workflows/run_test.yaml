@@ -16,6 +16,7 @@ on:
         type: string
 jobs:
   Run-IP:
+    runs-on: ubuntu-latest
     steps:
       - name: Clone IP
         shell: bash
