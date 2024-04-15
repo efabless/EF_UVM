@@ -1,5 +1,4 @@
 name: 'Run Test'
-description: 'Clones and Runs a test'
 on:
   workflow_call:
     inputs:
