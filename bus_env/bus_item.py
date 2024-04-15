@@ -37,9 +37,9 @@ class bus_item(UVMSequenceItem):
         if self.kind == 1:
             kind = "WRITE"
         try:
-            return sv.sformatf("kind=%s addr=%0h data=%0h", kind, self.addr, self.data)
-        except ValueError:
-            return sv.sformatf("kind=%s addr=%s data=%s", kind, self.addr, self.data)
+            return f"kind={kind} addr={hex(self.addr)} data={hex(self.data)}"
+        except TypeError or ValueError:
+            return f"kind={kind} addr={self.addr} data={self.data}"
 
     def do_clone(self):
         t = bus_item()

@@ -17,7 +17,7 @@ class bus_apb_if(sv_if):
     def __init__(self, dut):
         bus_map = {
             "CLK": "CLK",
-            "PRESETn": "RESETn",
+            "RESETn": "RESETn",
             "PADDR": "PADDR",
             "PWRITE": "PWRITE",
             "PSEL": "PSEL",
@@ -45,7 +45,7 @@ class bus_ahb_if(sv_if):
     def __init__(self, dut):
         bus_map = {
             "CLK": "CLK",
-            "HRESETn": "RESETn",
+            "RESETn": "RESETn",
             "HADDR": "HADDR",
             "HWRITE": "HWRITE",
             "HSEL": "HSEL",

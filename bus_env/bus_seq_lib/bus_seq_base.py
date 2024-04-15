@@ -10,7 +10,7 @@ from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW, UVM_MEDIUM
 class bus_seq_base(UVMSequence):
     def __init__(self, name="bus_seq_base"):
         UVMSequence.__init__(self, name)
-        self.set_automatic_phase_objection(1)
+        # self.set_automatic_phase_objection(1)
         self.req = bus_item()
         self.rsp = bus_item()
         self.tag = name
@@ -58,13 +58,15 @@ class bus_seq_base(UVMSequence):
             self.req.kind = bus_item.READ
             self.req.data = 0  # needed to add any dummy value
             await uvm_do(self, self.req)
+        self.req.rand_mode(1)
 
-    async def send_nop(self):
+    async def send_nop(self, nope_size=1):
         self.req.rand_mode(0)
         self.req.addr = 0
         self.req.kind = bus_item.NOPE
-        self.req.data = 0  # needed to add any dummy value
+        self.req.data = nope_size  # needed to add any dummy value
         await uvm_do(self, self.req)
+        self.req.rand_mode(1)
 
     async def send_reset(self):
         self.req.rand_mode(0)
@@ -72,6 +74,7 @@ class bus_seq_base(UVMSequence):
         self.req.kind = bus_item.RESET
         self.req.data = 0  # needed to add any dummy value
         await uvm_do(self, self.req)
+        self.req.rand_mode(1)
 
 
 uvm_object_utils(bus_seq_base)

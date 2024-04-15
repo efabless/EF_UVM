@@ -17,6 +17,11 @@ from EF_UVM.bus_env.bus_agent.bus_ahb_monitor import bus_ahb_monitor
 from EF_UVM.bus_env.bus_agent.bus_apb_monitor import bus_apb_monitor
 from EF_UVM.bus_env.bus_agent.bus_wb_monitor import bus_wb_monitor
 
+from EF_UVM.bus_env.bus_seq_lib.reset_bus_seq import reset_bus_seq
+from EF_UVM.bus_env.bus_seq_lib.delays_bus_bg_seq import delays_bus_bg_seq
+from cocotb.triggers import Event
+from abc import abstractmethod
+
 
 class base_test(UVMTest):
     def __init__(self, name="base_test", bus_type="AHB", parent=None):
@@ -80,6 +85,25 @@ class base_test(UVMTest):
     def start_of_simulation_phase(self, phase):
         self.bus_sqr = self.top_env.bus_env.bus_agent.bus_sequencer
         self.ip_sqr = self.top_env.ip_env.ip_agent.ip_sequencer
+
+    async def reset_phase(self, phase):
+        phase.raise_objection(self, f"{self.__class__.__name__} reset phase OBJECTED ")
+        bus_seq = reset_bus_seq("reset_bus_seq")
+        uvm_info(self.get_type_name(), "reset_phase test", UVM_LOW)
+        await bus_seq.start(self.bus_sqr)
+        phase.drop_objection(
+            self, f"{self.__class__.__name__} reset phase drop objection"
+        )
+
+    async def configure_phase(self, phase):
+        # add background sequences
+        await super().configure_phase(phase)
+        bus_seq = delays_bus_bg_seq("delays_bus_bg_seq")
+        await bus_seq.start(self.bus_sqr)
+
+    @abstractmethod
+    async def main_phase(self, phase):
+        pass
 
     def extract_phase(self, phase):
         super().check_phase(phase)
