@@ -30,7 +30,7 @@ jobs:
           name: ${{ matrix.tests.name }}
   Test2:
     runs-on: ubuntu-latest
-    needs: [EF_UART/LoopbackTest]
+    needs: [Prepare-Tests-Matrix, EF_UART/LoopbackTest]
     steps:
       - name: Test
         run: ls
