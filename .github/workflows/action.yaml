@@ -28,9 +28,9 @@ jobs:
           url: ${{ matrix.tests.url }}
           test-names: ${{ matrix.tests.test-names }}
           name: ${{ matrix.tests.name }}
-  Test2:
-    runs-on: ubuntu-latest
-    needs: [Prepare-Tests-Matrix, EF_UART/LoopbackTest]
-    steps:
-      - name: Test
-        run: ls
+      - name: Run Test (Separate workflow)
+        uses: ./.github/workflows/run_test.yaml
+        with:
+          url: ${{ matrix.tests.url }}
+          test-names: ${{ matrix.tests.test-names }}
+          name: ${{ matrix.tests.name }}

@@ -1,0 +1,83 @@
+name: 'Run Test'
+description: 'Clones and Runs a test'
+on:
+  workflow_run:
+    workflows: ["Test IPs"]
+    types: [requested]
+  inputs:
+    url:
+      description: 'Repo URL'
+      required: true
+    test-names:
+      description: 'Test Names'
+      required: true
+    name:
+      description: 'IP Name'
+      required: true
+jobs:
+  Run-IP:
+    steps:
+      - name: Clone IP
+        shell: bash
+        run: git clone ${{ inputs.url }} /home/runner/work/${{ inputs.name }}
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Copy EF_UVM ot verify/uvm-python (workaround)
+        shell: bash
+        run: cp -r $(pwd) /home/runner/work/${{ inputs.name }}/verify/uvm-python/
+      - name: Run Test
+        shell: bash
+        working-directory: /home/runner/work/${{ inputs.name }}/verify/uvm-python
+        run: |
+          for test in ${{ inputs.test-names }}; do
+            echo "Running Test $test"
+            make run_$test
+          done
+      - name: Tar Test Logs
+        shell: bash
+        working-directory: /home/runner/work/${{ inputs.name }}/verify/uvm-python
+        run: tar -czf default_tag.tar.gz sim/default_tag
+      - name: Check Test Results
+        shell: bash
+        working-directory: /home/runner/work/${{ inputs.name }}/verify/uvm-python
+        run: |
+          passed_count=$(find sim/default_tag -type f -name 'passed' | wc -l)
+          failed_count=$(find sim/default_tag -type f -name 'failed' | wc -l)
+          unknown_count=$(find sim/default_tag -type f -name 'unknown' | wc -l)
+
+          echo "Passed: $passed_count"
+          echo "Failed: $failed_count"
+          echo "Unknown: $unknown_count"
+
+          if [ "$passed_count" -eq 0 ]; then
+            echo "Error: No passed test results found"
+            exit 1
+          elif [ "$failed_count" -ne 0 ] || [ "$unknown_count" -ne 0 ]; then
+            echo "Error: There are failed or unknown test results"
+            exit 1
+          else
+            echo "All tests passed successfully"
+          fi
+      - name: Save IP Commit Hash
+        if: always()
+        shell: bash
+        working-directory: /home/runner/work/${{ inputs.name }}/verify/uvm-python
+        run: git rev-parse --verify HEAD > /tmp/ip-commit-hash.txt
+      - name: Save EF_UVM Commit Hash
+        if: always()
+        shell: bash
+        run: git rev-parse --verify HEAD > /tmp/EF_UVM-commit-hash.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ inputs.name }}-${{ inputs.test-names }}-commit-hashes
+          path: /tmp/*hash.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ inputs.name }}-${{ inputs.test-names }}-default_tag
+          path: /home/runner/work/${{ inputs.name }}/verify/uvm-python/*.tar.gz
+
+
+
+
