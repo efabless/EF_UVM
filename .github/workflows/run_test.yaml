@@ -5,12 +5,15 @@ on:
       url:
         description: 'Repo URL'
         required: true
+        type: string
       test-names:
         description: 'Test Names'
         required: true
+        type: string
       name:
         description: 'IP Name'
         required: true
+        type: string
 jobs:
   Run-IP:
     steps:
