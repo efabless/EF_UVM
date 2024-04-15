@@ -27,9 +27,9 @@ runs:
       run: |
         for test in ${{ inputs.test-names }}; do
           echo "Running Test $test"
-          make run_$test
+          make run_$test RTL_MACROS="-DSKIP_WAVE_DUMP"
         done
-    - name: Check for test results in run
+    - name: Check Test Results
       shell: bash
       working-directory: /home/runner/work/${{ inputs.name }}/verify/uvm-python
       run: |
@@ -50,6 +50,17 @@ runs:
         else
           echo "All tests passed successfully"
         fi
+    - name: Save IP Commit Hash
+      shell: bash
+      working-directory: /home/runner/work/${{ inputs.name }}/verify/uvm-python
+      run: git rev-parse --verify HEAD > /tmp/ip-commit-hash.txt
+    - name: Save EF_UVM Commit Hash
+      shell: bash
+      run: git rev-parse --verify HEAD > /tmp/EF_UVM-commit-hash.txt
+    - uses: actions/upload-artifact@v4
+      with:
+        name: my-artifact
+        path: /tmp/*hash.txt
 
 
 
