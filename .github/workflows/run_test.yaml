@@ -1,19 +1,17 @@
 name: 'Run Test'
 description: 'Clones and Runs a test'
 on:
-  workflow_run:
-    workflows: ["Test IPs"]
-    types: [requested]
-  inputs:
-    url:
-      description: 'Repo URL'
-      required: true
-    test-names:
-      description: 'Test Names'
-      required: true
-    name:
-      description: 'IP Name'
-      required: true
+  workflow_call:
+    inputs:
+      url:
+        description: 'Repo URL'
+        required: true
+      test-names:
+        description: 'Test Names'
+        required: true
+      name:
+        description: 'IP Name'
+        required: true
 jobs:
   Run-IP:
     steps:
