@@ -25,6 +25,7 @@ class skeleton_monitor(ip_monitor):
         # TODO: Add logic to monitor the IP
         # use self.vif.<signal name> for monitoring interface signals
         # self.monitor_port.write(tr) # this is the port to send the transaction after sampling it
+        # NOTES: how to create transaction
         pass
 
 
