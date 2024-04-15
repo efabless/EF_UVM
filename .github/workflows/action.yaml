@@ -28,9 +28,14 @@ jobs:
           url: ${{ matrix.tests.url }}
           test-names: ${{ matrix.tests.test-names }}
           name: ${{ matrix.tests.name }}
-      - name: Run Test (Separate workflow)
-        uses: ./.github/workflows/run_test.yaml
-        with:
-          url: ${{ matrix.tests.url }}
-          test-names: ${{ matrix.tests.test-names }}
-          name: ${{ matrix.tests.name }}
+  Test2:
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.Prepare-Tests-Matrix.outputs.test) }}
+    needs: [Prepare-Tests-Matrix]
+    name: Run Test (Separate workflow)
+    uses: ./.github/workflows/run_test.yaml
+    with:
+      url: ${{ matrix.tests.url }}
+      test-names: ${{ matrix.tests.test-names }}
+      name: ${{ matrix.tests.name }}
