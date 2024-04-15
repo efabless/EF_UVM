@@ -1,27 +1,22 @@
 - name: EF_GPIO8
   url: https://github.com/efabless/EF_GPIO8.git
   tests:
-  - gpio8_all_out_test 
-  - gpio8_all_in_test
+  - gpio8_all_out_test gpio8_all_in_test
 - name: EF_UART
   url: https://github.com/efabless/EF_UART.git
   tests:
-  - TX_StressTest RX_StressTest
-  - LoopbackTest 
-  - PrescalarStressTest 
-  - LengthParityTXStressTest 
-  - LengthParityRXStressTest 
-  - WriteReadRegsTest
+  - TX_StressTest RX_StressTest LoopbackTest PrescalarStressTest 
+  - LengthParityTXStressTest LengthParityRXStressTest WriteReadRegsTest
 - name: EF_TMR32
   url: https://github.com/efabless/EF_TMR32.git
   tests:
-  - pwm_actions_test 
-  - time_vary_test 
-  - pwm_pr_test 
-  - pwm_tmr_test
+  - pwm_actions_test time_vary_test 
+  - pwm_pr_test pwm_tmr_test
 - name: MS_QSPI_XIP_CACHE
   url: https://github.com/efabless/MS_QSPI_XIP_CACHE.git
   tests:
-  - flashReadTest
-  - flashResetTest
-  - flashRdWrTest 
+  - flashReadTest flashResetTest flashRdWrTest 
+- name: OL-DFFRAM
+  url: https://github.com/efabless/OL-DFFRAM.git
+  tests:
+  - dffram_wr_rd_test  dffram_corners_test
