@@ -27,7 +27,7 @@ runs:
       run: |
         for test in ${{ inputs.test-names }}; do
           echo "Running Test $test"
-          make run_$test RTL_MACROS="-DSKIP_WAVE_DUMP"
+          make run_$test
         done
     - name: Tar Test Logs
       shell: bash
