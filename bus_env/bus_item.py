@@ -38,7 +38,7 @@ class bus_item(UVMSequenceItem):
             kind = "WRITE"
         try:
             return f"kind={kind} addr={hex(self.addr)} data={hex(self.data)}"
-        except ValueError:
+        except TypeError or ValueError:
             return f"kind={kind} addr={self.addr} data={self.data}"
 
     def do_clone(self):
