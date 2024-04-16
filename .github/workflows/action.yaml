@@ -41,7 +41,7 @@ jobs:
   Test2:
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.Prepare-Tests-Matrix.outputs.test) }}
+      matrix: ${{ fromJSON(needs.Prepare-Tests-Matrix-Alt.outputs.test) }}
     needs: [Prepare-Tests-Matrix-Alt]
     name: Run Test (Separate workflow)
     uses: ./.github/workflows/run_test.yaml
