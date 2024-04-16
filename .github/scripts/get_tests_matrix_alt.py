@@ -17,7 +17,7 @@ def main():
         for test in tests:
             output_matrix[name]["test-names"].append(test)
 
-    print(json.dumps(output_matrix, indent=4))
+    print(json.dumps(output_matrix), end="")
     test_set_stream.close()
 
 
