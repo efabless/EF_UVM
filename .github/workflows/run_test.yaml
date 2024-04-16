@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Set Tests Matrix
         id: set-tests-matrix
-        run: echo "test=$(python3 ./.github/scripts/get_tests_matrix_alt_2.py ${{ inputs.tests-names }})" >> "$GITHUB_OUTPUT"
+        run: echo "test=$(python3 ./.github/scripts/get_tests_matrix_alt_2.py ${{ inputs.test-names }})" >> "$GITHUB_OUTPUT"
 
   Run-IP:
     needs: [Prep]
