@@ -38,14 +38,14 @@ jobs:
       - name: Set Tests Matrix
         id: set-tests-matrix
         run: echo "test=$(python3 ./.github/scripts/get_tests_matrix_alt.py)" >> "$GITHUB_OUTPUT"
-    Test2:
-      strategy:
-        fail-fast: false
-        matrix: ${{ fromJSON(needs.Prepare-Tests-Matrix.outputs.test) }}
-      needs: [Prepare-Tests-Matrix-Alt]
-      name: Run Test (Separate workflow)
-      uses: ./.github/workflows/run_test.yaml
-      with:
-        url: ${{ matrix.url }}
-        test-names: ${{ matrix.test-names }}
-        name: ${{ matrix.name }}
+  Test2:
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.Prepare-Tests-Matrix.outputs.test) }}
+    needs: [Prepare-Tests-Matrix-Alt]
+    name: Run Test (Separate workflow)
+    uses: ./.github/workflows/run_test.yaml
+    with:
+      url: ${{ matrix.url }}
+      test-names: ${{ matrix.test-names }}
+      name: ${{ matrix.name }}
