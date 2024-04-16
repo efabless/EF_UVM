@@ -20,6 +20,8 @@ jobs:
     outputs:
       test: ${{ steps.set-tests-matrix.outputs.test }}
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
       - name: Set Tests Matrix
         id: set-tests-matrix
         run: echo "test=$(python3 ./.github/scripts/get_tests_matrix_alt_2.py ${{ inputs.tests-names }})" >> "$GITHUB_OUTPUT"
