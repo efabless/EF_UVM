@@ -11,7 +11,9 @@ def main():
         tests = item["tests"]
         name = item["name"]
         url = item["url"]
-        output_matrix["tests"].append({"name": name, "url": url, "test-names": tests})
+        output_matrix["tests"].append(
+            {"name": name, "url": url, "test-names": " ".join(tests)}
+        )
 
     print(json.dumps(output_matrix))
     test_set_stream.close()
