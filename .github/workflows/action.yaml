@@ -47,5 +47,5 @@ jobs:
     uses: ./.github/workflows/run_test.yaml
     with:
       url: ${{ matrix.tests.url }}
-      test-names: "${{ matrix.tests.test-names }}"
+      test-names: ${{ fromJSON(matrix.tests.test-names) }}
       name: ${{ matrix.tests.name }}
