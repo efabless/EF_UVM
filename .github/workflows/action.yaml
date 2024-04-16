@@ -46,6 +46,6 @@ jobs:
     name: Run Test (Separate workflow)
     uses: ./.github/workflows/run_test.yaml
     with:
-      url: ${{ matrix.url }}
-      test-names: ${{ matrix.test-names }}
-      name: ${{ matrix.name }}
+      url: ${{ matrix.tests.url }}
+      test-names: ${{ matrix.tests.test-names }}
+      name: ${{ matrix.tests.name }}

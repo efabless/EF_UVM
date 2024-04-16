@@ -4,20 +4,16 @@ import json
 
 def main():
     test_set_yaml = ".github/test_set.yaml"
-    output_matrix = {}
+    output_matrix = {"tests": []}
     test_set_stream = open(test_set_yaml)
     data = yaml.load(test_set_stream, Loader=yaml.Loader)
     for item in data:
         tests = item["tests"]
         name = item["name"]
-        if output_matrix.get(name) is None:
-            output_matrix[name] = {"test-names": []}
         url = item["url"]
-        output_matrix[name]["url"] = url
-        for test in tests:
-            output_matrix[name]["test-names"].append(test)
+        output_matrix["tests"].append({"name": name, "url": url, "test-names": tests})
 
-    print(json.dumps(output_matrix), end="")
+    print(json.dumps(output_matrix))
     test_set_stream.close()
 
 
