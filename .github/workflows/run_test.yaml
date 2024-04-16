@@ -21,7 +21,6 @@ jobs:
       fail-fast: false
       matrix: ${{ inputs.tests-names }}
     name: ${{ inputs.tests-names }}
-    uses: ./.github/workflows/run_test.yaml
     steps:
       - name: Clone IP
         shell: bash
