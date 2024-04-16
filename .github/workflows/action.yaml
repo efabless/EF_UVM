@@ -43,7 +43,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.Prepare-Tests-Matrix-Alt.outputs.test) }}
     needs: [Prepare-Tests-Matrix-Alt]
-    name: Run Test (Separate workflow)
+    name: ${{ matrix.tests.name }}
     uses: ./.github/workflows/run_test.yaml
     with:
       url: ${{ matrix.tests.url }}
