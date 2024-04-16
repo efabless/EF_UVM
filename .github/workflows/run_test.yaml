@@ -15,13 +15,22 @@ on:
         required: true
         type: string
 jobs:
+  Prep:
+    runs-on: ubuntu-latest
+    outputs:
+      test: ${{ steps.set-tests-matrix.outputs.test }}
+    steps:
+      - name: Set Tests Matrix
+        id: set-tests-matrix
+        run: echo "test=$(python3 ./.github/scripts/get_tests_matrix_alt_2.py ${{ inputs.tests-names }})" >> "$GITHUB_OUTPUT"
+
   Run-IP:
+    needs: [Prep]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: 
-        tests-names: ${{ inputs.tests-names }}
-    name: ${{ inputs.tests-names }}
+      matrix: ${{ fromJSON(needs.Prep.outputs.test }}
+    name: ${{ matrix.tests.test }}
     steps:
       - name: Clone IP
         shell: bash
@@ -35,7 +44,7 @@ jobs:
         shell: bash
         working-directory: /home/runner/work/${{ inputs.name }}/verify/uvm-python
         run: |
-          for test in ${{ matrix.test-names }}; do
+          for test in ${{ matrix.tests.test }}; do
             echo "Running Test $test"
             make run_$test
           done
@@ -76,12 +85,12 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ${{ inputs.name }}-${{ matrix.test-names }}-commit-hashes
+          name: ${{ inputs.name }}-${{ matrix.tests.test }}-commit-hashes
           path: /tmp/*hash.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ${{ inputs.name }}-${{ matrix.test-names }}-default_tag
+          name: ${{ inputs.name }}-${{ matrix.tests.test }}-default_tag
           path: /home/runner/work/${{ inputs.name }}/verify/uvm-python/*.tar.gz
 
 
