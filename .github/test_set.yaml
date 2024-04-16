@@ -19,4 +19,4 @@
 - name: OL-DFFRAM
   url: https://github.com/efabless/OL-DFFRAM.git
   tests:
-  - dffram_wr_rd_test  dffram_corners_test
+  - dffram_wr_rd_test dffram_corners_test

@@ -17,6 +17,11 @@ on:
 jobs:
   Run-IP:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ inputs.tests-names }}
+    name: ${{ inputs.tests-names }}
+    uses: ./.github/workflows/run_test.yaml
     steps:
       - name: Clone IP
         shell: bash
@@ -30,7 +35,7 @@ jobs:
         shell: bash
         working-directory: /home/runner/work/${{ inputs.name }}/verify/uvm-python
         run: |
-          for test in ${{ inputs.test-names }}; do
+          for test in ${{ matrix.test-names }}; do
             echo "Running Test $test"
             make run_$test
           done
@@ -71,12 +76,12 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ${{ inputs.name }}-${{ inputs.test-names }}-commit-hashes
+          name: ${{ inputs.name }}-${{ matrix.test-names }}-commit-hashes
           path: /tmp/*hash.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ${{ inputs.name }}-${{ inputs.test-names }}-default_tag
+          name: ${{ inputs.name }}-${{ matrix.test-names }}-default_tag
           path: /home/runner/work/${{ inputs.name }}/verify/uvm-python/*.tar.gz
 
 
