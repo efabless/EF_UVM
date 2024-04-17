@@ -34,6 +34,8 @@ jobs:
       matrix: ${{ fromJSON(needs.Prepare-Tests-Matrix.outputs.tests) }}
     name: ${{ matrix.tests.test }}
     steps:
+      - name: Setup OpenLane
+        uses: ./.github/actions/setup-openlane-nix
       - name: Clone IP
         shell: bash
         run: git clone ${{ inputs.url }} /home/runner/work/${{ inputs.name }}
@@ -42,8 +44,6 @@ jobs:
       - name: Copy EF_UVM ot verify/uvm-python (workaround)
         shell: bash
         run: cp -r $(pwd) /home/runner/work/${{ inputs.name }}/verify/uvm-python/
-      - name: Setup OpenLane
-        uses: ./.github/actions/setup-openlane-nix
       - name: Install Docker Image
         run: docker pull efabless/dv:cocotb 
       - name: Run Test

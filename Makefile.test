@@ -132,7 +132,7 @@ generate_gl:
 		if [ ! -d "$(OPENLANE_RUN)/final" ]; then \
 			echo "Generating netlist with Yosys"; \
 			mkdir -p $(OPENLANE_RUN); \
-			cd $(GRANDPARENT_DIR) && nix run github:efabless/openlane2 -- --save-views-to hdl/gl/synthesis  --log-level WARNING -c DESIGN_NAME=$(DESIGN_NAME) -c VERILOG_FILES="$(PRE_SYS_FILES)" --force-run-dir $(OPENLANE_RUN) $(UVM_PY_DIR)/EF_UVM/openlane_synthesis.json; \
+			cd $(GRANDPARENT_DIR) && nix run github:efabless/openlane2 -- --save-views-to hdl/gl/synthesis  --log-level WARNING -c DESIGN_NAME=$(DESIGN_NAME) -c VERILOG_FILES="$(PRE_SYS_FILES)" --force-run-dir $(OPENLANE_RUN) $(UVM_PY_DIR)/EF_UVM/openlane/openlane_synthesis.json; \
 		fi; \
 	else \
 		echo "Skipping synthesis because SKIP_SYNTHESIS is defined"; \
