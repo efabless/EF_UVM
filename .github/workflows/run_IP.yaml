@@ -37,7 +37,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Setup OpenLane
-        if: ${{ matrix.tests.tag == "GL" }}
+        if: ${{ matrix.tests.tag == 'GL' }}
         uses: ./.github/actions/setup-openlane-nix
       - name: Clone IP
         shell: bash
