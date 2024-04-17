@@ -34,6 +34,8 @@ jobs:
       matrix: ${{ fromJSON(needs.Prepare-Tests-Matrix.outputs.tests) }}
     name: ${{ matrix.tests.test }}
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
       - name: Setup OpenLane
         uses: ./.github/actions/setup-openlane-nix
       - name: Clone IP
