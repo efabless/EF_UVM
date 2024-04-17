@@ -4,7 +4,7 @@ jobs:
   Prepare-IPs-Matrix:
     runs-on: ubuntu-latest
     outputs:
-      test: ${{ steps.set-IPs-matrix.outputs.IPs }}
+      IPs: ${{ steps.set-IPs-matrix.outputs.IPs }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
