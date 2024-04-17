@@ -43,7 +43,7 @@ jobs:
         shell: bash
         run: cp -r $(pwd) /home/runner/work/${{ inputs.name }}/verify/uvm-python/
       - name: Setup OpenLane
-        uses: ./.github/actions/setup-openlane-nix/action.yaml
+        uses: ./.github/actions/setup-openlane-nix
       - name: Run Test
         shell: bash
         working-directory: /home/runner/work/${{ inputs.name }}/verify/uvm-python
