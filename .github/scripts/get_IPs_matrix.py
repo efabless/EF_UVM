@@ -4,9 +4,10 @@ import sys
 
 def main():
     tests = sys.argv[1:]
-    output_matrix = {"tests": []}
+    tests = " ".join(tests).split(",")
+    output_matrix = {"IPs": []}
     for test in tests:
-        output_matrix["tests"].append({"test": test})
+        output_matrix["IPs"].append({"test": test})
     print(json.dumps(output_matrix))
 
 

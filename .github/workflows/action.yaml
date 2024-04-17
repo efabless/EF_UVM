@@ -1,51 +1,24 @@
 name: Test IPs
 on: [push]
 jobs:
-  #  Prepare-Tests-Matrix:
-  #    runs-on: ubuntu-latest
-  #    outputs:
-  #      test: ${{ steps.set-tests-matrix.outputs.test }}
-  #    steps:
-  #      - name: Check out repository code
-  #        uses: actions/checkout@v4
-  #      - name: Set Tests Matrix
-  #        id: set-tests-matrix
-  #        run: echo "test=$(python3 ./.github/scripts/get_tests_matrix.py)" >> "$GITHUB_OUTPUT"
-  #
-  #  Test1:
-  #    runs-on: ubuntu-latest
-  #    needs: [Prepare-Tests-Matrix]
-  #    name: ${{ matrix.tests.name }}/${{ matrix.tests.test-names }}
-  #    strategy:
-  #      fail-fast: false
-  #      matrix: ${{ fromJSON(needs.Prepare-Tests-Matrix.outputs.test) }}
-  #    steps:
-  #      - name: Check out repository code
-  #        uses: actions/checkout@v4
-  #      - name: Run Test
-  #        uses: ./.github/actions/run-test
-  #        with:
-  #          url: ${{ matrix.tests.url }}
-  #          test-names: ${{ matrix.tests.test-names }}
-  #          name: ${{ matrix.tests.name }}
-  Prepare-Tests-Matrix-Alt:
+  Prepare-IPs-Matrix:
     runs-on: ubuntu-latest
     outputs:
-      test: ${{ steps.set-tests-matrix.outputs.test }}
+      test: ${{ steps.set-IPs-matrix.outputs.IPs }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-      - name: Set Tests Matrix
-        id: set-tests-matrix
-        run: echo "test=$(python3 ./.github/scripts/get_tests_matrix_alt.py)" >> "$GITHUB_OUTPUT"
+      - name: Set IPs Matrix
+        id: set-IPs-matrix
+        run: echo "IPs=$(python3 ./.github/scripts/get_tests_matrix_alt.py)" >> "$GITHUB_OUTPUT"
   Test2:
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.Prepare-Tests-Matrix-Alt.outputs.test) }}
-    needs: [Prepare-Tests-Matrix-Alt]
-    name: ${{ matrix.tests.name }}
-    uses: ./.github/workflows/run_test.yaml
+      matrix: ${{ fromJSON(needs.Prepare-IPs-Matrix.outputs.IPs) }}
+    needs: [Prepare-IPs-Matrix]
+    name: ${{ matrix.IPs.name }}
+    uses: ./.github/workflows/run_IP.yaml
     with:
-      url: ${{ matrix.tests.url }}
-      test-names: "${{ matrix.tests.test-names }}"
-      name: ${{ matrix.tests.name }}
+      url: ${{ matrix.IPs.url }}
+      test-names: "${{ matrix.IPs.test-names }}"
+      name: ${{ matrix.IPs.name }}

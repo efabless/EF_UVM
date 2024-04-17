@@ -1,9 +1,9 @@
-name: 'Run Test'
+name: 'Run IP'
 on:
   workflow_call:
     inputs:
       url:
-        description: 'Repo URL'
+        description: 'IP Repo URL'
         required: true
         type: string
       test-names:
@@ -15,7 +15,7 @@ on:
         required: true
         type: string
 jobs:
-  Prep:
+  Prepare-Tests-Matrix:
     runs-on: ubuntu-latest
     outputs:
       test: ${{ steps.set-tests-matrix.outputs.test }}
@@ -24,14 +24,14 @@ jobs:
         uses: actions/checkout@v4
       - name: Set Tests Matrix
         id: set-tests-matrix
-        run: echo "test=$(python3 ./.github/scripts/get_tests_matrix_alt_2.py ${{ inputs.test-names }})" >> "$GITHUB_OUTPUT"
+        run: echo "tests=$(python3 ./.github/scripts/get_tests_matrix.py ${{ inputs.test-names }})" >> "$GITHUB_OUTPUT"
 
   Run-IP:
-    needs: [Prep]
+    needs: [Prepare-Tests-Matrix]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.Prep.outputs.test) }}
+      matrix: ${{ fromJSON(needs.Prepare-Tests-Matrix.outputs.tests) }}
     name: ${{ matrix.tests.test }}
     steps:
       - name: Clone IP
