@@ -2,7 +2,6 @@ name: 'Setup OpenLane'
 description: 'Install Nix and Setup OpenLane cachix'
 runs:
   using: "composite"
-  runs-on: ubuntu-latest
   steps:
     - name: Maximize build space
       uses: easimon/maximize-build-space@master
