@@ -54,8 +54,7 @@ jobs:
         run: |
           for test in ${{ matrix.tests.test }}; do
             echo "Running Test $test"
-            make run_$test SIM_TAG=RTL
-            make run_gl_$test SIM_TAG=GL
+            make run_$test SIM_TAG=${{ matrix.tests.tag }}
           done 
       - name: Tar Test Logs
         shell: bash

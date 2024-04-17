@@ -7,7 +7,11 @@ def main():
     tests = " ".join(tests).split(",")
     output_matrix = {"tests": []}
     for test in tests:
-        output_matrix["tests"].append({"test": test})
+        output_matrix["tests"].append({"test": test, "tag": "RTL"})
+        gl_tests = []
+        for name in test.split():
+            gl_tests.append(f"gl_{name}")
+        output_matrix["tests"].append({"test": " ".join(gl_tests), "tag": "GL"})
     print(json.dumps(output_matrix))
 
 
