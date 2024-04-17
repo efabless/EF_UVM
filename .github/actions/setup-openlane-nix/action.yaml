@@ -19,4 +19,6 @@ runs:
         extra-conf: |
           extra-substituters = https://openlane.cachix.org
           extra-trusted-public-keys = openlane.cachix.org-1:qqdwh+QMNGmZAuyeQJTH9ErW57OWSvdtuwfBKdS254E=
-    - run: nix run github:efabless/openlane2 -- --smoke-test
+    - name: Run OpenLane Smoke Test
+      shell: bash
+      run: nix run github:efabless/openlane2 -- --smoke-test
