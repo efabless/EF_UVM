@@ -1,4 +1,4 @@
-name: Test IPs
+name: Run Tests for IPs
 on: [push]
 jobs:
   Prepare-IPs-Matrix:
@@ -11,7 +11,7 @@ jobs:
       - name: Set IPs Matrix
         id: set-IPs-matrix
         run: echo "IPs=$(python3 ./.github/scripts/get_IPs_matrix.py)" >> "$GITHUB_OUTPUT"
-  Test2:
+  IPs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.Prepare-IPs-Matrix.outputs.IPs) }}
