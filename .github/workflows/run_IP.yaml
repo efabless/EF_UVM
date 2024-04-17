@@ -54,20 +54,20 @@ jobs:
         run: |
           for test in ${{ matrix.tests.test }}; do
             echo "Running Test $test"
-            make run_$test
-            make run_gl_$test
-          done
+            make run_$test SIM_TAG=RTL
+            make run_gl_$test SIM_TAG=GL
+          done 
       - name: Tar Test Logs
         shell: bash
         working-directory: /home/runner/work/${{ inputs.name }}/verify/uvm-python
-        run: tar -czf default_tag.tar.gz sim/default_tag
+        run: tar -czf sim.tar.gz sim
       - name: Check Test Results
         shell: bash
         working-directory: /home/runner/work/${{ inputs.name }}/verify/uvm-python
         run: |
-          passed_count=$(find sim/default_tag -type f -name 'passed' | wc -l)
-          failed_count=$(find sim/default_tag -type f -name 'failed' | wc -l)
-          unknown_count=$(find sim/default_tag -type f -name 'unknown' | wc -l)
+          passed_count=$(find sim/* -type f -name 'passed' | wc -l)
+          failed_count=$(find sim/* -type f -name 'failed' | wc -l)
+          unknown_count=$(find sim/* -type f -name 'unknown' | wc -l)
 
           echo "Passed: $passed_count"
           echo "Failed: $failed_count"
@@ -91,15 +91,17 @@ jobs:
         if: always()
         shell: bash
         run: git rev-parse --verify HEAD > /tmp/EF_UVM-commit-hash.txt
-      - uses: actions/upload-artifact@v4
+      - name: Upload Commit Hashes
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: ${{ inputs.name }}-${{ matrix.tests.test }}-commit-hashes
           path: /tmp/*hash.txt
-      - uses: actions/upload-artifact@v4
+      - name: Upload Logs and Artifact
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ${{ inputs.name }}-${{ matrix.tests.test }}-default_tag
+          name: ${{ inputs.name }}-${{ matrix.tests.test }}-sim
           path: /home/runner/work/${{ inputs.name }}/verify/uvm-python/*.tar.gz
 
 
