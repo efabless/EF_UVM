@@ -10,7 +10,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Set IPs Matrix
         id: set-IPs-matrix
-        run: echo "IPs=$(python3 ./.github/scripts/get_IPs_matrix.py)" >> "$GITHUB_OUTPUT"
+        run: |
+          python3 ./.github/scripts/get_IPs_matrix.py
+          echo "IPs=$(python3 ./.github/scripts/get_IPs_matrix.py)" >> "$GITHUB_OUTPUT"
   IPs:
     strategy:
       fail-fast: false
