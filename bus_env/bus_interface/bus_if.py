@@ -61,8 +61,8 @@ class bus_ahb_if(sv_if):
 class bus_wb_if(sv_if):
     def __init__(self, dut):
         bus_map = {
-            "clk_i": "CLK",
-            "rst_i": "RESETn",
+            "CLK": "CLK",
+            "RESETn": "RESETn",
             "adr_i": "adr_i",
             "dat_i": "dat_i",
             "dat_o": "dat_o",

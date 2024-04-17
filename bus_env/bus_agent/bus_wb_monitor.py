@@ -46,7 +46,7 @@ class bus_wb_monitor(bus_base_monitor):
 
     async def watch_reset(self):
         while True:
-            await FallingEdge(self.vif.rst_i)
+            await FallingEdge(self.vif.RESETn)
             # send reset tr
             tr = bus_item.type_id.create("tr", self)
             tr.kind = bus_item.RESET
@@ -70,8 +70,8 @@ class bus_wb_monitor(bus_base_monitor):
                 break
         while self.vif.ack_o.value == 0:
             await self.sample_delay()
-        address = self.adr_i.HADDR.value.integer
-        write = self.vif.HWRITE.value.integer
+        address = self.vif.adr_i.value.integer
+        write = self.vif.we_i.value.integer
         if write:
             data = self.vif.dat_i.value.integer
         else:
