@@ -42,6 +42,8 @@ jobs:
       - name: Copy EF_UVM ot verify/uvm-python (workaround)
         shell: bash
         run: cp -r $(pwd) /home/runner/work/${{ inputs.name }}/verify/uvm-python/
+      - name: Setup OpenLane
+        uses: ./.github/actions/setup-openlane-nix/action.yaml
       - name: Run Test
         shell: bash
         working-directory: /home/runner/work/${{ inputs.name }}/verify/uvm-python
@@ -49,6 +51,7 @@ jobs:
           for test in ${{ matrix.tests.test }}; do
             echo "Running Test $test"
             make run_$test
+            make run_gl_$test
           done
       - name: Tar Test Logs
         shell: bash
