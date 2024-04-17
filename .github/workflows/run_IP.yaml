@@ -44,6 +44,8 @@ jobs:
         run: cp -r $(pwd) /home/runner/work/${{ inputs.name }}/verify/uvm-python/
       - name: Setup OpenLane
         uses: ./.github/actions/setup-openlane-nix
+      - name: Install Docker Image
+        run: docker pull efabless/dv:cocotb 
       - name: Run Test
         shell: bash
         working-directory: /home/runner/work/${{ inputs.name }}/verify/uvm-python
