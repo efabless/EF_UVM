@@ -1,4 +1,3 @@
-from uvm.seq import UVMSequence
 from uvm.macros.uvm_object_defines import uvm_object_utils
 from uvm.macros.uvm_message_defines import uvm_info, uvm_fatal
 from uvm.macros.uvm_sequence_defines import uvm_do_with, uvm_do
@@ -7,15 +6,12 @@ from EF_UVM.bus_env.bus_item import bus_item
 from uvm.base.uvm_config_db import UVMConfigDb
 from cocotb_coverage.coverage import coverage_db
 import os
+from EF_UVM.bus_env.bus_seq_lib.bus_seq_base import bus_seq_base
 
 
-class write_read_regs(UVMSequence):
-
+class write_read_regs(bus_seq_base):
     def __init__(self, name="write_read_regs"):
-        UVMSequence.__init__(self, name)
-        self.set_automatic_phase_objection(1)
-        self.req = bus_item()
-        self.rsp = bus_item()
+        super().__init__(name)
         self.tag = name
 
     async def body(self):

@@ -14,6 +14,10 @@ class bus_seq_base(UVMSequence):
         self.req = bus_item()
         self.rsp = bus_item()
         self.tag = name
+        # disable checking for overflow if the response queue is full
+        # if respose checking is needed the sequence should take care of it
+        self.set_response_queue_error_report_disabled(1)
+        self.response_queue_error_report_disabled = 1
 
     async def body(self):
         # get register names/address conversion dict
