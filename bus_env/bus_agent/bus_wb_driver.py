@@ -31,8 +31,9 @@ class bus_wb_driver(bus_base_driver):
                 await self.drive_delay()
                 self.seq_item_port.item_done()
                 continue
-            await self.send_trans(tr)
+            tr.data = await self.send_trans(tr)
             self.seq_item_port.item_done()
+            self.seq_item_port.put_response(tr)
 
     async def send_trans(self, tr):
         if tr.kind == bus_item.READ:
@@ -49,6 +50,10 @@ class bus_wb_driver(bus_base_driver):
         while self.vif.ack_o.value == 0:
             await self.drive_delay()
         self.end_of_trans()
+        if tr.kind == bus_item.READ:
+            return self.vif.dat_o.value.integer
+        else:
+            return tr.data
 
     def end_of_trans(self):
         self.vif.sel_i.value = 0b0000

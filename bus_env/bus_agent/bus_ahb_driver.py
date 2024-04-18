@@ -62,6 +62,8 @@ class bus_ahb_driver(bus_base_driver):
             await self.drive_delay()
             while self.vif.HREADYOUT == 0:
                 await self.drive_delay()
+            tr.data = self.vif.HRDATA.value.integer
+        self.seq_item_port.put_response(tr)
 
     def end_of_trans(self):
         self.vif.HSEL.value = 0b00

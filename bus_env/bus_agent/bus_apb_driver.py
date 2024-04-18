@@ -41,15 +41,14 @@ class bus_apb_driver(bus_base_driver):
             # uvm_do_callbacks(apb_master,apb_master_cbs,trans_received(self,tr))
 
             if tr.kind == bus_item.READ:
-                data = []
-                await self.read(tr.addr, data)
-                tr.data = data[0]
+                tr.data = await self.read(tr.addr)
             elif tr.kind == bus_item.WRITE:
                 await self.write(tr.addr, tr.data)
 
             await self.trans_executed(tr)
             # uvm_do_callbacks(apb_master,apb_master_cbs,trans_executed(self,tr))
             self.seq_item_port.item_done()
+            self.seq_item_port.put_response(tr)
 
     async def trans_received(self, tr):
         await Timer(1, "NS")
@@ -57,7 +56,7 @@ class bus_apb_driver(bus_base_driver):
     async def trans_executed(self, tr):
         await Timer(1, "NS")
 
-    async def read(self, addr, data):
+    async def read(self, addr):
         uvm_info(self.tag, "Doing APB read to addr " + hex(addr), UVM_HIGH)
         self.vif.PADDR.value = addr
         self.vif.PWRITE.value = 0
@@ -65,8 +64,12 @@ class bus_apb_driver(bus_base_driver):
         await self.drive_delay()
         self.vif.PENABLE.value = 1
         await self.drive_delay()
-        data.append(self.vif.PRDATA)
+        try:
+            data = self.vif.PRDATA.value.integer
+        except TypeError or ValueError:
+            data = self.vif.PRDATA.value
         self.end_of_trans()
+        return data
 
     async def write(self, addr, data):
         uvm_info(self.tag, "Doing APB write to addr " + hex(addr), UVM_HIGH)
