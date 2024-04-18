@@ -4,8 +4,8 @@
     - gpio8_all_out_test gpio8_all_in_test
   bus:
     - APB
-    - AHBL
-    - WB
+    - AHB
+    - WISHBONE
 - name: EF_UART
   url: https://github.com/efabless/EF_UART.git
   tests:
@@ -13,8 +13,8 @@
     - LengthParityTXStressTest LengthParityRXStressTest WriteReadRegsTest
   bus:
     - APB
-    - AHBL
-    - WB
+    - AHB
+    - WISHBONE
 - name: EF_TMR32
   url: https://github.com/efabless/EF_TMR32.git
   tests:
@@ -22,17 +22,17 @@
     - pwm_pr_test pwm_tmr_test
   bus:
     - APB
-    - AHBL
-    - WB
+    - AHB
+    - WISHBONE
 - name: MS_QSPI_XIP_CACHE
   url: https://github.com/efabless/MS_QSPI_XIP_CACHE.git
   tests:
     - flashReadTest flashResetTest flashRdWrTest
   bus:
-    - AHBL
+    - AHB
 - name: OL-DFFRAM
   url: https://github.com/efabless/OL-DFFRAM.git
   tests:
     - dffram_wr_rd_test dffram_corners_test
   bus:
-    - AHBL
+    - AHB
