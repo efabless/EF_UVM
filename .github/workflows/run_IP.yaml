@@ -97,6 +97,7 @@ jobs:
         shell: bash
         run: git rev-parse --verify HEAD > ${{ env.SIM_DIRECTORY }}/EF_UVM-commit-hash.txt
       - name: Tar Sim Directory
+        if: always()
         shell: bash
         working-directory: ${{ env.WORKING_DIRECTORY }}
         run: tar -czf sim.tar.gz sim
