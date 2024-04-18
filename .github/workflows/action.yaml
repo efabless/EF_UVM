@@ -24,3 +24,4 @@ jobs:
       url: ${{ matrix.IPs.url }}
       test-names: "${{ matrix.IPs.test-names }}"
       name: ${{ matrix.IPs.name }}
+      buses: ${{ matrix.IPs.buses }}

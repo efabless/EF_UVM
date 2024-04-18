@@ -11,8 +11,14 @@ def main():
         tests = item["tests"]
         name = item["name"]
         url = item["url"]
+        bus = item["bus"]
         output_matrix["IPs"].append(
-            {"name": name, "url": url, "test-names": ",".join(tests)}
+            {
+                "name": name,
+                "url": url,
+                "test-names": ",".join(tests),
+                "buses": " ".join(bus),
+            }
         )
 
     print(json.dumps(output_matrix))
