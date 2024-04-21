@@ -36,7 +36,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.Prepare-Tests-Matrix.outputs.tests) }}
-    name: ${{ matrix.tests.bus }}/${{ matrix.tests.test }}
+    name: ${{ matrix.tests.bus }} / ${{ matrix.tests.test }}
     steps:
       - name: Set Env Variables
         shell: bash
