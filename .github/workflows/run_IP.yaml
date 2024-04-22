@@ -1,0 +1,113 @@
+name: 'Run IP'
+on:
+  workflow_call:
+    inputs:
+      url:
+        description: 'IP Repo URL'
+        required: true
+        type: string
+      test-names:
+        description: 'Test Names'
+        required: true
+        type: string
+      name:
+        description: 'IP Name'
+        required: true
+        type: string
+      buses:
+        description: 'Bus Types'
+        required: true
+        type: string
+jobs:
+  Prepare-Tests-Matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      tests: ${{ steps.set-tests-matrix.outputs.tests }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Set Tests Matrix
+        id: set-tests-matrix
+        run: echo "tests=$(python3 ./.github/scripts/get_tests_matrix.py --tests ${{ inputs.test-names }} --buses ${{ inputs.buses }})" >> "$GITHUB_OUTPUT"
+
+  Run-IP:
+    needs: [Prepare-Tests-Matrix]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.Prepare-Tests-Matrix.outputs.tests) }}
+    name: ${{ matrix.tests.bus }} / ${{ matrix.tests.test }}
+    steps:
+      - name: Set Env Variables
+        shell: bash
+        run: |
+          echo "WORKING_DIRECTORY=/home/runner/work/${{ inputs.name }}/verify/uvm-python" >> $GITHUB_ENV
+          echo "SIM_DIRECTORY=/home/runner/work/${{ inputs.name }}/verify/uvm-python/sim" >> $GITHUB_ENV
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Setup OpenLane
+        if: ${{ matrix.tests.tag == 'GL' }}
+        uses: ./.github/actions/setup-openlane-nix
+      - name: Clone IP
+        shell: bash
+        run: git clone ${{ inputs.url }} /home/runner/work/${{ inputs.name }}
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Copy EF_UVM to verify/uvm-python (workaround)
+        shell: bash
+        run: cp -r $(pwd) ${{ env.WORKING_DIRECTORY }}
+      - name: Install Docker Image
+        run: docker pull efabless/dv:cocotb 
+      - name: Run Test
+        shell: bash
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: |
+          for test in ${{ matrix.tests.test }}; do
+            echo "Running Test $test"
+            make run_$test SIM_TAG=${{ matrix.tests.tag }} BUS_TYPE=${{ matrix.tests.bus }}
+          done 
+      - name: Check Test Results
+        shell: bash
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: |
+          passed_count=$(find ${{ env.SIM_DIRECTORY }}/* -type f -name 'passed' | wc -l)
+          failed_count=$(find ${{ env.SIM_DIRECTORY }}/* -type f -name 'failed' | wc -l)
+          unknown_count=$(find ${{ env.SIM_DIRECTORY }}/* -type f -name 'unknown' | wc -l)
+
+          echo "Passed: $passed_count"
+          echo "Failed: $failed_count"
+          echo "Unknown: $unknown_count"
+
+          if [ "$passed_count" -eq 0 ]; then
+            echo "Error: No passed test results found"
+            exit 1
+          elif [ "$failed_count" -ne 0 ] || [ "$unknown_count" -ne 0 ]; then
+            echo "Error: There are failed or unknown test results"
+            exit 1
+          else
+            echo "All tests passed successfully"
+          fi
+      - name: Save IP Commit Hash
+        if: always()
+        shell: bash
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: git rev-parse --verify HEAD > ${{ env.SIM_DIRECTORY }}/ip-commit-hash.txt
+      - name: Save EF_UVM Commit Hash
+        if: always()
+        shell: bash
+        run: git rev-parse --verify HEAD > ${{ env.SIM_DIRECTORY }}/EF_UVM-commit-hash.txt
+      - name: Tar Sim Directory
+        if: always()
+        shell: bash
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+        run: tar -czf sim.tar.gz sim
+      - name: Upload Logs and Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ inputs.name }}-${{ matrix.tests.bus }}-${{ matrix.tests.test }}-sim
+          path: ${{ env.WORKING_DIRECTORY }}/*.tar.gz
+
+
+
+
