@@ -2,7 +2,7 @@ name: 'Run IP'
 on:
   workflow_call:
     inputs:
-      is-ip:
+      is_ip:
         description: 'Flag if the CI is an IP CI'
         required: false
         type: boolean
@@ -55,17 +55,17 @@ jobs:
         if: ${{ matrix.tests.tag == 'GL' }}
         uses: ./.github/actions/setup-openlane-nix
       - name: Clone IP
-        if: ! ${{ inputs.is-ip }}
+        if: ! ${{ inputs.is_ip }}
         shell: bash
         run: git clone ${{ inputs.url }} /home/runner/work/${{ inputs.name }}
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Copy EF_UVM to verify/uvm-python (workaround)
-        if: ! ${{ inputs.is-ip }}
+        if: ! ${{ inputs.is_ip }}
         shell: bash
         run: cp -r $(pwd) ${{ env.WORKING_DIRECTORY }}
       - name: Install EF_UVM to verify/uvm-python
-        if: ${{ inputs.is-ip }}
+        if: ${{ inputs.is_ip }}
         shell: bash
         run: git clone ${{ env.EF_UVM_URL }} ${{ env.WORKING_DIRECTORY }}/EF_UVM
       - name: Install Docker Image
