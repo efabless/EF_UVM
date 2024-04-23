@@ -5,7 +5,7 @@ on:
       is-ip:
         description: 'Flag if the CI is an IP CI'
         required: false
-        type: bool
+        type: boolean
         default: false
       url:
         description: 'IP Repo URL'
@@ -41,15 +41,16 @@ jobs:
           path: ${{ env.EF_UVM_PATH }}
       - name: Install IP (IP)
         uses: actions/checkout@v4
-        path: ${{ env.IP_PATH }}
+        with:
+          path: ${{ env.IP_PATH }}
       - name: Install EF_UVM (EF_UVM)
         run: |
           git clone https://github.com/efabless/EF_UVM.git ${{ env.EF_UVM_PATH }}
       - name: Upload Workspace
         uses: actions/upload-artifact@v4
         name: workspace
-        path: |
-          ${{ env.IP_PATH }}
+        with:
+          path: ${{ env.IP_PATH }}
   #  Prepare-Tests-Matrix:
   #    runs-on: ubuntu-latest
   #    outputs:
