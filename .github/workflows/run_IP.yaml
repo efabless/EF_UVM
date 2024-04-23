@@ -48,7 +48,6 @@ jobs:
           git clone https://github.com/efabless/EF_UVM.git ${{ env.EF_UVM_PATH }}
       - name: Upload Workspace
         uses: actions/upload-artifact@v4
-        name: workspace
         with:
           path: ${{ env.IP_PATH }}
   #  Prepare-Tests-Matrix:
