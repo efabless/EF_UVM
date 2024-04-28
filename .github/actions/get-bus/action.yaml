@@ -1,0 +1,16 @@
+name: 'Get Bus Type'
+description: 'Get Bus Type'
+runs:
+  using: "composite"
+  steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+    - name: Extract info from yaml
+      uses: mikefarah/yq@master
+      id: get_bus_info
+      with:
+        cmd: yq '.info.bus.[]' './${{ github.event.repository.name }}.yaml'
+    - name: Map to Make options
+      shell: bash
+      run: |
+        echo ${{ steps.get_bus_info.outputs.result }}
