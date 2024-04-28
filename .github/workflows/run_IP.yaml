@@ -31,6 +31,7 @@ jobs:
         run: |
           echo "EF_UVM_PATH=${{ github.workspace }}/${{ inputs.name }}/verify/uvm-python/EF_UVM" >> $GITHUB_ENV
           echo "IP_PATH=${{ github.workspace }}/${{ inputs.name }}" >> $GITHUB_ENV
+          echo "MY_WORKSPACE=${{ github.workspace }}/${{ inputs.name }}" >> $GITHUB_ENV
       - name: Install IP (EF_UVM)
         if: ${{ !inputs.is-ip }}
         run: git clone ${{ inputs.url }} ${{ env.IP_PATH }}
@@ -49,18 +50,30 @@ jobs:
       - name: Upload Workspace
         uses: actions/upload-artifact@v4
         with:
-          path: ${{ env.IP_PATH }}
+          path: ${{ env.MY_WORKSPACE }}
           name: ${{ inputs.name }}-workspace
-  #  Prepare-Tests-Matrix:
-  #    runs-on: ubuntu-latest
-  #    outputs:
-  #      tests: ${{ steps.set-tests-matrix.outputs.tests }}
-  #    steps:
-  #      - name: Check out repository code
-  #        uses: actions/checkout@v4
-  #      - name: Set Tests Matrix
-  #        id: set-tests-matrix
-  #        run: echo "tests=$(python3 ./.github/scripts/get_tests_matrix.py --tests ${{ inputs.test-names }} --buses ${{ inputs.buses }})" >> "$GITHUB_OUTPUT"
+  Prepare-Tests-Matrix:
+    needs: ["Setup-Work-Space"]
+    runs-on: ubuntu-latest
+    outputs:
+      tests: ${{ steps.set-tests-matrix.outputs.tests }}
+    steps:
+      - name: Setup Env Vars
+        run: |
+          echo "EF_UVM_PATH=${{ github.workspace }}/${{ inputs.name }}/verify/uvm-python/EF_UVM" >> $GITHUB_ENV
+          echo "IP_PATH=${{ github.workspace }}/${{ inputs.name }}" >> $GITHUB_ENV
+          echo "MY_WORKSPACE=${{ github.workspace }}/${{ inputs.name }}" >> $GITHUB_ENV
+      - name: Download Workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.name }}-workspace
+          path: ${{ env.MY_WORKSPACE }}
+        run: |
+      - name: Set Tests Matrix
+        id: set-tests-matrix
+        run: |
+          python3 ${{ env.EF_UVM_PATH }}/.github/scripts/get_tests_matrix.py --tests ${{ inputs.test-names }} --buses ${{ inputs.buses }})
+          echo "tests=$(python3 ${{ env.EF_UVM_PATH }}/.github/scripts/get_tests_matrix.py --tests ${{ inputs.test-names }} --buses ${{ inputs.buses }})" >> "$GITHUB_OUTPUT"
   #
   #  Run-IP:
   #    needs: [Prepare-Tests-Matrix]
