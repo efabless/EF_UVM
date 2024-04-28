@@ -16,7 +16,7 @@ runs:
         buses=(${{ steps.get_bus_info.outputs.result }})
         for bus in "${buses[@]}"
         do
-          if [[ "$bus " == "generic" ]];
+          if [[ "$bus" == "generic" ]];
           then
             echo "WISHBONE ABP AHB"
           fi
