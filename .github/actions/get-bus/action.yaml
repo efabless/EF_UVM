@@ -13,4 +13,7 @@ runs:
     - name: Map to Make options
       shell: bash
       run: |
-        echo ${{ steps.get_bus_info.outputs.result }}
+        buses=(${{ steps.get_bus_info.outputs.result }})
+        for bus in "${buses[@]}"
+          echo $bus
+        done
