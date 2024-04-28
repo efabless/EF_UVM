@@ -93,7 +93,7 @@ jobs:
         shell: bash
         run: |
           echo "WORKING_DIRECTORY=${{ env.IP_PATH }}/verify/uvm-python" >> $GITHUB_ENV
-          echo "SIM_DIRECTORY=${{ env.WORKING_DIRECTORY }}/sim" >> $GITHUB_ENV
+          echo "SIM_DIRECTORY=${{ env.IP_PATH }}/verify/uvm-python/sim" >> $GITHUB_ENV
       - name: Download Workspace
         uses: actions/download-artifact@v4
         with:
