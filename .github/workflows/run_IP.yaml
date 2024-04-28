@@ -89,6 +89,9 @@ jobs:
           echo "EF_UVM_PATH=${{ github.workspace }}/${{ inputs.name }}/verify/uvm-python/EF_UVM" >> $GITHUB_ENV
           echo "IP_PATH=${{ github.workspace }}/${{ inputs.name }}" >> $GITHUB_ENV
           echo "MY_WORKSPACE=${{ github.workspace }}/${{ inputs.name }}" >> $GITHUB_ENV
+      - name: Set More Env Variables
+        shell: bash
+        run: |
           echo "WORKING_DIRECTORY=${{ env.IP_PATH }}/verify/uvm-python" >> $GITHUB_ENV
           echo "SIM_DIRECTORY=${{ env.WORKING_DIRECTORY }}/sim" >> $GITHUB_ENV
       - name: Download Workspace
