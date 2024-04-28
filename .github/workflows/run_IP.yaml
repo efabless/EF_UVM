@@ -116,6 +116,8 @@ jobs:
         shell: bash
         working-directory: ${{ env.WORKING_DIRECTORY }}
         run: |
+          pwd
+          ls
           passed_count=$(find ${{ env.SIM_DIRECTORY }}/* -type f -name 'passed' | wc -l)
           failed_count=$(find ${{ env.SIM_DIRECTORY }}/* -type f -name 'failed' | wc -l)
           unknown_count=$(find ${{ env.SIM_DIRECTORY }}/* -type f -name 'unknown' | wc -l)
