@@ -142,11 +142,12 @@ jobs:
       - name: Save IP Commit Hash
         if: always()
         shell: bash
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+        working-directory: ${{ env.IP_PATH }}
         run: git rev-parse --verify HEAD > ${{ env.SIM_DIRECTORY }}/ip-commit-hash.txt
       - name: Save EF_UVM Commit Hash
         if: always()
         shell: bash
+        working-directory: ${{ env.EF_UVM_PATH }}
         run: git rev-parse --verify HEAD > ${{ env.SIM_DIRECTORY }}/EF_UVM-commit-hash.txt
       - name: Tar Sim Directory
         if: always()
