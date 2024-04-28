@@ -42,9 +42,11 @@ jobs:
           path: ${{ env.EF_UVM_PATH }}
       - name: Install IP (IP)
         uses: actions/checkout@v4
+        if: ${{ inputs.is-ip }}
         with:
           path: ${{ env.IP_PATH }}
       - name: Install EF_UVM (EF_UVM)
+        if: ${{ inputs.is-ip }}
         run: |
           git clone https://github.com/efabless/EF_UVM.git ${{ env.EF_UVM_PATH }}
       - name: Upload Workspace
