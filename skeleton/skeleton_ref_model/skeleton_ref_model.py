@@ -8,6 +8,7 @@ from uvm.tlm1.uvm_analysis_port import UVMAnalysisExport
 import cocotb
 from EF_UVM.ref_model.ref_model import ref_model
 from EF_UVM.bus_env.bus_item import bus_item
+from cocotb.triggers import Event
 
 
 class skeleton_ref_model(ref_model):
