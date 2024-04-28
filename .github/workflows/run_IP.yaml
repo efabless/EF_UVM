@@ -110,8 +110,6 @@ jobs:
         shell: bash
         working-directory: ${{ env.WORKING_DIRECTORY }}
         run: |
-          pwd
-          ls
           for test in ${{ matrix.tests.test }}; do
             echo "Running Test $test"
             make run_$test SIM_TAG=${{ matrix.tests.tag }} BUS_TYPE=${{ matrix.tests.bus }}
@@ -120,8 +118,6 @@ jobs:
         shell: bash
         working-directory: ${{ env.WORKING_DIRECTORY }}
         run: |
-          pwd
-          ls
           passed_count=$(find ${{ env.SIM_DIRECTORY }}/* -type f -name 'passed' | wc -l)
           failed_count=$(find ${{ env.SIM_DIRECTORY }}/* -type f -name 'failed' | wc -l)
           unknown_count=$(find ${{ env.SIM_DIRECTORY }}/* -type f -name 'unknown' | wc -l)
