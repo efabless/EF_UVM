@@ -68,7 +68,6 @@ jobs:
         with:
           name: ${{ inputs.name }}-workspace
           path: ${{ env.MY_WORKSPACE }}
-        run: |
       - name: Set Tests Matrix
         id: set-tests-matrix
         run: |
