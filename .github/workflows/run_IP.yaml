@@ -96,14 +96,14 @@ jobs:
         run: |
           echo "WORKING_DIRECTORY=${{ env.IP_PATH }}/verify/uvm-python" >> $GITHUB_ENV
           echo "SIM_DIRECTORY=${{ env.IP_PATH }}/verify/uvm-python/sim" >> $GITHUB_ENV
+      - name: Setup OpenLane
+        uses: efabless/EF_UVM/.github/actions/setup-openlane-nix@main
+        if: ${{ matrix.tests.tag == 'GL' }}
       - name: Download Workspace
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.name }}-workspace
           path: ${{ env.MY_WORKSPACE }}
-      - name: Setup OpenLane
-        uses: efabless/EF_UVM/.github/actions/setup-openlane-nix@main
-        if: ${{ matrix.tests.tag == 'GL' }}
       - name: Install Docker Image
         run: docker pull efabless/dv:cocotb 
       - name: Run Test
