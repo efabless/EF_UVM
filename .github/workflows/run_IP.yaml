@@ -96,6 +96,9 @@ jobs:
         with:
           name: ${{ inputs.name }}-workspace
           path: ${{ env.MY_WORKSPACE }}
+      - name: Setup OpenLane
+        if: ${{ matrix.tests.tag == 'GL' }}
+        uses: efabless/EF_UVM/.github/actions/setup-openlane-nix/action.yaml
       - name: Install Docker Image
         run: docker pull efabless/dv:cocotb 
       - name: Run Test
