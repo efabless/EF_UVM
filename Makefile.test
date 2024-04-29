@@ -72,7 +72,7 @@ ifeq ($(RUN_MERGE_COVERAGE),true)
 endif
 
 .PHONY: run_gl_all_tests
-run_all_gl_tests: run_all_gl_tests
+run_gl_all_tests: run_all_gl_tests
 
 # Target to run all tests in parallel
 run_all_gl_tests:
