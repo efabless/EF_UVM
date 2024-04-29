@@ -58,7 +58,7 @@ jobs:
           wrap_name () {
             echo "❲$1❳"
           }
-          artifact_name=$(wrap_name "ws")-$(wrap_name "${{ inputs.name }}")
+          artifact_name=$(wrap_name "workspace")-$(wrap_name "${{ inputs.name }}")
           echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
       - name: Upload Workspace
         uses: actions/upload-artifact@v4
@@ -167,6 +167,7 @@ jobs:
         working-directory: ${{ env.WORKING_DIRECTORY }}
         run: tar -czf sim.tar.gz sim
       - name: Set Artifact Name
+        if: always()
         id: set_artifact_name
         run: |
           wrap_name () {
