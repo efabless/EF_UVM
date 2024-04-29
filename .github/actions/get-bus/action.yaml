@@ -1,5 +1,9 @@
 name: 'Get Bus Type'
 description: 'Get Bus Type'
+outputs:
+  buses:
+    description: "Buses"
+    value: ${{ steps.get_buses.outputs.output }}
 runs:
   using: "composite"
   steps:
@@ -32,7 +36,3 @@ runs:
           fi
         done
         echo "output=$output" >> $GITHUB_OUTPUT
-    - name: Check Output
-      shell: bash
-      run: |
-        echo ${{ steps.get_buses.outputs.output }}
