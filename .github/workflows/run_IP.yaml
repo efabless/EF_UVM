@@ -92,6 +92,7 @@ jobs:
           echo "EF_UVM_PATH=${{ github.workspace }}/${{ inputs.name }}/verify/uvm-python/EF_UVM" >> $GITHUB_ENV
           echo "IP_PATH=${{ github.workspace }}/${{ inputs.name }}" >> $GITHUB_ENV
           echo "MY_WORKSPACE=${{ github.workspace }}/${{ inputs.name }}" >> $GITHUB_ENV
+          echo "STATUS=env-error" >> $GITHUB_ENV
       - name: Set More Env Variables
         shell: bash
         run: |
@@ -130,15 +131,15 @@ jobs:
 
           if [ "$passed_count" -eq 0 ]; then
             echo "Error: No passed test results found"
-            echo "result=fail" >> $GITHUB_OUTPUT
+            echo "STATUS=env-error" >> $GITHUB_ENV
             exit 1
           elif [ "$failed_count" -ne 0 ] || [ "$unknown_count" -ne 0 ]; then
             echo "Error: There are failed or unknown test results"
-            echo "result=fail" >> $GITHUB_OUTPUT
+            echo "STATUS=test-error" >> $GITHUB_ENV
             exit 1
           else
             echo "All tests passed successfully"
-            echo "result=success" >> $GITHUB_OUTPUT
+            echo "STATUS=success" >> $GITHUB_ENV
           fi
       - name: Save IP Commit Hash
         if: always()
@@ -159,5 +160,5 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ${{ steps.check_results.outputs.result }}-${{ inputs.name }}-${{ matrix.tests.bus }}-${{ matrix.tests.test }}-sim
+          name: ${{ env.STATUS }}-${{ inputs.name }}-${{ matrix.tests.bus }}-${{ matrix.tests.test }}-sim
           path: ${{ env.WORKING_DIRECTORY }}/*.tar.gz
