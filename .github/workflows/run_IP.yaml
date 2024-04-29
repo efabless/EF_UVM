@@ -51,7 +51,7 @@ jobs:
       - name: Install EF_UVM (EF_UVM)
         if: ${{ inputs.is-ip }}
         run: |
-          git clone https://github.com/efabless/EF_UVM.git ${{ env.EF_UVM_PATH }}
+          git clone https://github.com/efabless/EF_UVM.git ${{ env.EF_UVM_PATH }} --branch="support-ip-ci"
       - name: Set Artifact Name
         id: set_artifact_name
         run: |
