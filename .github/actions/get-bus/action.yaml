@@ -12,6 +12,7 @@ runs:
         cmd: yq '.info.bus.[]' './${{ github.event.repository.name }}.yaml'
     - name: Map to Make options
       shell: bash
+      id: get_buses
       run: |
         buses=(${{ steps.get_bus_info.outputs.result }})
         output=""
@@ -30,3 +31,8 @@ runs:
             exit 1
           fi
         done
+        echo "output=$output" >> $GITHUB_OUTPUT
+    - name: Check Output
+      shell: bash
+      run: |
+        echo ${{ steps.get_buses.outputs.output }}
