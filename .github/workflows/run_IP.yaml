@@ -145,7 +145,7 @@ jobs:
             exit 1
           elif [ "$failed_count" -ne 0 ] || [ "$unknown_count" -ne 0 ]; then
             echo "Error: There are failed or unknown test results"
-            echo "STATUS=test-error" >> $GITHUB_ENV
+            echo "STATUS=sim-error" >> $GITHUB_ENV
             exit 1
           else
             echo "All tests passed successfully"
