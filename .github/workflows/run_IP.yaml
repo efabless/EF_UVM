@@ -50,11 +50,19 @@ jobs:
         if: ${{ inputs.is-ip }}
         run: |
           git clone https://github.com/efabless/EF_UVM.git ${{ env.EF_UVM_PATH }}
+      - name: Set Artifact Name
+        id: set_artifact_name
+        run: |
+          wrap_name () {
+            echo "❲$1❳"
+          }
+          artifact_name=$(wrap_name "ws")-$(wrap_name "${{ inputs.name }}")
+          echo "artifact_name=$artifact_name" >> GITHUB_OUTPUT
       - name: Upload Workspace
         uses: actions/upload-artifact@v4
         with:
           path: ${{ env.MY_WORKSPACE }}
-          name: ${{ inputs.name }}-workspace
+          name: ${{ steps.set_artifact_name.outputs.artifact_name }}
 
   Prepare-Tests-Matrix:
     needs: ["Setup-Work-Space"]
