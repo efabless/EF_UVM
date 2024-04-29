@@ -89,7 +89,7 @@ jobs:
           echo "tests=$(python3 ${{ env.EF_UVM_PATH }}/.github/scripts/get_tests_matrix.py --tests ${{ inputs.test-names }} --buses ${{ inputs.buses }})" >> "$GITHUB_OUTPUT"
 
   Run-IP:
-    needs: [Prepare-Tests-Matrix]
+    needs: [Setup-Work-Space, Prepare-Tests-Matrix]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -114,7 +114,7 @@ jobs:
       - name: Download Workspace
         uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs.name }}-workspace
+          name: ${{ needs.Setup-Work-Space.outputs.artifact_name }}
           path: ${{ env.MY_WORKSPACE }}
       - name: Install Docker Image
         run: docker pull efabless/dv:cocotb 
