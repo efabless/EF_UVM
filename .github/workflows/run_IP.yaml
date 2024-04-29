@@ -27,6 +27,8 @@ on:
 jobs:
   Setup-Work-Space:
     runs-on: ubuntu-latest
+    outputs:
+      artifact_name: ${{ steps.set_artifact_name.outputs.artifact_name }}
     steps:
       - name: Setup Env Vars
         run: |
@@ -78,7 +80,7 @@ jobs:
       - name: Download Workspace
         uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs.name }}-workspace
+          name: ${{ needs.Setup-Work-Space.outputs.artifact_name }}
           path: ${{ env.MY_WORKSPACE }}
       - name: Set Tests Matrix
         id: set-tests-matrix
@@ -164,9 +166,17 @@ jobs:
         shell: bash
         working-directory: ${{ env.WORKING_DIRECTORY }}
         run: tar -czf sim.tar.gz sim
+      - name: Set Artifact Name
+        id: set_artifact_name
+        run: |
+          wrap_name () {
+            echo "❲$1❳"
+          }
+          artifact_name=$(wrap_name "${{ env.STATUS }}")-$(wrap_name "${{ inputs.name }}")-$(wrap_name "${{ matrix.tests.bus }}")-$(wrap_name "${{ matrix.tests.test }}")
+          echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
       - name: Upload Logs and Artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ${{ env.STATUS }}-${{ inputs.name }}-${{ matrix.tests.bus }}-${{ matrix.tests.test }}-sim
           path: ${{ env.WORKING_DIRECTORY }}/*.tar.gz
+          name: ${{ steps.set_artifact_name.outputs.artifact_name }}
