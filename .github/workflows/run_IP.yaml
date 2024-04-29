@@ -116,6 +116,7 @@ jobs:
             make run_$test SIM_TAG=${{ matrix.tests.tag }} BUS_TYPE=${{ matrix.tests.bus }}
           done 
       - name: Check Test Results
+        id: check_results
         shell: bash
         working-directory: ${{ env.WORKING_DIRECTORY }}
         run: |
@@ -129,12 +130,15 @@ jobs:
 
           if [ "$passed_count" -eq 0 ]; then
             echo "Error: No passed test results found"
+            echo "result=fail" >> $GITHUB_OUTPUT
             exit 1
           elif [ "$failed_count" -ne 0 ] || [ "$unknown_count" -ne 0 ]; then
             echo "Error: There are failed or unknown test results"
+            echo "result=fail" >> $GITHUB_OUTPUT
             exit 1
           else
             echo "All tests passed successfully"
+            echo "result=success" >> $GITHUB_OUTPUT
           fi
       - name: Save IP Commit Hash
         if: always()
@@ -155,5 +159,5 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ${{ inputs.name }}-${{ matrix.tests.bus }}-${{ matrix.tests.test }}-sim
+          name: ${{ steps.check_results.outputs.result }}-${{ inputs.name }}-${{ matrix.tests.bus }}-${{ matrix.tests.test }}-sim
           path: ${{ env.WORKING_DIRECTORY }}/*.tar.gz
