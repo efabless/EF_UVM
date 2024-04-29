@@ -9,7 +9,8 @@ on:
         default: false
       url:
         description: 'IP Repo URL'
-        required: true
+        required: false
+        default: "n/a"
         type: string
       test-names:
         description: 'Test Names'
