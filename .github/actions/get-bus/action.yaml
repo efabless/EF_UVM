@@ -5,7 +5,7 @@ runs:
   steps:
     - name: Check out repository code
       uses: actions/checkout@v4
-    - name: Extract info from yaml
+    - name: Extract Info from IP Yaml File
       uses: mikefarah/yq@master
       id: get_bus_info
       with:
@@ -14,10 +14,19 @@ runs:
       shell: bash
       run: |
         buses=(${{ steps.get_bus_info.outputs.result }})
+        output=""
         for bus in "${buses[@]}"
         do
-          if [[ "$bus" == "generic" ]];
-          then
-            echo "WISHBONE ABP AHB"
+          if [[ "$bus" == "generic" ]]; then
+            output="WISHBONE ABP AHB $output"
+          elif [[ "$bus" == "ABP" ]]; then
+            output="ABP $output"
+          elif [[ "$bus" == "AHBL" ]]; then
+            output="AHB $output"
+          elif [[ "$bus" == "WB" ]]; then
+            output="WISHBONE $output"
+          else
+            echo "Unknown bus type $bus"
+            exit 1
           fi
         done
