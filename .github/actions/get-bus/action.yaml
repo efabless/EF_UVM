@@ -23,9 +23,9 @@ runs:
         for bus in "${buses[@]}"
         do
           if [[ "$bus" == "generic" ]]; then
-            output="WISHBONE ABP AHB $output"
-          elif [[ "$bus" == "ABP" ]]; then
-            output="ABP $output"
+            output="WISHBONE APB AHB $output"
+          elif [[ "$bus" == "APB" ]]; then
+            output="APB $output"
           elif [[ "$bus" == "AHBL" ]]; then
             output="AHB $output"
           elif [[ "$bus" == "WB" ]]; then
