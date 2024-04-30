@@ -1,3 +1,4 @@
+SHELL := /bin/bash 
 RED=\033[0;31m
 GREEN=\033[0;32m
 YELLOW=\033[0;33m
@@ -19,11 +20,13 @@ endif
 # Target to run a single test
 define RUN_TEST_TEMPLATE
 run_$(1):
-	@echo "\033[45;37mRunning test:\033[0m \033[44;37m$(1) with tag: $(SIM_TAG)\033[0m"
+	@rand=$$$$RANDOM && \
+	sleep $$$$(($$$$rand % 10));
+	@echo -e "\033[45;37mRunning test:\033[0m \033[44;37m$(1) with tag: $(SIM_TAG)\033[0m"
 	@mkdir -p $(SIM_PATH)/compilation
 	@mkdir -p $(SIM_PATH)/$(1)
 	@if [ ! -f "$(SIM_PATH)/compilation/sim.vvp" ]; then \
-        echo "Compiling since sim.vvp does not exist..."; \
+        echo -e "Compiling since sim.vvp does not exist..."; \
         docker run --rm \
 		$(USER_ARGS) \
 		-v "$(GRANDPARENT_DIR)":"$(GRANDPARENT_DIR)" \
@@ -45,16 +48,16 @@ run_$(1):
 	$(RANDOM_SEED_ARG) \
 	-e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 \
 	$(DOCKER_IMAGE) /bin/sh -c "cd $(SIM_PATH)/$(1) &&  MODULE=top_module vvp -M $(DOCKER_COCOTB_LIB_DIR) -m libcocotbvpi_icarus $(SIM_PATH)/compilation/sim.vvp +UVM_TESTNAME=$(1) +TEST_PATH=$(SIM_PATH)/$(1) +YAML_FILE=$(YAML_FILE) +BUS_TYPE=$(BUS_TYPE) COCOTB_RESULTS_FILE=$(SIM_PATH)/$(1)/results.xml > $(SIM_PATH)/$(1)/test.log 2>&1"
-	@echo "Checking test results..."
+	@echo -e "Checking test results..."
 	@if grep -q "UVM TEST FAIL" $(SIM_PATH)/$(1)/test.log; then \
-		echo "Test Failed" > $(SIM_PATH)/$(1)/failed; \
-		echo "$$(RED)Test $(1) Failed$$(NC)" ; \
+		echo -e "Test Failed" > $(SIM_PATH)/$(1)/failed; \
+		echo -e "$$(RED)Test $(1) Failed$$(NC)" ; \
 	elif grep -q "UVM TEST PASSED" $(SIM_PATH)/$(1)/test.log; then \
-		echo "Test Passed" > $(SIM_PATH)/$(1)/passed; \
-		echo "$$(GREEN)Test $(1) Passed$$(NC)" ; \
+		echo -e "Test Passed" > $(SIM_PATH)/$(1)/passed; \
+		echo -e "$$(GREEN)Test $(1) Passed$$(NC)" ; \
 	else \
-		echo "Test Result Unknown" > $(SIM_PATH)/$(1)/unknown; \
-		echo "$$(YELLOW)Test $(1) Result Unknown$$(NC)" ; \
+		echo -e "Test Result Unknown" > $(SIM_PATH)/$(1)/unknown; \
+		echo -e "$$(YELLOW)Test $(1) Result Unknown$$(NC)" ; \
 	fi
 
 run_gl_$(1):
@@ -71,9 +74,6 @@ ifeq ($(RUN_MERGE_COVERAGE),true)
 	$(MAKE) run_merge_coverage 
 endif
 
-.PHONY: run_gl_all_tests
-run_gl_all_tests: run_all_gl_tests
-
 # Target to run all tests in parallel
 run_all_gl_tests:
 	@$(MAKE) generate_gl
@@ -83,10 +83,10 @@ ifeq ($(RUN_MERGE_COVERAGE),true)
 endif
 
 create_top_py:
-	@echo "from os import path" > $(SIM_PATH)/$(UVM_TEST)/top_module.py
-	@echo "import sys" >> $(SIM_PATH)/$(UVM_TEST)/top_module.py
-	@echo "sys.path.append(path.abspath('$(PWD)'))" >> $(SIM_PATH)/$(UVM_TEST)/top_module.py
-	@echo "from test_lib import *" >> $(SIM_PATH)/$(UVM_TEST)/top_module.py
+	@echo -e "from os import path" > $(SIM_PATH)/$(UVM_TEST)/top_module.py
+	@echo -e "import sys" >> $(SIM_PATH)/$(UVM_TEST)/top_module.py
+	@echo -e "sys.path.append(path.abspath('$(PWD)'))" >> $(SIM_PATH)/$(UVM_TEST)/top_module.py
+	@echo -e "from test_lib import *" >> $(SIM_PATH)/$(UVM_TEST)/top_module.py
 
 run_merge_coverage:
 	@@docker run --rm \
@@ -114,17 +114,17 @@ lint:
 	$(DOCKER_IMAGE) /bin/sh -c "cd $(UVM_PY_DIR) & verilator -Wall --lint-only --timing --error-limit 10 $(RTL_MACROS) $(VERILOG_SOURCES) --top-module  top 2>&1 | tee $(UVM_PY_DIR)/sim/linter.log /dev/null"
 
 clean_sim:
-	@echo "Cleaning up..."
+	@echo -e "Cleaning up..."
 	@rm -rf $(PWD)/sim
 
 
 # Target to clean directories under sim/ with a file named passed, including their parent directories up to sim/
 clean_passed_dirs:
-	@echo "Cleaning directories with a passed test and their parents up to sim..."
+	@echo -e "Cleaning directories with a passed test and their parents up to sim..."
 	@find $(PWD)/sim -type f -name passed | while read passed_file; do \
 		dir=$$(dirname $$passed_file); \
 		while [ "$$dir" != "$(PWD)/sim" -a "$$dir" != "$(PWD)" ]; do \
-			echo "Cleaning $$dir..."; \
+			echo -e "Cleaning $$dir..."; \
 			rm -rf $$dir; \
 			dir=$$(dirname $$dir); \
 		done; \
@@ -133,21 +133,22 @@ clean_passed_dirs:
 generate_gl:
 	@if [ -z "$(SKIP_SYNTHESIS)" ]; then \
 		if [ ! -d "$(OPENLANE_RUN)/final" ]; then \
-			echo "Generating netlist with Yosys"; \
+			echo -e "Generating netlist with Yosys"; \
+			volare enable bdc9412b3e468c102d01b7cf6337be06ec6e9c9a; \
 			mkdir -p $(OPENLANE_RUN); \
-			cd $(GRANDPARENT_DIR) && nix run github:efabless/openlane2 -- --save-views-to hdl/gl/synthesis  --log-level WARNING -c DESIGN_NAME=$(DESIGN_NAME) -c VERILOG_FILES="$(PRE_SYS_FILES)" --force-run-dir $(OPENLANE_RUN) $(UVM_PY_DIR)/EF_UVM/openlane/openlane_synthesis.json; \
+			cd $(GRANDPARENT_DIR) && openlane --dockerized --docker-no-tty --save-views-to hdl/gl/synthesis  --log-level WARNING -c DESIGN_NAME=$(DESIGN_NAME) -c VERILOG_FILES="$(PRE_SYS_FILES)" --force-run-dir $(OPENLANE_RUN) $(UVM_PY_DIR)/EF_UVM/openlane/openlane_synthesis.json; \
 		fi; \
 	else \
-		echo "Skipping synthesis because SKIP_SYNTHESIS is defined"; \
+		echo -e "Skipping synthesis because SKIP_SYNTHESIS is defined"; \
 	fi
 	# @$(MAKE) get_pdk_files
 
 get_pdk_files:
-	@echo "Getting PDK files..."
+	@echo -e "Getting PDK files..."
 	if [ -f "$(OPENLANE_RUN)/resolved.json" ]; then \
 		json_file="$(OPENLANE_RUN)/resolved.json"; \
 		pdk_files=$$(jq -r '.CELL_VERILOG_MODELS[]' $$json_file | tr '\n' ' '); \
-		echo $${pdk_files}; \
-		echo "PDK_FILES = $$pdk_files" > $(SIM_PATH)/pdk_files.mk; \
+		echo -e $${pdk_files}; \
+		echo -e "PDK_FILES = $$pdk_files" > $(SIM_PATH)/pdk_files.mk; \
 	fi
 
