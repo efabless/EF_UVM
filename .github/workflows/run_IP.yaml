@@ -2,9 +2,15 @@ name: 'Run IP'
 on:
   workflow_call:
     inputs:
+      is-ip:
+        description: 'Flag if the CI is an IP CI'
+        required: false
+        type: boolean
+        default: false
       url:
         description: 'IP Repo URL'
-        required: true
+        required: false
+        default: "n/a"
         type: string
       test-names:
         description: 'Test Names'
@@ -19,43 +25,97 @@ on:
         required: true
         type: string
 jobs:
+  Setup-Work-Space:
+    runs-on: ubuntu-latest
+    outputs:
+      artifact_name: ${{ steps.set_artifact_name.outputs.artifact_name }}
+    steps:
+      - name: Setup Env Vars
+        run: |
+          echo "EF_UVM_PATH=${{ github.workspace }}/${{ inputs.name }}/verify/uvm-python/EF_UVM" >> $GITHUB_ENV
+          echo "IP_PATH=${{ github.workspace }}/${{ inputs.name }}" >> $GITHUB_ENV
+          echo "MY_WORKSPACE=${{ github.workspace }}/${{ inputs.name }}" >> $GITHUB_ENV
+      - name: Install IP (EF_UVM)
+        if: ${{ !inputs.is-ip }}
+        run: git clone ${{ inputs.url }} ${{ env.IP_PATH }}
+      - name: Install EF_UVM (EF_UVM)
+        if: ${{ !inputs.is-ip }}
+        uses: actions/checkout@v4
+        with:
+          path: ${{ env.EF_UVM_PATH }}
+      - name: Install IP (IP)
+        uses: actions/checkout@v4
+        if: ${{ inputs.is-ip }}
+        with:
+          path: ${{ env.IP_PATH }}
+      - name: Install EF_UVM (EF_UVM)
+        if: ${{ inputs.is-ip }}
+        run: |
+          git clone https://github.com/efabless/EF_UVM.git ${{ env.EF_UVM_PATH }}
+      - name: Set Artifact Name
+        id: set_artifact_name
+        run: |
+          wrap_name () {
+            echo "❲$1❳"
+          }
+          artifact_name=$(wrap_name "workspace")-$(wrap_name "${{ inputs.name }}")
+          echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
+      - name: Upload Workspace
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ env.MY_WORKSPACE }}
+          name: ${{ steps.set_artifact_name.outputs.artifact_name }}
+
   Prepare-Tests-Matrix:
+    needs: ["Setup-Work-Space"]
     runs-on: ubuntu-latest
     outputs:
       tests: ${{ steps.set-tests-matrix.outputs.tests }}
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
+      - name: Setup Env Vars
+        run: |
+          echo "EF_UVM_PATH=${{ github.workspace }}/${{ inputs.name }}/verify/uvm-python/EF_UVM" >> $GITHUB_ENV
+          echo "IP_PATH=${{ github.workspace }}/${{ inputs.name }}" >> $GITHUB_ENV
+          echo "MY_WORKSPACE=${{ github.workspace }}/${{ inputs.name }}" >> $GITHUB_ENV
+      - name: Download Workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.Setup-Work-Space.outputs.artifact_name }}
+          path: ${{ env.MY_WORKSPACE }}
       - name: Set Tests Matrix
         id: set-tests-matrix
-        run: echo "tests=$(python3 ./.github/scripts/get_tests_matrix.py --tests ${{ inputs.test-names }} --buses ${{ inputs.buses }})" >> "$GITHUB_OUTPUT"
+        run: |
+          python3 ${{ env.EF_UVM_PATH }}/.github/scripts/get_tests_matrix.py --tests ${{ inputs.test-names }} --buses ${{ inputs.buses }}
+          echo "tests=$(python3 ${{ env.EF_UVM_PATH }}/.github/scripts/get_tests_matrix.py --tests ${{ inputs.test-names }} --buses ${{ inputs.buses }})" >> "$GITHUB_OUTPUT"
 
   Run-IP:
-    needs: [Prepare-Tests-Matrix]
+    needs: [Setup-Work-Space, Prepare-Tests-Matrix]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.Prepare-Tests-Matrix.outputs.tests) }}
-    name: ${{ matrix.tests.bus }} / ${{ matrix.tests.test }}
+    name: ${{ matrix.tests.bus }}/${{ matrix.tests.test }}
     steps:
       - name: Set Env Variables
         shell: bash
         run: |
-          echo "WORKING_DIRECTORY=/home/runner/work/${{ inputs.name }}/verify/uvm-python" >> $GITHUB_ENV
-          echo "SIM_DIRECTORY=/home/runner/work/${{ inputs.name }}/verify/uvm-python/sim" >> $GITHUB_ENV
-      - name: Check out repository code
-        uses: actions/checkout@v4
+          echo "EF_UVM_PATH=${{ github.workspace }}/${{ inputs.name }}/verify/uvm-python/EF_UVM" >> $GITHUB_ENV
+          echo "IP_PATH=${{ github.workspace }}/${{ inputs.name }}" >> $GITHUB_ENV
+          echo "MY_WORKSPACE=${{ github.workspace }}/${{ inputs.name }}" >> $GITHUB_ENV
+          echo "STATUS=env-error" >> $GITHUB_ENV
+      - name: Set More Env Variables
+        shell: bash
+        run: |
+          echo "WORKING_DIRECTORY=${{ env.IP_PATH }}/verify/uvm-python" >> $GITHUB_ENV
+          echo "SIM_DIRECTORY=${{ env.IP_PATH }}/verify/uvm-python/sim" >> $GITHUB_ENV
       - name: Setup OpenLane
+        uses: efabless/EF_UVM/.github/actions/setup-openlane-nix@main
         if: ${{ matrix.tests.tag == 'GL' }}
-        uses: ./.github/actions/setup-openlane-nix
-      - name: Clone IP
-        shell: bash
-        run: git clone ${{ inputs.url }} /home/runner/work/${{ inputs.name }}
-      - name: Check out repository code
-        uses: actions/checkout@v4
-      - name: Copy EF_UVM to verify/uvm-python (workaround)
-        shell: bash
-        run: cp -r $(pwd) ${{ env.WORKING_DIRECTORY }}
+      - name: Download Workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.Setup-Work-Space.outputs.artifact_name }}
+          path: ${{ env.MY_WORKSPACE }}
       - name: Install Docker Image
         run: docker pull efabless/dv:cocotb 
       - name: Run Test
@@ -67,6 +127,7 @@ jobs:
             make run_$test SIM_TAG=${{ matrix.tests.tag }} BUS_TYPE=${{ matrix.tests.bus }}
           done 
       - name: Check Test Results
+        id: check_results
         shell: bash
         working-directory: ${{ env.WORKING_DIRECTORY }}
         run: |
@@ -80,34 +141,43 @@ jobs:
 
           if [ "$passed_count" -eq 0 ]; then
             echo "Error: No passed test results found"
+            echo "STATUS=env-error" >> $GITHUB_ENV
             exit 1
           elif [ "$failed_count" -ne 0 ] || [ "$unknown_count" -ne 0 ]; then
             echo "Error: There are failed or unknown test results"
+            echo "STATUS=sim-error" >> $GITHUB_ENV
             exit 1
           else
             echo "All tests passed successfully"
+            echo "STATUS=success" >> $GITHUB_ENV
           fi
       - name: Save IP Commit Hash
         if: always()
         shell: bash
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+        working-directory: ${{ env.IP_PATH }}
         run: git rev-parse --verify HEAD > ${{ env.SIM_DIRECTORY }}/ip-commit-hash.txt
       - name: Save EF_UVM Commit Hash
         if: always()
         shell: bash
+        working-directory: ${{ env.EF_UVM_PATH }}
         run: git rev-parse --verify HEAD > ${{ env.SIM_DIRECTORY }}/EF_UVM-commit-hash.txt
       - name: Tar Sim Directory
         if: always()
         shell: bash
         working-directory: ${{ env.WORKING_DIRECTORY }}
         run: tar -czf sim.tar.gz sim
+      - name: Set Artifact Name
+        if: always()
+        id: set_artifact_name
+        run: |
+          wrap_name () {
+            echo "❲$1❳"
+          }
+          artifact_name=$(wrap_name "${{ env.STATUS }}")-$(wrap_name "${{ inputs.name }}")-$(wrap_name "${{ matrix.tests.bus }}")-$(wrap_name "${{ matrix.tests.test }}")
+          echo "artifact_name=$artifact_name" >> $GITHUB_OUTPUT
       - name: Upload Logs and Artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ${{ inputs.name }}-${{ matrix.tests.bus }}-${{ matrix.tests.test }}-sim
           path: ${{ env.WORKING_DIRECTORY }}/*.tar.gz
-
-
-
-
+          name: ${{ steps.set_artifact_name.outputs.artifact_name }}

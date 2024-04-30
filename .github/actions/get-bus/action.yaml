@@ -1,0 +1,38 @@
+name: 'Get Bus Type'
+description: 'Get Bus Type'
+outputs:
+  buses:
+    description: "Buses"
+    value: ${{ steps.get_buses.outputs.output }}
+runs:
+  using: "composite"
+  steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+    - name: Extract Info from IP Yaml File
+      uses: mikefarah/yq@master
+      id: get_bus_info
+      with:
+        cmd: yq '.info.bus.[]' './${{ github.event.repository.name }}.yaml'
+    - name: Map to Make options
+      shell: bash
+      id: get_buses
+      run: |
+        buses=(${{ steps.get_bus_info.outputs.result }})
+        output=""
+        for bus in "${buses[@]}"
+        do
+          if [[ "$bus" == "generic" ]]; then
+            output="WISHBONE APB AHB $output"
+          elif [[ "$bus" == "APB" ]]; then
+            output="APB $output"
+          elif [[ "$bus" == "AHBL" ]]; then
+            output="AHB $output"
+          elif [[ "$bus" == "WB" ]]; then
+            output="WISHBONE $output"
+          else
+            echo "Unknown bus type $bus"
+            exit 1
+          fi
+        done
+        echo "output=$output" >> $GITHUB_OUTPUT
