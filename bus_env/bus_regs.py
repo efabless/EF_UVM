@@ -1,5 +1,6 @@
 import json
 import yaml
+import math
 
 import cocotb
 
@@ -87,6 +88,47 @@ class bus_regs:
             self.data["registers"].append(reg_ris)
             self.data["registers"].append(reg_icr)
             self.irq_exist = True
+
+        if "fifos" in self.data and len(self.data["fifos"]) > 0:
+            fifo_count = 0
+            for fifo in self.data["fifos"]:
+                fifo_name = fifo["name"]
+                reg_size = fifo["address_width"]
+                reg_fifo_flush = {
+                    "name": f"{fifo_name}_FLUSH",
+                    "offset": 0x1000 + fifo_count,
+                    "size": 1,
+                    "mode": "w",
+                    "fifo": "no",
+                    "bit_access": "no",
+                    "val": 0,
+                    "delayed_val": 0,
+                }
+                reg_fifo_threshold = {
+                    "name": f"{fifo_name}_THRESHOLD",
+                    "offset": 0x1004 + fifo_count,
+                    "size": reg_size,
+                    "mode": "w",
+                    "fifo": "no",
+                    "bit_access": "no",
+                    "val": 0,
+                    "delayed_val": 0,
+                }
+                reg_fifo_level = {
+                    "name": f"{fifo_name}_LEVEL",
+                    "offset": 0x1008 + fifo_count,
+                    "size": reg_size,
+                    "mode": "r",
+                    "fifo": "no",
+                    "bit_access": "no",
+                    "val": 0,
+                    "delayed_val": 0,
+                }
+                fifo_count += 0x10   # add 16 to the address 
+                self.data["registers"].append(reg_fifo_flush)
+                self.data["registers"].append(reg_fifo_threshold)
+                self.data["registers"].append(reg_fifo_level)
+
         for reg in self.data["registers"]:
             if "init" not in reg:
                 reg["val"] = 0
