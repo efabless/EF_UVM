@@ -21,7 +21,7 @@ class bus_ahb_driver(bus_base_driver):
             uvm_info(
                 self.tag,
                 f"Driving trans into DUT: {tr.convert2string()} sequence id {tr.id}",
-                UVM_MEDIUM,
+                UVM_HIGH,
             )
             if tr.kind == bus_item.RESET:
                 uvm_info(self.tag, "Doing reset", UVM_MEDIUM)
