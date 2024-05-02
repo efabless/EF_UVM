@@ -18,6 +18,7 @@ class bus_item(UVMSequenceItem):
     RESET = 2
     NOPE = 3  # Insert a no-op in the sequence
     counter = 0
+
     def __init__(self, name="bus_item"):
         super().__init__(name)
         self.tag = name
