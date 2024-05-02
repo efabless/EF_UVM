@@ -46,7 +46,7 @@ class bus_regs:
                 "offset": 0xF00,
                 "size": size,
                 "mode": "w",
-                "fifo": "no",
+                "fifo": True,  # it's not a fifo register but we need to disable it, since it might generate interrupts
                 "bit_access": "no",
                 "val": 0,
                 "delayed_val": 0,
@@ -56,7 +56,7 @@ class bus_regs:
                 "offset": 0xF04,
                 "size": size,
                 "mode": "r",
-                "fifo": "no",
+                "fifo": False,
                 "bit_access": "no",
                 "val": 0,
                 "delayed_val": 0,
@@ -66,7 +66,7 @@ class bus_regs:
                 "offset": 0xF08,
                 "size": size,
                 "mode": "r",
-                "fifo": "no",
+                "fifo": False,
                 "bit_access": "no",
                 "val": 0,
                 "delayed_val": 0,
@@ -76,7 +76,7 @@ class bus_regs:
                 "offset": 0xF0C,
                 "size": size,
                 "mode": "w",
-                "fifo": "yes",
+                "fifo": True,  # it's not a fifo register but it's self clear so we can't read the same value
                 "bit_access": "no",
                 "val": 0,
                 "delayed_val": 0,
@@ -98,7 +98,7 @@ class bus_regs:
                     "offset": 0x1000 + fifo_count,
                     "size": 1,
                     "mode": "w",
-                    "fifo": "no",
+                    "fifo": True,  # it's not a fifo register but it's self clear so we can't read the same value
                     "bit_access": "no",
                     "val": 0,
                     "delayed_val": 0,
@@ -108,7 +108,7 @@ class bus_regs:
                     "offset": 0x1004 + fifo_count,
                     "size": reg_size,
                     "mode": "w",
-                    "fifo": "no",
+                    "fifo": False,
                     "bit_access": "no",
                     "val": 0,
                     "delayed_val": 0,
@@ -118,12 +118,12 @@ class bus_regs:
                     "offset": 0x1008 + fifo_count,
                     "size": reg_size,
                     "mode": "r",
-                    "fifo": "no",
+                    "fifo": False,
                     "bit_access": "no",
                     "val": 0,
                     "delayed_val": 0,
                 }
-                fifo_count += 0x10   # add 16 to the address 
+                fifo_count += 0x10  # add 16 to the address
                 self.data["registers"].append(reg_fifo_flush)
                 self.data["registers"].append(reg_fifo_threshold)
                 self.data["registers"].append(reg_fifo_level)
