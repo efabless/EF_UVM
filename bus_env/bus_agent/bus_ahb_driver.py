@@ -19,7 +19,9 @@ class bus_ahb_driver(bus_base_driver):
             await self.is_rising_edge()
             tr = tr[0]
             uvm_info(
-                self.tag, "Driving trans into DUT: " + tr.convert2string(), UVM_LOW
+                self.tag,
+                f"Driving trans into DUT: {tr.convert2string()} sequence id {tr.id}",
+                UVM_MEDIUM,
             )
             if tr.kind == bus_item.RESET:
                 uvm_info(self.tag, "Doing reset", UVM_MEDIUM)
@@ -35,6 +37,11 @@ class bus_ahb_driver(bus_base_driver):
                 self.seq_item_port.item_done()
 
     async def address_phase(self, tr):
+        uvm_info(
+            self.tag,
+            f"tr at the start of address phase {tr.convert2string()} sequence id {tr.id}",
+            UVM_HIGH,
+        )
         if tr.kind == bus_item.READ:
             self.vif.HWRITE.value = 0
         else:
@@ -47,11 +54,21 @@ class bus_ahb_driver(bus_base_driver):
         # TODO: HSIZE should be existed in the DUT wait until it got added
         await self.drive_delay()
         self.end_of_trans()
+        uvm_info(
+            self.tag,
+            f"tr at the end of address phase {tr.convert2string()} sequence id {tr.id}",
+            UVM_HIGH,
+        )
 
     def drv_optional_signals_address(self, tr):
         pass
 
     async def data_phase(self, tr):
+        uvm_info(
+            self.tag,
+            f"tr at the start of data phase {tr.convert2string()} sequence id {tr.id}",
+            UVM_HIGH,
+        )
         if tr.kind == bus_item.WRITE:
             self.vif.HWDATA.value = tr.data
             await self.drive_delay()
@@ -63,6 +80,11 @@ class bus_ahb_driver(bus_base_driver):
             while self.vif.HREADYOUT == 0:
                 await self.drive_delay()
             tr.data = self.vif.HRDATA.value.integer
+        uvm_info(
+            self.tag,
+            f"tr at the end of data phase {tr.convert2string()} sequence id {tr.id}",
+            UVM_HIGH,
+        )
         self.seq_item_port.put_response(tr)
 
     def end_of_trans(self):
