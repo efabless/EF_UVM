@@ -11,12 +11,13 @@ class bus_seq_base(UVMSequence):
     def __init__(self, name="bus_seq_base"):
         UVMSequence.__init__(self, name)
         # self.set_automatic_phase_objection(1)
-        
+
         self.tag = name
         # disable checking for overflow if the response queue is full
         # if respose checking is needed the sequence should take care of it
         self.set_response_queue_error_report_disabled(1)
         self.response_queue_error_report_disabled = 1
+
     def create_new_item(self):
         self.req = bus_item()
         self.rsp = bus_item()
