@@ -36,3 +36,12 @@
     - dffram_wr_rd_test dffram_corners_test
   bus:
     - AHB
+- name: EF_SPI
+  url: https://github.com/efabless/EF_SPI.git
+  tests:
+    - MOSI_stress_test MISO_stress_test 
+    - MISO_MOSI_test
+  bus:
+    - APB
+    - AHB
+    - WISHBONE
