@@ -1,6 +1,5 @@
 import json
 import yaml
-import math
 
 import cocotb
 
