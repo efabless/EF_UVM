@@ -41,9 +41,10 @@ class bus_regs:
         self.irq_exist = False
         if "flags" in self.data and len(self.data["flags"]) > 0:
             size = len(self.data["flags"])
+            irq_regs_offset = self.data["info"]["irq_reg_offset"]
             reg_im = {
                 "name": "im",
-                "offset": 0xF00,
+                "offset": irq_regs_offset + 0x0,
                 "size": size,
                 "mode": "w",
                 "fifo": True,  # it's not a fifo register but we need to disable it, since it might generate interrupts
@@ -53,7 +54,7 @@ class bus_regs:
             }
             reg_mis = {
                 "name": "mis",
-                "offset": 0xF04,
+                "offset": irq_regs_offset + 0x4,
                 "size": size,
                 "mode": "r",
                 "fifo": False,
@@ -63,7 +64,7 @@ class bus_regs:
             }
             reg_ris = {
                 "name": "ris",
-                "offset": 0xF08,
+                "offset": irq_regs_offset + 0x8,
                 "size": size,
                 "mode": "r",
                 "fifo": False,
@@ -73,7 +74,7 @@ class bus_regs:
             }
             reg_icr = {
                 "name": "icr",
-                "offset": 0xF0C,
+                "offset": irq_regs_offset + 0xC,
                 "size": size,
                 "mode": "w",
                 "fifo": True,  # it's not a fifo register but it's self clear so we can't read the same value
@@ -90,12 +91,13 @@ class bus_regs:
 
         if "fifos" in self.data and len(self.data["fifos"]) > 0:
             fifo_count = 0
+            fifos_regs_offset = self.data["info"]["fifo_reg_offset"]
             for fifo in self.data["fifos"]:
                 fifo_name = fifo["name"]
                 reg_size = fifo["address_width"]
                 reg_fifo_flush = {
                     "name": f"{fifo_name}_FLUSH",
-                    "offset": 0x1000 + fifo_count,
+                    "offset": fifos_regs_offset+ 0x8 + fifo_count,
                     "size": 1,
                     "mode": "w",
                     "fifo": True,  # it's not a fifo register but it's self clear so we can't read the same value
@@ -105,7 +107,7 @@ class bus_regs:
                 }
                 reg_fifo_threshold = {
                     "name": f"{fifo_name}_THRESHOLD",
-                    "offset": 0x1004 + fifo_count,
+                    "offset": fifos_regs_offset+ 0x4 + + fifo_count,
                     "size": reg_size,
                     "mode": "w",
                     "fifo": False,
@@ -115,7 +117,7 @@ class bus_regs:
                 }
                 reg_fifo_level = {
                     "name": f"{fifo_name}_LEVEL",
-                    "offset": 0x1008 + fifo_count,
+                    "offset": fifos_regs_offset+ 0x0 + + fifo_count,
                     "size": reg_size,
                     "mode": "r",
                     "fifo": False,
