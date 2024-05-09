@@ -42,6 +42,7 @@ class scoreboard(UVMScoreboard):
         cocotb.scheduler.add(self.checker_bus())
         cocotb.scheduler.add(self.checker_irq())
         cocotb.scheduler.add(self.checker_ip())
+        self.compare_counter = 0
 
     def build_phase(self, phase):
         super().build_phase(phase)
@@ -83,6 +84,8 @@ class scoreboard(UVMScoreboard):
                     + exp.convert2string(),
                     UVM_HIGH,
                 )
+            self.compare_counter += 1
+            self.min_compare_num = 50
 
     def write_irq(self, tr):
         uvm_info(self.tag, "write_irq: " + tr.convert2string(), UVM_HIGH)
@@ -107,6 +110,7 @@ class scoreboard(UVMScoreboard):
                     + " != "
                     + exp.convert2string(),
                 )
+            self.compare_counter += 1
 
     def write_ip(self, tr):
         uvm_info(self.tag, "write_ip: " + tr.convert2string(), UVM_HIGH)
@@ -137,6 +141,7 @@ class scoreboard(UVMScoreboard):
                     "IP match: " + val.convert2string() + " == " + exp.convert2string(),
                     UVM_HIGH,
                 )
+            self.compare_counter += 1
 
     def extract_phase(self, phase):
         super().extract_phase(phase)
@@ -156,6 +161,23 @@ class scoreboard(UVMScoreboard):
                 self.tag,
                 f"IP queue still have unchecked items queue ip {self.q_ip._queue} size {self.q_ip.qsize()} ip_ref_model {self.q_ip_ref_model._queue} size {self.q_ip_ref_model.qsize()}",
             )
+        if self.compare_counter < self.min_compare_num:
+            uvm_error(
+                self.tag,
+                f"Not enough compares happened in scoreboard actual compares {self.compare_counter} minimum compares {self.min_compare_num}",
+            )
+        else:
+            uvm_info(
+                self.tag,
+                f"Scoreboard compare passed actual compares {self.compare_counter} minimum compares {self.min_compare_num}",
+                UVM_LOW,
+            )
+
+    def update_min_checkers(self, num_checkers):
+        """update min number of checker the scoreboard should have done for the tests
+        the default is 50
+        """
+        self.min_compare_num = num_checkers
 
 
 uvm_component_utils(scoreboard)

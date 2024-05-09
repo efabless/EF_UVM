@@ -82,6 +82,13 @@ class base_test(UVMTest):
             UVM_LOW,
         )
 
+    def update_min_checkers(self, num_checkers):
+        """update min number of checker the scoreboard should have done for the tests
+        the default is 50
+        """
+        self.top_env.scoreboard.update_min_checkers(num_checkers)
+        # TODO: try this again not working
+
     def start_of_simulation_phase(self, phase):
         self.bus_sqr = self.top_env.bus_env.bus_agent.bus_sequencer
         self.ip_sqr = self.top_env.ip_env.ip_agent.ip_sequencer

@@ -22,8 +22,8 @@ class bus_ahb_monitor(bus_base_monitor):
             await self.assert_reset()
             start_thread.kill()
             self.active_reset = True
-            await self.deassert_reset()
-            self.active_reset = False
+            if self.data_phase_lock.locked:
+                self.data_phase_lock.release()
 
     async def start(self):
         while True:
@@ -32,8 +32,11 @@ class bus_ahb_monitor(bus_base_monitor):
             await NextTimeStep()
             tr = bus_item.type_id.create("tr", self)
             tr = await self.address_phase(tr)
+            uvm_info(self.tag, f"address_phase", UVM_LOW)
             await self.data_phase_lock.acquire()
+            uvm_info(self.tag, f"acquired lock", UVM_LOW)
             await cocotb.start(self.data_phase(tr))
+            uvm_info(self.tag, f"data_phase", UVM_LOW)
 
     async def assert_reset(self):
         await FallingEdge(self.vif.RESETn)
@@ -56,6 +59,8 @@ class bus_ahb_monitor(bus_base_monitor):
     async def address_phase(self, tr):
         while True:
             await self.sample_delay()
+            if self.vif.RESETn.value.binstr == "1":
+                self.active_reset = False
             if self.vif.HSEL.value.binstr == "1":
                 if self.vif.HTRANS.value.binstr[0] == "1":
                     break
@@ -81,11 +86,12 @@ class bus_ahb_monitor(bus_base_monitor):
                     self.tag, f"HRDATA is not an integer {self.vif.HRDATA.value.binstr}"
                 )
                 tr.data = self.vif.HRDATA.value.binstr
+        if self.data_phase_lock.locked:
+            self.data_phase_lock.release()
         if self.active_reset:
             return
         self.monitor_port.write(tr)
         uvm_info(self.tag, "sampled AHB transaction: " + tr.convert2string(), UVM_LOW)
-        self.data_phase_lock.release()
         return tr
 
 
