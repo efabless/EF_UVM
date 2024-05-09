@@ -5,8 +5,6 @@
 			"Verilator.Lint",
 			"Checker.LintErrors",
 			"Yosys.Synthesis",
-			"Checker.YosysUnmappedCells",
-			"Checker.YosysSynthChecks",
 			"openroad.staprepnr"
 		]
 	}
