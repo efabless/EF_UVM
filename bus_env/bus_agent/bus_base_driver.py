@@ -30,10 +30,10 @@ class bus_base_driver(UVMDriver):
 
     async def reset(self, num_cycles=3):
         self.vif.RESETn.value = 0
+        self.end_of_trans()
         for _ in range(num_cycles):
             await self.drive_delay()
         self.vif.RESETn.value = 1
-        self.end_of_trans()
 
     async def drive_delay(self):
         await RisingEdge(self.vif.CLK)

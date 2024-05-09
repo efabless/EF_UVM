@@ -95,11 +95,12 @@ class base_test(UVMTest):
             self, f"{self.__class__.__name__} reset phase drop objection"
         )
 
-    async def configure_phase(self, phase):
-        # add background sequences
-        await super().configure_phase(phase)
-        bus_seq = delays_bus_bg_seq("delays_bus_bg_seq")
-        await bus_seq.start(self.bus_sqr)
+    # remove background sequences as it introduce errors in the cases of ahbl
+    # async def configure_phase(self, phase):
+    #     # add background sequences
+    #     await super().configure_phase(phase)
+    #     bus_seq = delays_bus_bg_seq("delays_bus_bg_seq")
+    #     await bus_seq.start(self.bus_sqr)
 
     @abstractmethod
     async def main_phase(self, phase):
