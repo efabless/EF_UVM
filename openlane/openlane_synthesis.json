@@ -5,7 +5,11 @@
 			"Verilator.Lint",
 			"Checker.LintErrors",
 			"Yosys.Synthesis",
+			"Checker.YosysUnmappedCells",
+			"Checker.YosysSynthChecks",
 			"openroad.staprepnr"
 		]
-	}
+	},
+	"ERROR_ON_UNMAPPED_CELLS": false,
+	"ERROR_ON_SYNTH_CHECKS": false
 }
