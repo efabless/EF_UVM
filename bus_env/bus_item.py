@@ -46,7 +46,9 @@ class bus_item(UVMSequenceItem):
 
     def do_clone(self):
         t = bus_item()
-        t.copy(self)
+        t.kind = self.kind
+        t.addr = self.addr
+        t.data = self.data
         return t
 
     def do_compare(self, tr):
