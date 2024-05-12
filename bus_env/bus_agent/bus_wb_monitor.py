@@ -2,7 +2,7 @@ from uvm.macros import uvm_component_utils, uvm_fatal, uvm_info, uvm_error
 from uvm.comps.uvm_monitor import UVMMonitor
 from uvm.tlm1.uvm_analysis_port import UVMAnalysisPort
 from uvm.base.uvm_config_db import UVMConfigDb
-from cocotb.triggers import Timer, RisingEdge, FallingEdge
+from cocotb.triggers import Timer, RisingEdge, FallingEdge, NextTimeStep
 from uvm.base.uvm_object_globals import UVM_HIGH, UVM_LOW
 from EF_UVM.bus_env.bus_item import bus_item
 from EF_UVM.bus_env.bus_agent.bus_base_monitor import bus_base_monitor
@@ -68,8 +68,12 @@ class bus_wb_monitor(bus_base_monitor):
                 and self.vif.stb_i.value.binstr == "1"
             ):
                 break
-        while self.vif.ack_o.value == 0:
-            await self.sample_delay()
+        while True:
+            await NextTimeStep()
+            if self.vif.ack_o.value == 0:
+                await self.sample_delay()
+            else:
+                break
         address = self.vif.adr_i.value.integer
         write = self.vif.we_i.value.integer
         if write:
