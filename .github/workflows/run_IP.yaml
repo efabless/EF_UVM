@@ -40,7 +40,9 @@ jobs:
         run: git clone ${{ inputs.url }} ${{ env.IP_PATH }}
       - name: Install ip dependencies
         run: |
+          ls -la ip/
           if [ -f ip/dependencies.json ]; then
+            echo "File exists!"
             pip install ipmgr
             ipm install-deps
           else
