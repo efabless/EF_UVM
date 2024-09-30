@@ -41,6 +41,10 @@ class bus_regs:
         self.irq_exist = False
         if "flags" in self.data and len(self.data["flags"]) > 0:
             size = len(self.data["flags"])
+            try:
+                irq_regs_offset = self.data["info"]["irq_reg_offset"]
+            except KeyError:
+                irq_regs_offset = 0xFF00
             irq_regs_offset = self.data["info"]["irq_reg_offset"]
             reg_im = {
                 "name": "im",
@@ -103,7 +107,10 @@ class bus_regs:
             self.data["registers"].append(reg_clk_g)
         if "fifos" in self.data and len(self.data["fifos"]) > 0:
             fifo_count = 0
-            fifos_regs_offset = self.data["info"]["fifo_reg_offset"]
+            try:
+                fifos_regs_offset = self.data["info"]["fifo_reg_offset"]
+            except KeyError:
+                fifos_regs_offset = 0xFE00
             for fifo in self.data["fifos"]:
                 fifo_name = fifo["name"]
                 reg_size = fifo["address_width"]
