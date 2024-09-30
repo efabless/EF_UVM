@@ -39,7 +39,6 @@ jobs:
         if: ${{ !inputs.is-ip }}
         run: git clone ${{ inputs.url }} ${{ env.IP_PATH }}
       - name: Install ip dependencies
-        working-directory: ${{ env.IP_PATH }}
         run: |
           cd ${{ env.IP_PATH }}
           ls -la ip/
