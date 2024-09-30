@@ -88,7 +88,19 @@ class bus_regs:
             self.data["registers"].append(reg_ris)
             self.data["registers"].append(reg_icr)
             self.irq_exist = True
-
+        
+        if True: # assume clock gating is always true
+            reg_clk_g = {
+                "name": "CLKGATE",
+                "offset": 0xFF10,
+                "size": 1,
+                "mode": "w",
+                "fifo": True, # as we can't read it 
+                "bit_access": "no",
+                "val": 0,
+                "delayed_val": 0,
+            }
+            self.data["registers"].append(reg_clk_g)
         if "fifos" in self.data and len(self.data["fifos"]) > 0:
             fifo_count = 0
             fifos_regs_offset = self.data["info"]["fifo_reg_offset"]
