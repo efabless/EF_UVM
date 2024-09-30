@@ -41,6 +41,7 @@ jobs:
       - name: Install ip dependencies
         working-directory: ${{ env.IP_PATH }}
         run: |
+          cd ${{ env.IP_PATH }}
           ls -la ip/
           if [ -f ip/dependencies.json ]; then
             echo "File exists!"
