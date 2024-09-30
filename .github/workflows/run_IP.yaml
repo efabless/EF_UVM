@@ -39,10 +39,14 @@ jobs:
         if: ${{ !inputs.is-ip }}
         run: git clone ${{ inputs.url }} ${{ env.IP_PATH }}
       - name: Install ip dependencies
-        if: ${{ exists('ip/dependencies.json') }}
         run: |
-          pip install ipmgr
-          ipm install-dep
+          if [ -f ip/dependencies.json ]; then
+            pip install ipmgr
+            ipm install-deps
+          else
+            echo "dependencies.json file not found, skipping install."
+          fi
+
       - name: Install EF_UVM (EF_UVM)
         if: ${{ !inputs.is-ip }}
         uses: actions/checkout@v4
