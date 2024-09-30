@@ -45,7 +45,6 @@ class bus_regs:
                 irq_regs_offset = self.data["info"]["irq_reg_offset"]
             except KeyError:
                 irq_regs_offset = 0xFF00
-            irq_regs_offset = self.data["info"]["irq_reg_offset"]
             reg_im = {
                 "name": "im",
                 "offset": irq_regs_offset + 0x0,
