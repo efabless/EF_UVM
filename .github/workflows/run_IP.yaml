@@ -76,6 +76,8 @@ jobs:
         with:
           path: ${{ env.MY_WORKSPACE }}
           name: ${{ steps.set_artifact_name.outputs.artifact_name }}
+          include-hidden-files: true
+
 
   Prepare-Tests-Matrix:
     needs: ["Setup-Work-Space"]
