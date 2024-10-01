@@ -63,7 +63,8 @@ class bus_apb_driver(bus_base_driver):
         self.vif.PSEL.value = 1
         await self.drive_delay()
         self.vif.PENABLE.value = 1
-        await self.drive_delay()
+        await self.wait_ready()
+        # await self.drive_delay()
         try:
             data = self.vif.PRDATA.value.integer
         except TypeError or ValueError:
@@ -79,7 +80,8 @@ class bus_apb_driver(bus_base_driver):
         self.vif.PSEL.value = 1
         await self.drive_delay()
         self.vif.PENABLE.value = 1
-        await self.drive_delay()
+        await self.wait_ready()
+        # await self.drive_delay()
         self.end_of_trans()
         uvm_info(self.tag, "Finished APB write to addr " + hex(addr), UVM_HIGH)
 
@@ -87,5 +89,7 @@ class bus_apb_driver(bus_base_driver):
         self.vif.PSEL.value = 0
         self.vif.PENABLE.value = 0
 
-
+    async def wait_ready(self):
+        while self.vif.PREADY == 0:
+            await self.drive_delay()
 uvm_component_utils(bus_apb_driver)
