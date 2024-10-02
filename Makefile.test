@@ -9,12 +9,13 @@ GRANDPARENT_DIR:="$(shell cd ../../; pwd)"
 DOCKER_IMAGE = efabless/dv:cocotb
 RUN_MERGE_COVERAGE := true
 IPM_DIR := $(HOME)/.ipm
-USER_ARGS = -u $(shell id -u $$USER):$(shell id -g $$USER)
+USER_ARGS = -u $(shell id -u ${USER}):$(shell id -g ${USER})
 OPENLANE_RUN = $(SIM_PATH)/openlane_run/
 ifeq ($(ROOTLESS), 1)
 	USER_ARGS =
 endif
 DOCKER_COCOTB_LIB_DIR := $(shell docker run $(USER_ARGS) --rm $(DOCKER_IMAGE) cocotb-config --lib-dir)
+RANDOM_SEED_ARG = 
 ifdef RANDOM_SEED
 RANDOM_SEED_ARG = -e RANDOM_SEED=$(RANDOM_SEED)
 endif
@@ -35,7 +36,6 @@ run_$(1):
 		-e VERILOG_SOURCES="$(VERILOG_SOURCES)" \
 		-e SIM_PATH="$(SIM_PATH)" \
 		-e UVM_PY_DIR="$(UVM_PY_DIR)" \
-		-u $(id -u $USER):$(id -g $USER)\
 		$(DOCKER_IMAGE) /bin/sh -ec "cd $(UVM_PY_DIR) && iverilog -g2012 -Ttyp $(RTL_MACROS) $(VERILOG_SOURCES) -o $(SIM_PATH)/compilation/sim.vvp -s top"; \
     fi
 	@$(MAKE) create_top_py UVM_TEST=$(1)
