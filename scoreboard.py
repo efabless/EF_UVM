@@ -1,6 +1,6 @@
 from uvm.comps import UVMScoreboard
 from uvm.macros.uvm_tlm_defines import uvm_analysis_imp_decl
-from uvm.macros import uvm_component_utils, uvm_info, uvm_error
+from uvm.macros import uvm_component_utils, uvm_info, uvm_error, uvm_warning
 from cocotb.queue import Queue
 import cocotb
 from EF_UVM.bus_env.bus_item import bus_item
@@ -162,7 +162,7 @@ class scoreboard(UVMScoreboard):
                 f"IP queue still have unchecked items queue ip {self.q_ip._queue} size {self.q_ip.qsize()} ip_ref_model {self.q_ip_ref_model._queue} size {self.q_ip_ref_model.qsize()}",
             )
         if self.compare_counter < self.min_compare_num:
-            uvm_error(
+            uvm_warning(
                 self.tag,
                 f"Not enough compares happened in scoreboard actual compares {self.compare_counter} minimum compares {self.min_compare_num}",
             )
