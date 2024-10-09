@@ -23,7 +23,7 @@ class bus_item(UVMSequenceItem):
         super().__init__(name)
         self.tag = name
         self.addr = 0  # bit
-        self.rand("addr", range(0, 0xFFF))
+        self.rand("addr", range(0, 0xFFFF))
         self.data = 0  # logic
         self.rand("data", range(0, 0xFFFF))
         self.kind = bus_item.READ  # kind_e
@@ -46,7 +46,9 @@ class bus_item(UVMSequenceItem):
 
     def do_clone(self):
         t = bus_item()
-        t.copy(self)
+        t.kind = self.kind
+        t.addr = self.addr
+        t.data = self.data
         return t
 
     def do_compare(self, tr):

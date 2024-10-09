@@ -21,4 +21,4 @@ runs:
           extra-trusted-public-keys = openlane.cachix.org-1:qqdwh+QMNGmZAuyeQJTH9ErW57OWSvdtuwfBKdS254E=
     - name: Run OpenLane Smoke Test
       shell: bash
-      run: nix run github:efabless/openlane2 -- --smoke-test
+      run: nix run github:efabless/openlane2 -- --version

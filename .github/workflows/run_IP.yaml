@@ -52,6 +52,17 @@ jobs:
         if: ${{ inputs.is-ip }}
         run: |
           git clone https://github.com/efabless/EF_UVM.git ${{ env.EF_UVM_PATH }}
+      - name: Install ip dependencies
+        run: |
+          cd ${{ env.IP_PATH }}
+          ls -la ip/
+          if [ -f ip/dependencies.json ]; then
+            echo "ip dependencies exist!"
+            pip install ipmgr
+            ipm install-dep
+          else
+            echo "dependencies.json file not found, skipping install."
+          fi
       - name: Set Artifact Name
         id: set_artifact_name
         run: |
@@ -65,6 +76,8 @@ jobs:
         with:
           path: ${{ env.MY_WORKSPACE }}
           name: ${{ steps.set_artifact_name.outputs.artifact_name }}
+          include-hidden-files: true
+
 
   Prepare-Tests-Matrix:
     needs: ["Setup-Work-Space"]

@@ -45,3 +45,10 @@
     - APB
     - AHB
     - WISHBONE
+- name: EF_I2C
+  url: https://github.com/efabless/EF_I2C.git
+  tests:
+    - i2c_write_read_test WriteReadRegsTest
+  bus:
+    - APB
+    - WISHBONE
