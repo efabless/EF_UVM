@@ -51,6 +51,7 @@ class bus_ahb_driver(bus_base_driver):
         self.vif.HADDR.value = tr.addr
         self.vif.HTRANS.value = 0b10
         self.vif.HSEL.value = 0b01
+        self.vif.HREADY.value = 0b01
         self.drv_optional_signals_address(tr)
         # TODO: HSIZE should be existed in the DUT wait until it got added
         await self.drive_delay()
@@ -97,6 +98,7 @@ class bus_ahb_driver(bus_base_driver):
 
     def end_of_trans(self):
         self.vif.HSEL.value = 0b00
+        self.vif.HREADY.value = 0b00
         self.vif.HTRANS.value = 0b00
         self.vif.HWRITE.value = 0
 
