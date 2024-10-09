@@ -61,6 +61,7 @@ class scoreboard(UVMScoreboard):
             uvm_info(self.tag, "write_bus_ref_model: " + tr.convert2string(), UVM_HIGH)
 
     async def checker_bus(self):
+        self.min_compare_num = 50
         while True:
             # wait until the 2 queus are not empty
             await self.q_bus.wait_no_empty()
@@ -85,7 +86,6 @@ class scoreboard(UVMScoreboard):
                     UVM_HIGH,
                 )
             self.compare_counter += 1
-            self.min_compare_num = 50
 
     def write_irq(self, tr):
         uvm_info(self.tag, "write_irq: " + tr.convert2string(), UVM_HIGH)
