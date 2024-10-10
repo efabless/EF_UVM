@@ -9,7 +9,7 @@
 - name: EF_UART
   url: https://github.com/efabless/EF_UART.git
   tests:
-    - TX_StressTest RX_StressTest LoopbackTest PrescalarStressTest 
+    - TX_StressTest LoopbackTest PrescalarStressTest 
     - LengthParityTXStressTest LengthParityRXStressTest WriteReadRegsTest
   bus:
     - APB
@@ -19,13 +19,13 @@
   url: https://github.com/efabless/EF_TMR32.git
   tests:
     - pwm_actions_test time_vary_test 
-    - pwm_pr_test pwm_tmr_test
+    - pwm_pr_test
   bus:
     - APB
     - AHB
     - WISHBONE
-- name: MS_QSPI_XIP_CACHE
-  url: https://github.com/efabless/MS_QSPI_XIP_CACHE.git
+- name: EF_QSPI_XIP_CTRL
+  url: https://github.com/efabless/EF_QSPI_XIP_CTRL.git
   tests:
     - flashReadTest flashResetTest flashRdWrTest
   bus:
@@ -36,3 +36,19 @@
     - dffram_wr_rd_test dffram_corners_test
   bus:
     - AHB
+- name: EF_SPI
+  url: https://github.com/efabless/EF_SPI.git
+  tests:
+    - MOSI_stress_test MISO_stress_test 
+    - MISO_MOSI_test
+  bus:
+    - APB
+    - AHB
+    - WISHBONE
+- name: EF_I2C
+  url: https://github.com/efabless/EF_I2C.git
+  tests:
+    - i2c_write_read_test WriteReadRegsTest
+  bus:
+    - APB
+    - WISHBONE

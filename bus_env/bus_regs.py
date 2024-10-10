@@ -41,42 +41,46 @@ class bus_regs:
         self.irq_exist = False
         if "flags" in self.data and len(self.data["flags"]) > 0:
             size = len(self.data["flags"])
+            try:
+                irq_regs_offset = self.data["info"]["irq_reg_offset"]
+            except KeyError:
+                irq_regs_offset = 0xFF00
             reg_im = {
                 "name": "im",
-                "offset": 0xF00,
+                "offset": irq_regs_offset + 0x0,
                 "size": size,
                 "mode": "w",
-                "fifo": "no",
+                "fifo": True,  # it's not a fifo register but we need to disable it, since it might generate interrupts
                 "bit_access": "no",
                 "val": 0,
                 "delayed_val": 0,
             }
             reg_mis = {
                 "name": "mis",
-                "offset": 0xF04,
+                "offset": irq_regs_offset + 0x4,
                 "size": size,
                 "mode": "r",
-                "fifo": "no",
+                "fifo": False,
                 "bit_access": "no",
                 "val": 0,
                 "delayed_val": 0,
             }
             reg_ris = {
                 "name": "ris",
-                "offset": 0xF08,
+                "offset": irq_regs_offset + 0x8,
                 "size": size,
                 "mode": "r",
-                "fifo": "no",
+                "fifo": False,
                 "bit_access": "no",
                 "val": 0,
                 "delayed_val": 0,
             }
             reg_icr = {
                 "name": "icr",
-                "offset": 0xF0C,
+                "offset": irq_regs_offset + 0xC,
                 "size": size,
                 "mode": "w",
-                "fifo": "yes",
+                "fifo": True,  # it's not a fifo register but it's self clear so we can't read the same value
                 "bit_access": "no",
                 "val": 0,
                 "delayed_val": 0,
@@ -87,6 +91,63 @@ class bus_regs:
             self.data["registers"].append(reg_ris)
             self.data["registers"].append(reg_icr)
             self.irq_exist = True
+        
+        if True: # assume clock gating is always true
+            reg_clk_g = {
+                "name": "CLKGATE",
+                "offset": 0xFF10,
+                "size": 1,
+                "mode": "w",
+                "fifo": True, # as we can't read it 
+                "bit_access": "no",
+                "val": 0,
+                "delayed_val": 0,
+            }
+            self.data["registers"].append(reg_clk_g)
+        if "fifos" in self.data and len(self.data["fifos"]) > 0:
+            fifo_count = 0
+            try:
+                fifos_regs_offset = self.data["info"]["fifo_reg_offset"]
+            except KeyError:
+                fifos_regs_offset = 0xFE00
+            for fifo in self.data["fifos"]:
+                fifo_name = fifo["name"]
+                reg_size = fifo["address_width"]
+                reg_fifo_flush = {
+                    "name": f"{fifo_name}_FLUSH",
+                    "offset": fifos_regs_offset+ 0x8 + fifo_count,
+                    "size": 1,
+                    "mode": "w",
+                    "fifo": True,  # it's not a fifo register but it's self clear so we can't read the same value
+                    "bit_access": "no",
+                    "val": 0,
+                    "delayed_val": 0,
+                }
+                reg_fifo_threshold = {
+                    "name": f"{fifo_name}_THRESHOLD",
+                    "offset": fifos_regs_offset+ 0x4 + + fifo_count,
+                    "size": reg_size,
+                    "mode": "w",
+                    "fifo": False,
+                    "bit_access": "no",
+                    "val": 0,
+                    "delayed_val": 0,
+                }
+                reg_fifo_level = {
+                    "name": f"{fifo_name}_LEVEL",
+                    "offset": fifos_regs_offset+ 0x0 + + fifo_count,
+                    "size": reg_size,
+                    "mode": "r",
+                    "fifo": False,
+                    "bit_access": "no",
+                    "val": 0,
+                    "delayed_val": 0,
+                }
+                fifo_count += 0x10  # add 16 to the address
+                self.data["registers"].append(reg_fifo_flush)
+                self.data["registers"].append(reg_fifo_threshold)
+                self.data["registers"].append(reg_fifo_level)
+
         for reg in self.data["registers"]:
             if "init" not in reg:
                 reg["val"] = 0

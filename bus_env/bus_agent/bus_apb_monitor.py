@@ -12,6 +12,7 @@ import cocotb
 class bus_apb_monitor(bus_base_monitor):
     def __init__(self, name="bus_apb_monitor", parent=None):
         super().__init__(name, parent)
+        self.counter = 0
 
     async def run_phase(self, phase):
         await cocotb.start(self.watch_reset())
@@ -34,6 +35,7 @@ class bus_apb_monitor(bus_base_monitor):
                     self.tag,
                     f"APB protocol violation: SETUP cycle not followed by ENABLE cycle PENABLE={self.vif.PENABLE.value.binstr}",
                 )
+            await self.wait_ready()
             if tr.kind == bus_item.WRITE:
                 tr.data = self.vif.PWDATA.value.integer
             else:
@@ -46,6 +48,9 @@ class bus_apb_monitor(bus_base_monitor):
                     )
                     tr.data = self.vif.PRDATA.value.binstr
             self.monitor_port.write(tr)
+            self.counter += 1
+            # if self.counter > 40:
+            #     uvm_fatal(self.tag, "sampled too many transactions")
             # update reg value #TODO: move this to the ref_model later
             # self.regs.write_reg_value(tr.addr, tr.data)
             uvm_info(
@@ -67,6 +72,10 @@ class bus_apb_monitor(bus_base_monitor):
     async def sample_delay(self):
         await RisingEdge(self.vif.CLK)
         # await Timer(1, "NS")
+
+    async def wait_ready(self):
+        while self.vif.PREADY == 0:
+            await self.sample_delay()
 
 
 uvm_component_utils(bus_apb_monitor)

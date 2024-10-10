@@ -34,6 +34,7 @@ class write_read_regs(bus_seq_base):
         uvm_info(self.tag, "Got addresses: " + str(self.address), UVM_LOW)
         self.add_cov_notify()
         for i in range(3000):
+            self.create_new_item()
             await uvm_do_with(self, self.req, lambda addr: addr in self.address)
             if (
                 len(self.address) < 2

@@ -11,13 +11,16 @@ class bus_seq_base(UVMSequence):
     def __init__(self, name="bus_seq_base"):
         UVMSequence.__init__(self, name)
         # self.set_automatic_phase_objection(1)
-        self.req = bus_item()
-        self.rsp = bus_item()
+
         self.tag = name
         # disable checking for overflow if the response queue is full
         # if respose checking is needed the sequence should take care of it
         self.set_response_queue_error_report_disabled(1)
         self.response_queue_error_report_disabled = 1
+
+    def create_new_item(self):
+        self.req = bus_item()
+        self.rsp = bus_item()
 
     async def body(self):
         # get register names/address conversion dict
@@ -29,6 +32,7 @@ class bus_seq_base(UVMSequence):
 
     async def send_req(self, is_write, reg, data_condition=None, data_value=None):
         # send request
+        self.create_new_item()
         if data_condition is not None and data_value is not None:
             uvm_fatal(self.tag, "You should only provide data condition or data value")
         if is_write:
@@ -65,6 +69,7 @@ class bus_seq_base(UVMSequence):
         self.req.rand_mode(1)
 
     async def send_nop(self, nope_size=1):
+        self.create_new_item()
         self.req.rand_mode(0)
         self.req.addr = 0
         self.req.kind = bus_item.NOPE
@@ -73,6 +78,7 @@ class bus_seq_base(UVMSequence):
         self.req.rand_mode(1)
 
     async def send_reset(self):
+        self.create_new_item()
         self.req.rand_mode(0)
         self.req.addr = 0
         self.req.kind = bus_item.RESET

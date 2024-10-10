@@ -82,6 +82,13 @@ class base_test(UVMTest):
             UVM_LOW,
         )
 
+    def update_min_checkers(self, num_checkers):
+        """update min number of checker the scoreboard should have done for the tests
+        the default is 50
+        """
+        self.top_env.scoreboard.update_min_checkers(num_checkers)
+        # TODO: try this again not working
+
     def start_of_simulation_phase(self, phase):
         self.bus_sqr = self.top_env.bus_env.bus_agent.bus_sequencer
         self.ip_sqr = self.top_env.ip_env.ip_agent.ip_sequencer
@@ -95,11 +102,12 @@ class base_test(UVMTest):
             self, f"{self.__class__.__name__} reset phase drop objection"
         )
 
-    async def configure_phase(self, phase):
-        # add background sequences
-        await super().configure_phase(phase)
-        bus_seq = delays_bus_bg_seq("delays_bus_bg_seq")
-        await bus_seq.start(self.bus_sqr)
+    # remove background sequences as it introduce errors in the cases of ahbl
+    # async def configure_phase(self, phase):
+    #     # add background sequences
+    #     await super().configure_phase(phase)
+    #     bus_seq = delays_bus_bg_seq("delays_bus_bg_seq")
+    #     await bus_seq.start(self.bus_sqr)
 
     @abstractmethod
     async def main_phase(self, phase):

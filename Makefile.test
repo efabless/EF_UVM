@@ -1,4 +1,4 @@
-SHELL := /bin/bash 
+MAKEFLAGS += --warn-undefined-variables
 RED=\033[0;31m
 GREEN=\033[0;32m
 YELLOW=\033[0;33m
@@ -8,12 +8,14 @@ UVM_PY_DIR = $(PWD)
 GRANDPARENT_DIR:="$(shell cd ../../; pwd)"
 DOCKER_IMAGE = efabless/dv:cocotb
 RUN_MERGE_COVERAGE := true
-USER_ARGS = -u $(shell id -u $$USER):$(shell id -g $$USER)
+IPM_DIR := $(HOME)/.ipm
+USER_ARGS = -u $(shell id -u ${USER}):$(shell id -g ${USER})
 OPENLANE_RUN = $(SIM_PATH)/openlane_run/
 ifeq ($(ROOTLESS), 1)
 	USER_ARGS =
 endif
 DOCKER_COCOTB_LIB_DIR := $(shell docker run $(USER_ARGS) --rm $(DOCKER_IMAGE) cocotb-config --lib-dir)
+RANDOM_SEED_ARG = 
 ifdef RANDOM_SEED
 RANDOM_SEED_ARG = -e RANDOM_SEED=$(RANDOM_SEED)
 endif
@@ -31,11 +33,11 @@ run_$(1):
 		$(USER_ARGS) \
 		-v "$(GRANDPARENT_DIR)":"$(GRANDPARENT_DIR)" \
 		-v "$(PDK_DIR)":"$(PDK_DIR)" \
+		-v "$(IPM_DIR)":"$(IPM_DIR)" \
 		-e RTL_MACROS="$(RTL_MACROS)" \
 		-e VERILOG_SOURCES="$(VERILOG_SOURCES)" \
 		-e SIM_PATH="$(SIM_PATH)" \
 		-e UVM_PY_DIR="$(UVM_PY_DIR)" \
-		-u $(id -u $USER):$(id -g $USER)\
 		$(DOCKER_IMAGE) /bin/sh -ec "cd $(UVM_PY_DIR) && iverilog -g2012 -Ttyp $(RTL_MACROS) $(VERILOG_SOURCES) -o $(SIM_PATH)/compilation/sim.vvp -s top"; \
     fi
 	@$(MAKE) create_top_py UVM_TEST=$(1)
@@ -136,7 +138,7 @@ generate_gl:
 			echo -e "Generating netlist with Yosys"; \
 			volare enable bdc9412b3e468c102d01b7cf6337be06ec6e9c9a; \
 			mkdir -p $(OPENLANE_RUN); \
-			cd $(GRANDPARENT_DIR) && openlane --dockerized --docker-no-tty --save-views-to hdl/gl/synthesis  --log-level WARNING -c DESIGN_NAME=$(DESIGN_NAME) -c VERILOG_FILES="$(PRE_SYS_FILES)" --force-run-dir $(OPENLANE_RUN) $(UVM_PY_DIR)/EF_UVM/openlane/openlane_synthesis.json; \
+			cd $(GRANDPARENT_DIR) && nix run github:efabless/openlane2 -- --save-views-to hdl/gl/synthesis  --log-level WARNING -c DESIGN_NAME=$(DESIGN_NAME) -c VERILOG_FILES="$(PRE_SYS_FILES)" -c PNR_SDC_FILE="$(UVM_PY_DIR)/EF_UVM/openlane/custom.sdc" --force-run-dir $(OPENLANE_RUN) $(UVM_PY_DIR)/EF_UVM/openlane/openlane_synthesis.json; \
 		fi; \
 	else \
 		echo -e "Skipping synthesis because SKIP_SYNTHESIS is defined"; \

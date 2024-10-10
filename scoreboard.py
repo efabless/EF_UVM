@@ -1,6 +1,6 @@
 from uvm.comps import UVMScoreboard
 from uvm.macros.uvm_tlm_defines import uvm_analysis_imp_decl
-from uvm.macros import uvm_component_utils, uvm_info, uvm_error
+from uvm.macros import uvm_component_utils, uvm_info, uvm_error, uvm_warning
 from cocotb.queue import Queue
 import cocotb
 from EF_UVM.bus_env.bus_item import bus_item
@@ -42,6 +42,7 @@ class scoreboard(UVMScoreboard):
         cocotb.scheduler.add(self.checker_bus())
         cocotb.scheduler.add(self.checker_irq())
         cocotb.scheduler.add(self.checker_ip())
+        self.compare_counter = 0
 
     def build_phase(self, phase):
         super().build_phase(phase)
@@ -60,6 +61,7 @@ class scoreboard(UVMScoreboard):
             uvm_info(self.tag, "write_bus_ref_model: " + tr.convert2string(), UVM_HIGH)
 
     async def checker_bus(self):
+        self.min_compare_num = 50
         while True:
             # wait until the 2 queus are not empty
             await self.q_bus.wait_no_empty()
@@ -83,6 +85,7 @@ class scoreboard(UVMScoreboard):
                     + exp.convert2string(),
                     UVM_HIGH,
                 )
+            self.compare_counter += 1
 
     def write_irq(self, tr):
         uvm_info(self.tag, "write_irq: " + tr.convert2string(), UVM_HIGH)
@@ -107,6 +110,7 @@ class scoreboard(UVMScoreboard):
                     + " != "
                     + exp.convert2string(),
                 )
+            self.compare_counter += 1
 
     def write_ip(self, tr):
         uvm_info(self.tag, "write_ip: " + tr.convert2string(), UVM_HIGH)
@@ -137,6 +141,7 @@ class scoreboard(UVMScoreboard):
                     "IP match: " + val.convert2string() + " == " + exp.convert2string(),
                     UVM_HIGH,
                 )
+            self.compare_counter += 1
 
     def extract_phase(self, phase):
         super().extract_phase(phase)
@@ -156,6 +161,23 @@ class scoreboard(UVMScoreboard):
                 self.tag,
                 f"IP queue still have unchecked items queue ip {self.q_ip._queue} size {self.q_ip.qsize()} ip_ref_model {self.q_ip_ref_model._queue} size {self.q_ip_ref_model.qsize()}",
             )
+        if self.compare_counter < self.min_compare_num:
+            uvm_warning(
+                self.tag,
+                f"Not enough compares happened in scoreboard actual compares {self.compare_counter} minimum compares {self.min_compare_num}",
+            )
+        else:
+            uvm_info(
+                self.tag,
+                f"Scoreboard compare passed actual compares {self.compare_counter} minimum compares {self.min_compare_num}",
+                UVM_LOW,
+            )
+
+    def update_min_checkers(self, num_checkers):
+        """update min number of checker the scoreboard should have done for the tests
+        the default is 50
+        """
+        self.min_compare_num = num_checkers
 
 
 uvm_component_utils(scoreboard)
