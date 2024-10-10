@@ -55,7 +55,6 @@ jobs:
       - name: Install ip dependencies
         run: |
           cd ${{ env.IP_PATH }}
-          ls -la ip/
           if [ -f ip/dependencies.json ]; then
             echo "ip dependencies exist!"
             pip install ipmgr
