@@ -16,6 +16,7 @@ class bus_ahb_driver(bus_base_driver):
 
     async def run_phase(self, phase):
         uvm_info(self.tag, "run_phase started", UVM_MEDIUM)
+        self.vif.HREADY.value = 0b01
         while True:
             tr = []
             await self.seq_item_port.get_next_item(tr)
@@ -41,8 +42,6 @@ class bus_ahb_driver(bus_base_driver):
                 if not self.piping_q.empty():
                     tr = await self.piping_q.get_no_pop()
                     await self.address_phase(tr)
-                if self.piping_q.qsize() == 1:
-                    self.end_of_trans()
                 if not self.piping_q.empty():
                     await self.data_phase_lock.acquire()
                     tr = await self.piping_q.get()
@@ -63,7 +62,6 @@ class bus_ahb_driver(bus_base_driver):
         self.vif.HADDR.value = tr.addr
         self.vif.HTRANS.value = 0b10
         self.vif.HSEL.value = 0b01
-        self.vif.HREADY.value = 0b01
         self.drv_optional_signals_address(tr)
         # TODO: HSIZE should be existed in the DUT wait until it got added
         await self.drive_delay()
@@ -90,9 +88,17 @@ class bus_ahb_driver(bus_base_driver):
                 await self.drive_delay()
         else:
             # for reading just wait until the data is ready
+            if self.vif.HREADYOUT.value == 0:
+                self.vif.HREADY.value = 0b0
             await self.drive_delay()
-            while self.vif.HREADYOUT.value == 0:
+            while True:
+                await NextTimeStep()
+                if self.vif.HREADYOUT.value == 1:
+                    break
+                self.vif.HREADY.value = 0b0
                 await self.drive_delay()
+            uvm_info(self.tag, f"HREADYOUT is {self.vif.HREADYOUT.value}", UVM_MEDIUM)
+            self.vif.HREADY.value = 0b1
             try:
                 tr.data = self.vif.HRDATA.value.integer
             except ValueError:
@@ -107,10 +113,12 @@ class bus_ahb_driver(bus_base_driver):
         )
         self.seq_item_port.put_response(tr)
         self.data_phase_lock.release()
+        if self.piping_q.empty():
+            self.end_of_trans()
 
     def end_of_trans(self):
         self.vif.HSEL.value = 0b00
-        self.vif.HREADY.value = 0b01
+        # self.vif.HREADY.value = 0b01
         self.vif.HTRANS.value = 0b00
         self.vif.HWRITE.value = 0
 
