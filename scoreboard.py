@@ -162,7 +162,7 @@ class scoreboard(UVMScoreboard):
                 f"IP queue still have unchecked items queue ip {self.q_ip._queue} size {self.q_ip.qsize()} ip_ref_model {self.q_ip_ref_model._queue} size {self.q_ip_ref_model.qsize()}",
             )
         if self.compare_counter < self.min_compare_num:
-            uvm_warning(
+            uvm_error(
                 self.tag,
                 f"Not enough compares happened in scoreboard actual compares {self.compare_counter} minimum compares {self.min_compare_num}",
             )

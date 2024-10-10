@@ -37,7 +37,7 @@ class write_read_regs(bus_seq_base):
             self.create_new_item()
             await uvm_do_with(self, self.req, lambda addr: addr in self.address)
             if (
-                len(self.address) < 2
+                len(self.address) < 2 and i > 200
             ):  # if only one is still can't get high coverage it probabily need corner test
                 break
 
