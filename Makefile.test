@@ -70,6 +70,9 @@ endef
 
 $(foreach test,$(TESTS),$(eval $(call RUN_TEST_TEMPLATE,$(test))))
 
+.PHONY: run_gl_all_tests
+run_gl_all_tests: run_all_gl_tests
+
 # Target to run all tests in parallel
 run_all_tests:
 	@$(MAKE) $(addprefix run_,$(TESTS)) -j$(shell nproc)
