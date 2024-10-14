@@ -52,3 +52,12 @@
   bus:
     - APB
     - WISHBONE
+- name: EF_I2S
+  url: https://github.com/efabless/EF_I2S.git
+  tests:
+    - i2s_stereo_test WriteReadRegsTest
+    - i2s_averaging_test 
+  bus:
+    - APB
+    - WISHBONE
+    - AHB
