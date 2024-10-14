@@ -79,7 +79,7 @@ class bus_ahb_driver(bus_base_driver):
         uvm_info(
             self.tag,
             f"tr at the start of data phase {tr.convert2string()} sequence id {tr.id}",
-            UVM_LOW,
+            UVM_HIGH,
         )
         if tr.kind == bus_item.WRITE:
             self.vif.HWDATA.value = tr.data
