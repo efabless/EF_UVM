@@ -30,6 +30,7 @@ class bus_item(UVMSequenceItem):
         self.rand("kind", [bus_item.READ, bus_item.WRITE])
         self.id = bus_item.counter
         bus_item.counter += 1
+        self.size = 2  # 2 for word, 1 for half word, 0 for byte
 
     def convert2string(self):
         if self.kind == bus_item.RESET:
@@ -40,15 +41,16 @@ class bus_item(UVMSequenceItem):
         if self.kind == 1:
             kind = "WRITE"
         try:
-            return f"kind={kind} addr={hex(self.addr)} data={hex(self.data)}"
+            return f"kind={kind} addr={hex(self.addr)} data={hex(self.data)}, size={'word' if self.size == 2 else 'half word' if self.size == 1 else 'byte'}"
         except TypeError or ValueError:
-            return f"kind={kind} addr={self.addr} data={self.data}"
+            return f"kind={kind} addr={self.addr} data={self.data}, size={'word' if self.size == 2 else 'half word' if self.size == 1 else 'byte'}"
 
     def do_clone(self):
         t = bus_item()
         t.kind = self.kind
         t.addr = self.addr
         t.data = self.data
+        t.size = self.size
         return t
 
     def do_compare(self, tr):

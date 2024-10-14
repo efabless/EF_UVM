@@ -48,7 +48,7 @@ class bus_logger(UVMComponent):
         self.logger_file = f"{os.getcwd()}/loggers/logger_bus.log"
         self.logger_file_regs_w = f"{os.getcwd()}/loggers/regs_write.log"
         self.logger_irq = f"{os.getcwd()}/loggers/logger_irq.log"
-        self.col_widths = [10, 10, 10, 10]
+        self.col_widths = [10, 10, 10, 10, 10]
         # # log the header
         self.bus_log(None, header_logged=True)
         self.regs_log(None, header_logged=True)
@@ -58,14 +58,14 @@ class bus_logger(UVMComponent):
         # Define a max width for each column
 
         if header_logged:
-            headers = [f"{'Time (ns)'}", f"{'Kind'}", f"{'Address'}", f"{'Data'}"]
+            headers = [f"{'Time (ns)'}", f"{'Kind'}", f"{'Address'}", f"{'Data'}", f"{'Size'}"]
             header = self.format_row(headers)
             with open(self.logger_file, "w") as f:
                 f.write(f"{header}\n")
         else:
             sim_time = f"{cocotb.utils.get_sim_time(units='ns')} ns"
             if transaction.kind == bus_item.RESET:
-                table_data = [f"{sim_time}", "Reset", "--", "--"]
+                table_data = [f"{sim_time}", "Reset", "--", "--", "--"]
             else:
                 # Ensure each piece of data fits within the specified width
                 operation = (
@@ -77,8 +77,9 @@ class bus_logger(UVMComponent):
                     if type(transaction.data) is not int
                     else f"{hex(transaction.data)}"
                 )
+                size = f"{'word' if transaction.size == 2 else 'half word' if transaction.size == 1 else 'byte'}"
                 # Now, assemble your table_data with the pre-formatted fields
-                table_data = [f"{sim_time}", f"{operation}", f"{address}", f"{data}"]
+                table_data = [f"{sim_time}", f"{operation}", f"{address}", f"{data}", f"{size}"]
             table = self.format_row(table_data)
             with open(self.logger_file, "a") as f:
                 f.write(f"{table}\n")
@@ -139,7 +140,7 @@ class bus_logger(UVMComponent):
                             f"{sim_time}",
                             f"{the_type}",
                             f"{Name}",
-                            f"{data}",
+                            f"{data}"
                         ]
                         table = self.format_row(table_data)
                         with open(self.logger_file_regs_w, "a") as f:
