@@ -1,5 +1,5 @@
 from uvm.macros import uvm_component_utils, uvm_fatal, uvm_info, uvm_warning
-from cocotb.triggers import Timer, RisingEdge, Lock, NextTimeStep, Event
+from cocotb.triggers import Timer, RisingEdge, Lock, NextTimeStep, Event, Edge
 from uvm.base.uvm_object_globals import UVM_HIGH, UVM_MEDIUM, UVM_LOW
 from EF_UVM.bus_env.bus_item import bus_item
 from EF_UVM.bus_env.bus_agent.bus_base_driver import bus_base_driver
@@ -16,7 +16,7 @@ class bus_ahb_driver(bus_base_driver):
 
     async def run_phase(self, phase):
         uvm_info(self.tag, "run_phase started", UVM_MEDIUM)
-        self.vif.HREADY.value = 0b01
+        hready_fork = cocotb.fork(self.hready_follow())
         while True:
             tr = []
             await self.seq_item_port.get_next_item(tr)
@@ -88,26 +88,14 @@ class bus_ahb_driver(bus_base_driver):
         if tr.kind == bus_item.WRITE:
             self.vif.HWDATA.value = tr.data
             await NextTimeStep()
-            if self.vif.HREADYOUT.value == 0:
-                self.vif.HREADY.value = 0b0
             await self.drive_delay()
             while self.vif.HREADYOUT.value == 0:
-                self.vif.HREADY.value = 0b0
                 await self.drive_delay()
-            self.vif.HREADY.value = 0b1
         else:
-            # for reading just wait until the data is ready
-            if self.vif.HREADYOUT.value == 0:
-                self.vif.HREADY.value = 0b0
             await self.drive_delay()
-            while True:
-                await NextTimeStep()
-                if self.vif.HREADYOUT.value == 1:
-                    break
-                self.vif.HREADY.value = 0b0
+            while self.vif.HREADYOUT.value == 0:
                 await self.drive_delay()
-            uvm_info(self.tag, f"HREADYOUT is {self.vif.HREADYOUT.value}", UVM_MEDIUM)
-            self.vif.HREADY.value = 0b1
+            uvm_info(self.tag, f"HREADYOUT is {self.vif.HREADYOUT.value}", UVM_HIGH)
             try:
                 tr.data = self.vif.HRDATA.value.integer
             except ValueError:
@@ -127,10 +115,15 @@ class bus_ahb_driver(bus_base_driver):
 
     def end_of_trans(self):
         self.vif.HSEL.value = 0b00
-        # self.vif.HREADY.value = 0b01
         self.vif.HTRANS.value = 0b00
         self.vif.HWRITE.value = 0
 
+    async def hready_follow(self):
+        self.vif.HREADY.value = 1
+        while True:
+            await Edge(self.vif.HREADYOUT)
+            self.vif.HREADY.value = self.vif.HREADYOUT.value
+            
 
 uvm_component_utils(bus_ahb_driver)
 
