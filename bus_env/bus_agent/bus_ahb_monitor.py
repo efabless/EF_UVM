@@ -66,7 +66,10 @@ class bus_ahb_monitor(bus_base_monitor):
                     break
         tr.addr = self.vif.HADDR.value.integer
         tr.kind = bus_item.WRITE if self.vif.HWRITE.value.integer else bus_item.READ
-        tr.size = self.vif.HSIZE.value
+        try:
+            tr.size = self.vif.HSIZE.value
+        except AttributeError:
+            tr.size = 2
         tr = self.monitor_optional_signals_address(tr)
         return tr
 

@@ -62,7 +62,10 @@ class bus_ahb_driver(bus_base_driver):
         self.vif.HADDR.value = tr.addr
         self.vif.HTRANS.value = 0b10
         self.vif.HSEL.value = 0b01
-        self.vif.HSIZE.value = tr.size
+        try:
+            self.vif.HSIZE.value = tr.size
+        except AttributeError:
+            pass
         self.drv_optional_signals_address(tr)
         # TODO: HSIZE should be existed in the DUT wait until it got added
         await self.drive_delay()
