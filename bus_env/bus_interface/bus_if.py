@@ -55,14 +55,10 @@ class bus_ahb_if(sv_if):
             "HRDATA": "HRDATA",
             "HREADY": "HREADY",
         }
-        print(f"dddut {dir(dut)}")
-        print(f"dddut {dut._sub_handles}")
-        if "HSIZE" in dut._sub_handles:
-            bus_map["HSIZE"] = "HSIZE"
-        else:
-            bus_map["HSIZE"] = ""
-
-        sv_if.__init__(self, dut, "", bus_map)
+        # optional_signals = dict() 
+        # if "HSIZE" in dut._sub_handles:
+        optional_signals = {"HSIZE": "HSIZE"}  # optional_signals
+        sv_if.__init__(self, dut, "", bus_map, optional_signals=optional_signals)
 
 
 class bus_wb_if(sv_if):
