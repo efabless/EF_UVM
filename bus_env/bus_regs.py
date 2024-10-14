@@ -233,24 +233,24 @@ class bus_regs:
             )
             cocotb.scheduler.add(self.update_delayed_reg(address))
 
-    def __read_reg_value(self, reg, delayed=False):
+    def __read_reg_value(self, reg, delayed=False,mask = 0xFFFF):
         if type(reg) is int:
             address = reg
         elif type(reg) is str:
             address = self.reg_name_to_address[reg]
         else:
             uvm_error(self.tag, f"Invalid reg type: {type(reg)} for read")
-        address = address & 0xFFFF
+        address = address & mask
         if delayed:
             return self.regs[address]["delayed_val"]
         else:
             return self.regs[address]["val"]
 
-    def read_reg_value(self, reg):
-        return self.__read_reg_value(reg)
+    def read_reg_value(self, reg, delayed=False,mask = 0xFFFF):
+        return self.__read_reg_value(reg, mask=mask, delayed=delayed)
 
-    def read_reg_value_delayed(self, reg):
-        return self.__read_reg_value(reg, delayed=True)
+    def read_reg_value_delayed(self, reg, mask=0xFFFF):
+        return self.__read_reg_value(reg, delayed=True, mask=mask)
 
     # Function to replace parameter values in the data
     def replace_parameters(self, data, parameter_values):

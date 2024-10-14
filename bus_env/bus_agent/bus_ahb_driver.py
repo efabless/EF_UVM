@@ -79,13 +79,18 @@ class bus_ahb_driver(bus_base_driver):
         uvm_info(
             self.tag,
             f"tr at the start of data phase {tr.convert2string()} sequence id {tr.id}",
-            UVM_HIGH,
+            UVM_LOW,
         )
         if tr.kind == bus_item.WRITE:
             self.vif.HWDATA.value = tr.data
+            await NextTimeStep()
+            if self.vif.HREADYOUT.value == 0:
+                self.vif.HREADY.value = 0b0
             await self.drive_delay()
             while self.vif.HREADYOUT.value == 0:
+                self.vif.HREADY.value = 0b0
                 await self.drive_delay()
+            self.vif.HREADY.value = 0b1
         else:
             # for reading just wait until the data is ready
             if self.vif.HREADYOUT.value == 0:
