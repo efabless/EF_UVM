@@ -19,6 +19,9 @@ class bus_item(UVMSequenceItem):
     NOPE = 3  # Insert a no-op in the sequence
     counter = 0
 
+    WORD_ACCESS = 2
+    HALF_WORD_ACCESS = 1
+    BYTE_ACCESS = 0
     def __init__(self, name="bus_item"):
         super().__init__(name)
         self.tag = name
@@ -30,7 +33,7 @@ class bus_item(UVMSequenceItem):
         self.rand("kind", [bus_item.READ, bus_item.WRITE])
         self.id = bus_item.counter
         bus_item.counter += 1
-        self.size = 2  # 2 for word, 1 for half word, 0 for byte
+        self.size = bus_item.WORD_ACCESS  # 2 for word, 1 for half word, 0 for byte
 
     def convert2string(self):
         if self.kind == bus_item.RESET:

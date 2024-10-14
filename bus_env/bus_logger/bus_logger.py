@@ -77,7 +77,7 @@ class bus_logger(UVMComponent):
                     if type(transaction.data) is not int
                     else f"{hex(transaction.data)}"
                 )
-                size = f"{'word' if transaction.size == 2 else 'half word' if transaction.size == 1 else 'byte'}"
+                size = f"{'word' if transaction.size == bus_item.WORD_ACCESS else 'half word' if transaction.size == bus_item.HALF_WORD_ACCESS else 'byte'}"
                 # Now, assemble your table_data with the pre-formatted fields
                 table_data = [f"{sim_time}", f"{operation}", f"{address}", f"{data}", f"{size}"]
             table = self.format_row(table_data)
