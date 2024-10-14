@@ -84,12 +84,28 @@ class bus_ahb_monitor(bus_base_monitor):
             tr.data = self.vif.HWDATA.value.integer
         else:
             try:
-                tr.data = self.vif.HRDATA.value.integer
+                if tr.size == bus_item.WORD_ACCESS:
+                    tr.data = self.vif.HRDATA.value.integer
+                elif tr.size == bus_item.HALF_WORD_ACCESS:
+                    tr.data = self.vif.HRDATA.value.integer & 0xFFFF
+                elif tr.size == bus_item.BYTE_ACCESS:
+                    tr.data = self.vif.HRDATA.value.integer & 0xFF
             except ValueError:
                 uvm_warning(
                     self.tag, f"HRDATA is not an integer {self.vif.HRDATA.value.binstr}"
                 )
-                tr.data = self.vif.HRDATA.value.binstr
+                if tr.size == bus_item.WORD_ACCESS:
+                    tr.data = self.vif.HRDATA.value.binstr
+                elif tr.size == bus_item.HALF_WORD_ACCESS:
+                    try:
+                        tr.data = int(self.vif.HRDATA.value.binstr[16:], 2)
+                    except ValueError:
+                        tr.data = self.vif.HRDATA.value.binstr
+                elif tr.size == bus_item.BYTE_ACCESS:
+                    try:
+                        tr.data = int(self.vif.HRDATA.value.binstr[24:], 2)
+                    except ValueError:
+                        tr.data = self.vif.HRDATA.value.binstr                    
         if self.data_phase_lock.locked:
             self.data_phase_lock.release()
         if self.active_reset:
