@@ -34,6 +34,7 @@ class bus_ahb_driver(bus_base_driver):
                 await self.piping_q.get()
                 self.seq_item_port.item_done()
             elif tr.kind == bus_item.NOPE:
+                self.end_of_trans()
                 for _ in range(tr.data):
                     await self.drive_delay()
                 await self.piping_q.get()
