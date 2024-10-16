@@ -87,9 +87,19 @@ class bus_ahb_monitor(bus_base_monitor):
                 if tr.size == bus_item.WORD_ACCESS:
                     tr.data = self.vif.HRDATA.value.integer
                 elif tr.size == bus_item.HALF_WORD_ACCESS:
-                    tr.data = self.vif.HRDATA.value.integer & 0xFFFF
+                    if tr.addr % 4 == 0:
+                        tr.data = self.vif.HRDATA.value.integer & 0xFFFF
+                    else:
+                        tr.data = self.vif.HRDATA.value.integer >> 16
                 elif tr.size == bus_item.BYTE_ACCESS:
-                    tr.data = self.vif.HRDATA.value.integer & 0xFF
+                    if tr.addr % 4 == 0:
+                        tr.data = self.vif.HRDATA.value.integer & 0xFF
+                    elif tr.addr % 4 == 1:
+                        tr.data = (self.vif.HRDATA.value.integer >> 8) & 0xFF
+                    elif tr.addr % 4 == 2:
+                        tr.data = (self.vif.HRDATA.value.integer >> 16) & 0xFF
+                    elif tr.addr % 4 == 3:
+                        tr.data = (self.vif.HRDATA.value.integer >> 24) & 0xFF
             except ValueError:
                 uvm_warning(
                     self.tag, f"HRDATA is not an integer {self.vif.HRDATA.value.binstr}"
@@ -98,12 +108,22 @@ class bus_ahb_monitor(bus_base_monitor):
                     tr.data = self.vif.HRDATA.value.binstr
                 elif tr.size == bus_item.HALF_WORD_ACCESS:
                     try:
-                        tr.data = int(self.vif.HRDATA.value.binstr[16:], 2)
+                        if tr.addr % 4 == 0:
+                            tr.data = int(self.vif.HRDATA.value.binstr[0:16], 2)
+                        else:
+                            tr.data = int(self.vif.HRDATA.value.binstr[16:], 2)
                     except ValueError:
                         tr.data = self.vif.HRDATA.value.binstr
                 elif tr.size == bus_item.BYTE_ACCESS:
                     try:
-                        tr.data = int(self.vif.HRDATA.value.binstr[24:], 2)
+                        if tr.addr % 4 == 0:
+                            tr.data = int(self.vif.HRDATA.value.binstr[0:8], 2)
+                        elif tr.addr % 4 == 1:
+                            tr.data = int(self.vif.HRDATA.value.binstr[8:16], 2)
+                        elif tr.addr % 4 == 2:
+                            tr.data = int(self.vif.HRDATA.value.binstr[16:24], 2)
+                        elif tr.addr % 4 == 3:
+                            tr.data = int(self.vif.HRDATA.value.binstr[24:], 2)
                     except ValueError:
                         tr.data = self.vif.HRDATA.value.binstr                    
         if self.data_phase_lock.locked:
