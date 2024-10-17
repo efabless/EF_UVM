@@ -41,8 +41,29 @@ class bus_wb_driver(bus_base_driver):
         else:
             self.vif.we_i.value = 1
             self.vif.dat_i.value = tr.data
-        self.vif.adr_i.value = tr.addr
-        self.vif.sel_i.value = 0b1111
+        if tr.size == bus_item.WORD_ACCESS:
+            self.vif.adr_i.value = tr.addr
+            self.vif.sel_i.value = 0b1111
+        elif tr.size == bus_item.HALF_WORD_ACCESS:
+            if tr.addr % 4 == 0:
+                self.vif.adr_i.value = tr.addr
+                self.vif.sel_i.value = 0b0011
+            else:
+                self.vif.adr_i.value = tr.addr & ~0b11 # divided by 4
+                self.vif.sel_i.value = 0b1100
+        elif tr.size == bus_item.BYTE_ACCESS:
+            if tr.addr % 4 == 0:
+                self.vif.adr_i.value = tr.addr
+                self.vif.sel_i.value = 0b0001
+            elif tr.addr % 4 == 1:
+                self.vif.adr_i.value = tr.addr & ~0b11
+                self.vif.sel_i.value = 0b0010
+            elif tr.addr % 4 == 2:
+                self.vif.adr_i.value = tr.addr & ~0b11
+                self.vif.sel_i.value = 0b0100
+            elif tr.addr % 4 == 3:
+                self.vif.adr_i.value = tr.addr & ~0b11
+                self.vif.sel_i.value = 0b1000
         self.vif.cyc_i.value = 0b1
         self.vif.stb_i.value = 0b1
         # TODO: HSIZE should be existed in the DUT wait until it got added
