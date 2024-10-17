@@ -6,6 +6,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--tests", nargs="*")
     parser.add_argument("--buses", nargs="*")
+    parser.add_argument("--skip-gl")
     args = parser.parse_args()
     tests = args.tests
     buses = args.buses
@@ -13,10 +14,11 @@ def main():
     output_matrix = {"tests": []}
     for test in tests:
         output_matrix["tests"].append({"test": test, "tag": "RTL"})
-        gl_tests = []
-        for name in test.split():
-            gl_tests.append(f"gl_{name}")
-        output_matrix["tests"].append({"test": " ".join(gl_tests), "tag": "GL"})
+        if args.skip_gl.lower() != "yes":
+            gl_tests = []
+            for name in test.split():
+                gl_tests.append(f"gl_{name}")
+            output_matrix["tests"].append({"test": " ".join(gl_tests), "tag": "GL"})
 
     output_matrix_with_buses = {"tests": []}
     for bus in buses:
