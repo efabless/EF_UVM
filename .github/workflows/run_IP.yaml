@@ -103,7 +103,7 @@ jobs:
         id: set-tests-matrix
         run: |
           python3 ${{ env.EF_UVM_PATH }}/.github/scripts/get_tests_matrix.py --tests ${{ inputs.test-names }} --buses ${{ inputs.buses }} --skip-gl ${{ inputs.skip-gl }}
-          echo "tests=$(python3 ${{ env.EF_UVM_PATH }}/.github/scripts/get_tests_matrix.py --tests ${{ inputs.test-names }} --buses ${{ inputs.buses }}) --skip-gl ${{ inputs.skip-gl }}" >> "$GITHUB_OUTPUT"
+          echo "tests=$(python3 ${{ env.EF_UVM_PATH }}/.github/scripts/get_tests_matrix.py --tests ${{ inputs.test-names }} --buses ${{ inputs.buses }} --skip-gl ${{ inputs.skip-gl }}) " >> "$GITHUB_OUTPUT"
 
   Run-IP:
     needs: [Setup-Work-Space, Prepare-Tests-Matrix]
