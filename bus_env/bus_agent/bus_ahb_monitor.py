@@ -81,7 +81,26 @@ class bus_ahb_monitor(bus_base_monitor):
         while self.vif.HREADYOUT.value == 0:
             await self.sample_delay()
         if tr.kind == bus_item.WRITE:
-            tr.data = self.vif.HWDATA.value.integer
+            if tr.size == bus_item.WORD_ACCESS:
+                tr.data = self.vif.HWDATA.value.integer
+            elif tr.size == bus_item.HALF_WORD_ACCESS:
+                if tr.addr % 4 == 0:
+                    tr.data = self.vif.HWDATA.value.integer & 0xFFFF
+                elif tr.addr % 4 == 2:
+                    tr.data = self.vif.HWDATA.value.integer >> 16
+                else:
+                    uvm_fatal(self.tag, f"Illegal address and size combination address {hex(tr.addr)} size HALF_WORD_ACCESS")
+            elif tr.size == bus_item.BYTE_ACCESS:
+                if tr.addr % 4 == 0:
+                    tr.data = self.vif.HWDATA.value.integer & 0xFF
+                elif tr.addr % 4 == 1:
+                    tr.data = (self.vif.HWDATA.value.integer >> 8) & 0xFF
+                elif tr.addr % 4 == 2:
+                    tr.data = (self.vif.HWDATA.value.integer >> 16) & 0xFF
+                elif tr.addr % 4 == 3:
+                    tr.data = (self.vif.HWDATA.value.integer >> 24) & 0xFF
+            else:
+                uvm_fatal(self.tag, f"Illegal size {tr.size}")
         else:
             try:
                 if tr.size == bus_item.WORD_ACCESS:
